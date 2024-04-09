@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    
+    <meta name="googlebot" content="noindex">
+    <meta name="googlebot-news" content="nosnippet">
+
+    <title>Your car into cash</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/_all-skins.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themify-icons/themify-icons.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css')}}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/prettyPhoto.css')}}">
+    
+    
+    
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '554651652980003');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=554651652980003&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    
+</head>
+
+<body class="hold-transition skin-green layout-top-nav">
+
+<div class="wrapper">
+	<header class="main-header">
+		<nav class="navbar navbar-static-top">
+			<div class="container">
+
+				<div class="navbar-header ">
+					<a href="#" class="">
+						<img src="{{ url_for('static', filename='images/car-logo.png')}}" alt="logo" width="65" height="48">
+					</a>
+				</div>
+				<div class="navbar-custom-menu">
+					<ul class="nav navbar-nav">
+                            <li class="">
+                                <a href="{{ url_for('auction') }}"><b>Auction</b></a>
+                            </li>
+                            <li class="">
+                                <a href="{{ url_for('dashboard') }}"><b>Dashboard</b></a>
+                            </li>
+							  <li class="">
+                                <a href="{{ url_for('inquirylist') }}"><b>Inquiry</b></a>
+                            </li>
+							 <li class="">
+                                <a href="{{ url_for('inquirylist') }}?status=accepted&dispatch=no"><b>Accepted Offers</b>
+                                <span class="notification" style="display:none;"></span>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="{{ url_for('conditionfilter') }}"><b>Conditional Filter</b>
+                                </a>
+                            </li>
+                            
+                            <li class="">
+                                <a href="{{ url_for('discountmanagement') }}"><b>Price Management</b></a>
+                            </li>
+                            <!--<li class="">-->
+                            <!--    <a href="{{ url_for('add_admin') }}"><b>Manage Admin</b></a>-->
+                            <!--</li>-->
+                            
+                           
+							
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<b>Account <i class="fa fa-angle-down"></i> </b>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
+									<span class="with-arrow">
+										<span class="bg-green"></span>
+									</span>
+									<div class="d-flex no-block align-items-center p-15 bg-primary text-white m-b-10" style="padding:2px;">
+										<!--<div class="">
+											<h4 class="m-b-0 m-t-0 text-white">Steave Jobs</h4>
+											<p class=" m-b-0">varun@gmail.com</p>
+										</div>-->
+									</div>
+									
+									{% if role == (('Super Admin',),) %}
+                                    <a class="dropdown-item" href="{{ url_for('add_admin') }}">
+									<i class="ti-user m-r-5 m-l-5"></i>Manage Admin</a>
+                                    {% endif %}
+
+									<a class="dropdown-item" href="{{ url_for('profileEdit') }}">
+										<i class="ti-id-badge m-r-5 m-l-5"></i>Edit Profile</a>
+									
+									<a class="dropdown-item" href="{{ url_for('changePassword') }}">
+										<i class="ti-lock m-r-5 m-l-5"></i>Change Password</a>
+									<div class="dropdown-divider"></div>
+									<a class="dropdown-item" href="{{ url_for('signout') }}"><i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
+								</div>
+							</li>
+                        </ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<script>
+        var WS_PATH ="";
+		// var WS_PATH ="{{ url_for('index') }}";
+		var WS_maillib = "https://yourcarintocash.com/dev-carcash/mail_lib";
+	</script>
+	

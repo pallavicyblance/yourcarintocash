@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <meta name="googlebot" content="noindex">
+    <meta name="googlebot-news" content="nosnippet">
+
+    <title>Your car into cash</title>
+
+    <link rel="stylesheet" href="./index_files/bootstrap.min.css">
+    <link rel="stylesheet" href="./index_files/AdminLTE.min.css">
+    <link rel="stylesheet" href="./index_files/_all-skins.min.css">
+    <link rel="stylesheet" href="./index_files/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="./index_files/themify-icons.css">
+    <link rel="stylesheet" href="./index_files/admin.css">
+
+    <link rel="stylesheet" href="./index_files/prettyPhoto.css">
+    
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+    
+    <link rel="stylesheet" href="index_files/table/table.css" />-->
+
+    <style>
+        input[type=checkbox] {
+            border-color: #ccc;
+            outline: none !important;
+            box-shadow: none !important;
+            border-radius: 0.25em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: 1px solid #ccc;
+            width: 15px;
+            height: 15px;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        input:checked[type=checkbox] {
+            background-color: #2ab573;
+            border-color: #2ab573;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+        }
+
+    </style>
+
+</head>
+
+<body class="hold-transition skin-green layout-top-nav">
+    <div class="wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-static-top">
+                <div class="container">
+                    <div class="navbar-header ">
+                        <a href="#" class="">
+                            <img src="index_files/car-logo.png" alt="logo" width="65" height="48">
+                        </a>
+                    </div>
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                            <li class="">
+                                <a href="/dev-carcash/dashboard/"><b>Dashboard</b></a>
+                            </li>
+                            <li class="">
+                                <a href="/dev-carcash/inquiry-list"><b>Inquiry</b></a>
+                            </li>
+                            <li class="">
+                                <a href="/dev-carcash/inquiry-list?status=accepted&dispatch=no"><b>Accepted Offers</b>
+                                    <span class="notification" style="display:none;"></span>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="/dev-carcash/condition-filter"><b>Conditional Filter</b>
+                                </a>
+                            </li>
+
+                            <li class="">
+                                <a href="/dev-carcash/discountmanagement/"><b>Price Management</b></a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <b>Account <i class="fa fa-angle-down"></i> </b>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
+                                    <span class="with-arrow">
+                                        <span class="bg-green"></span>
+                                    </span>
+                                    <div class="d-flex no-block align-items-center p-15 bg-primary text-white m-b-10" style="padding:2px;">
+                                       
+                                    </div>
+                                    <a class="dropdown-item" href="/dev-carcash/add-admin/">
+                                        <i class="ti-user m-r-5 m-l-5"></i>Manage Admin</a>
+                                    <a class="dropdown-item" href="/dev-carcash/profile-edit/">
+                                        <i class="ti-id-badge m-r-5 m-l-5"></i>Edit Profile</a>
+                                    <a class="dropdown-item" href="/dev-carcash/change-password/">
+                                        <i class="ti-lock m-r-5 m-l-5"></i>Change Password</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/dev-carcash/signout"><i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        
+        <div class="content-wrapper aev_buying_page">
+            <div class="container_full">
+                <!--<div class="page-title-box">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h4 class="page-title">AEV Buying API</h4>
+                        </div>
+                    </div>
+                </div>-->
+                <ul id="tab_nav_top" class="nav nav-tabs">
+                    <li class="active"><a href="#conditional-tab">Conditional</a></li>
+                    <li><a href="#upcoming-tab">Upcoming</a></li>
+                    <li><a href="#past-tab">Past</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="conditional-tab" class="tab-pane fade in active">
+                        <div class="box brnone">
+                            <div class="box-body">
+                                <div class="filter_box-body">
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                            <div class="filter_box_select">
+                                                <select class="form-control">
+                                                    <option>Select Conditional Filter</option>
+                                                    <option>Conditional 1</option>
+                                                    <option>Conditional 2</option>
+                                                    <option>Conditional 3</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <div class="custom-footer">
+                                            <div class="footerbox">
+                                                <h5>Condition Include</h5>
+                                                <div class="bootstrap-tagsinput">
+                                                    <span class="tag label-info"><b>Make &amp; Model</b>: <span id="make_label_txt"><span id="make_p_43">Convertible, C Sedan</span></span> <a href="javascript:void(0)" onclick="resetLabel('make','make_label_txt','make')" id="make_model_close" style=""><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Year</b><span id="year_label_txt">: 1991 to 2024</span> <a href="javascript:void(0)" onclick="resetLabel('year','year_label_txt','year')" id="year_close" style=""><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Mileage</b><span id="mileage_label_txt">: 0 to 999900</span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>ZIP</b><span id="zip_label_txt">: 60612</span> <a href="javascript:void(0)" onclick="resetLabel('zip','zip_label_txt','zip')" id="zip_close" style=""><i class="ti-close"></i></a></span>
+                                                </div>
+                                            </div>
+                                            <div class="footerbox">
+                                                <h5>Condition Exclusions </h5>
+                                                <div class="bootstrap-tagsinput">
+                                                    <span class="tag label-info">
+                                                        <b>Body damage:</b>
+                                                        <span id="bodydamage_label_txt"></span>
+                                                        </span>
+                                                    <span class="tag label-info"><b>Air bags:</b><span id="airbag_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('airbag','airbag_label_txt','airbag')" id="airbag_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Starts and drives:</b><span id="drive_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('drive','drive_label_txt','drive')" id="drive_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Mechanical issues:</b><span id="mechanical_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('sdamage','mechanical_label_txt','sdamage')" id="sdamage_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Keys:</b><span id="key_label_txt"></span><a href="javascript:void(0)" onclick="resetLabel('key','key_label_txt','key')" id="key_close" style="display:none;"> <i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Title Type:</b><span id="titletype_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('title','titletype_label_txt','title')" id="title_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                    <span class="tag label-info"><b>Water or fire damage:</b><span id="firedamage_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('fire_damage','firedamage_label_txt','fire_damage')" id="fire_damage_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                </div>
+                                            </div>
+                                            <div class="footerbox">
+                                                <div class="rule_div" id="rule_div1" style="display: block;">
+                                                    <h5>Building Rules: <span id="buyingrule_label_txt">Proquote Estimate</span></h5>
+                                                    <div class="bootstrap-tagsinput">
+                                                    <span class="tag label-info"><b>Proquote Estimate:</b> <span id="buyingruletype_label_txt">+ % 10</span></span>
+                                                    <span class="tag label-info"><b>Not To Exceed: </b><span id="nottoexceed_label_txt">3000</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="upcoming-tab" class="tab-pane">
+                        Upcoming
+                    </div>
+                    <div id="past-tab" class="tab-pane">
+                        past
+                    </div>
+                </div>
+                
+                <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#">Active</a></li>
+                    <li><a href="#">Won</a></li>
+                    <li><a href="#">Lost</a></li>
+                </ul>
+                <section class="content">
+                    <div class="alert alert-error" role="alert" id="inquiry_msg_error" style="display:none;"></div>
+                    <div class="box brnone">
+                        <div class="box-body">
+                            <div class="tab-content tab-content-scroll">
+                                <div id="tab1" class="tab-pane fade in active">
+                                    
+                                    <!--<div id="handsontable"></div>-->
+                                    
+                                    <table id="dataConditional" class="table table_sheet table-bordered table-striped">
+                                        <thead align="center">
+                                            <tr>
+                                                <th width="">Year</th>
+                                                <th width="">Make</th>
+                                                <th width="">Model</th>
+                                                <th width="">Location</th>
+                                                <th>Mileage </th>
+                                                <th>Price</th>
+                                                <th class="nosort" width="">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2020</td>
+                                                <td>Mercedes</td>
+                                                <td>Benz CLA</td>
+                                                <td >Newark, New Jersey, United States</td>
+                                                <td>2000</td>
+                                                <td>$1821.00</td>
+                                                <td align="center">
+                                                    <a class="btn-link" href="#">View Conditional Filter</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="./index_files/jquery-2.2.3.min.js"></script>
+    <script src="./index_files/bootstrap.min.js"></script>
+    <script src="./index_files/app.min.js"></script>
+    <script src="./index_files/jquery.dataTables.min.js"></script>
+    <script src="./index_files/dataTables.bootstrap.min.js"></script>
+    <script src="./index_files/change_validation.js"></script>
+
+    <script src="./index_files/jquery.prettyPhoto.js"></script>
+    
+    <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+
+    <script src="index_files/table/constants.js"></script>
+    <script src="index_files/table/customRenderers.js"></script>
+    <script src="index_files/table/hooksCallbacks.js"></script>
+    <script src="index_files/table/index.js"></script>-->
+    <script>
+        $(function() {
+            var windowHeight = $(window).height();
+            var topSpace = $("#tab1").offset();
+            var topOffset = topSpace.top +50;
+            var tableHeight = windowHeight - topOffset;
+            console.log('tableHeight', tableHeight);
+            
+            $("#dataConditional").DataTable({
+                "bPaginate": false,
+                //"searching": false,
+                //"paging": true,
+                "info": false,
+                "lengthChange":false,
+                responsive: true,
+                //"bAutoWidth" : true,
+                "sScrollY" : tableHeight,
+                //"sScrollX" : "100%",
+                "bScrollCollapse" : true,
+                /*order: [
+                    [8, 'desc']
+                ],*/
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': [-1, 0] 
+                }]
+            });
+            
+            
+            //jQuery('.tab-content-scroll').css('max-height',tableHeight+'px');
+
+            /*$('#dataphone_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>');*/
+            
+           /* const container = document.querySelector('#example');
+
+            const hot = new Handsontable(container, {
+              data: [
+                ['', 'Tesla', 'Volvo', 'Toyota', 'Ford'],
+                ['2019', 10, 11, 12, 13],
+                ['2020', 20, 11, 14, 13],
+                ['2021', 30, 15, 12, 13]
+              ],
+              rowHeaders: true,
+              colHeaders: true,
+              width: '100%',
+              height: 'auto',
+              licenseKey: 'non-commercial-and-evaluation' // for non-commercial use only
+            });
+            
+            */
+
+        });
+
+    </script>
+
+</body>
+
+</html>

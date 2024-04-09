@@ -1,0 +1,112 @@
+  </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-2.2.3.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/app.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/dataTables.bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/change_validation.js')}}"></script>
+    
+    <script src="{{ url_for('static', filename='js/jquery.prettyPhoto.js')}}"></script>
+    <script>
+        $(function() {
+            $("#dataphone").DataTable({
+                order: [[8, 'desc']],
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': [-1,0] /* 1st one, start by the right */
+                }]
+            });
+            
+            $('#dataphone_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>')
+
+        });
+        
+        
+
+        $(function() {
+            $("#dataphone1").DataTable({
+                //order: [[6, 'desc']],
+                order: [[7, 'desc']],
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': [-1,0] /* 1st one, start by the right */
+                }]
+            });
+            
+            $('#dataphone1_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>')
+
+        });
+        
+        $(function() {
+            $("#dataphone111").DataTable({
+                //order: [[6, 'desc']],
+                order: [[8, 'desc']],
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': [-1,0] /* 1st one, start by the right */
+                }]
+            });
+            
+            $('#dataphone111_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>')
+
+        });
+        
+        $(function() {
+            $('#dataphone').on( 'length.dt', function ( e, settings, len ) {
+                $('#allArrSelect').prop('checked', false);
+                $('.selectChk').prop('checked', false); 
+            } );
+
+            $('#dataphone').on( 'search.dt', function ( e, settings, len ) {
+                $('#allArrSelect').prop('checked', false);
+                $('.selectChk').prop('checked', false); 
+            } );
+            
+            $("#dataphone3").DataTable({
+            //    order: [0, 'desc'],
+            "ordering": false,
+               'aoColumnDefs': [{
+                    // 'bSortable': true,
+                    'aTargets': [-1,0] 
+                }]
+            });
+            
+            $("#dataphone4").DataTable({
+                 order: [[8, 'desc']],
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': [-1,0]
+                }]
+            });
+            $('#dataphone4_length').append('<button onclick="inquiryDelete1()" class="btn btn-primary" style="margin-left:15px;">Delete</button>');
+
+
+        });
+        
+        jQuery(function () {
+             jQuery.ajax({
+				url: WS_PATH+'getnotificationcounter',
+				type: 'POST',				
+				success: function(response){
+					
+					var data = JSON.parse(response);
+					var data1 = data.model;
+					if(data1 && data1!=0){
+						$('.notification').html(data1);
+						$('.notification').show();
+					}else{
+					    $('.notification').hide();
+					}
+				},
+				error: function(error){
+					console.log(error);
+				}
+			});
+         });
+
+    </script>
+
+</body>
+
+</html>

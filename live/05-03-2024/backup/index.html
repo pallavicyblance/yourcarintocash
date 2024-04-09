@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+  <meta name="googlebot" content="noindex">
+  <meta name="googlebot-news" content="nosnippet">
+
+  <title>Your car into cash</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png')}}" />
+
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+<style type="text/css">
+  #locationNameinput{
+        box-sizing: border-box!important;
+    }
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+
+    .error{
+        color: red;
+    }
+    
+    body.modal-open .select2-container--open .select2-dropdown--below {
+        z-index: 999999;
+    }
+
+</style>
+
+<style>
+    /* Style for the greyed out element */
+    .greyed-out {
+        color: #888; /* Change text color to grey */
+        pointer-events: none; /* Disable pointer events */
+        opacity: 0.5; /* Reduce opacity to visually indicate disabled state */
+    }
+</style>
+<script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=getMap_address' async defer></script>
+
+<script type='text/javascript'>
+   /* function getMap_address() {
+        Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+            callback: function () {
+                var manager = new Microsoft.Maps.AutosuggestManager({
+                    placeSuggestions: false
+                });
+                manager.attachAutosuggest('#locationNameinput', '.locationsearchBoxContainer', selectedSuggestion);
+            },
+            errorCallback: function(msg){
+                //alert(msg);
+            },
+                   credentials: 'AsWsf1W37cp_tJ6fMTazsjLk9Ip0TxQyImLb2xzuWbVSYE9aRz_gEsYmakx-uibu'
+
+        });
+    }
+
+    function selectedSuggestion(result) {
+        // $("#states_drop").val(result.address.adminDistrict)
+        // $('#states_drop').val(result.address.adminDistrict).trigger('change');
+        console.log(result.address.adminDistrict);
+
+        $('#states_drop [data-code="' + result.address.adminDistrict + '"]').prop("selected", true);
+        $('#states_drop').trigger('change');
+
+
+         setTimeout(function(){
+            $('#locationNameinput').val(result.address.addressLine)
+        }, 200);
+
+        //$("#address1input").val(result.address.addressLine);
+        $("#cityinput").val(result.address.locality);
+        //$("#address2input").val(result.address.countryRegion);
+
+    }*/
+</script>
+
+
+
+<script>
+      var WS_PATH ="{{ url_for('index') }}";
+      var IMAGE_UPLOAD_PATH ="/";
+      var WS_maillib = "https://yourcarintocash.com/dev-carcash/mail_lib";
+    </script>
+
+</head>
+
+<body class="hold-transition skin-blue layout-top-nav {% if lang=='es' %} lang_es {% elif lang=='en' %} lang_en {% else %} lang_en {% endif %}">
+
+  <div class="wrapper">
+
+    <header class="main-header">
+        <div class="logo">
+            <a class="nav-link text-light" href="https://yourcarintocash.com/">
+				<img src="{{ url_for('static', filename='images/car-logo.png')}}" alt="logo" width="69" height="51">
+			</a>
+        </div>
+        <div class="navbar-header">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                  <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="navbar-collapse collapse" id="navbarColor03" style="">
+                    <ul class="navbar-nav  mb-2 mb-lg-0 gap-4">
+                      <li class="nav-item">
+                        <a class="nav-link text-light" href="https://yourcarintocash.com/">{{labelArr['Home']}}</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-light" href="https://yourcarintocash.com/how-it-works/">{{labelArr['How_it_Works']}}</a>
+                      </li>
+              <li class="nav-item">
+                        <a class="nav-link text-light" href="https://yourcarintocash.com/faqs/">{{labelArr['Faqs']}}</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-light" href="https://yourcarintocash.com/about-us/">{{labelArr['About_Us']}}</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-light" href="https://yourcarintocash.com/contact-us/">{{labelArr['Contact_Us']}}</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-light" id="ragiser_button_id" onclick="ragiser_button()" style="cursor: pointer;">Ragister</a>
+                      </li>
+                      <li class="nav-item dropdown">
+
+                        <a class="nav-link dropdown-toggle {% if lang=='es' %} link_es {% elif lang=='en' %} link_en {% else %} link_en {% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          {% if lang=='es' %} <img src="{{ url_for('static', filename='images/es.svg')}}" > <span>Español</span> {% elif lang=='en' %} <img src="{{ url_for('static', filename='images/en.svg')}}" > <span>English</span> {% else %} <img src="{{ url_for('static', filename='images/en.svg')}}" > <span>English</span> {% endif %}
+                        </a>
+                        <ul class="dropdown-menu " data-bs-popper="static">
+                          {% if lang=='es' %}
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="changeLanguage('en')"><img src="{{ url_for('static', filename='images/en.svg')}}" > Inglés</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="changeLanguage('es')"><img src="{{ url_for('static', filename='images/es.svg')}}" > Español</a></li>
+                          {% else %}
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="changeLanguage('en')"><img src="{{ url_for('static', filename='images/en.svg')}}" > English</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="changeLanguage('es')"><img src="{{ url_for('static', filename='images/es.svg')}}" > Spanish</a></li>
+                          {% endif %}
+                        </ul>
+                      </li>
+                      <!-- <li  class="nav-item">
+                         <a href="javascript:void(0)" class="ml10 btn btn-prev btn-dark btn-danger decline_but" data-bs-toggle="modal" data-bs-target="#DeclineSteppopup">
+                                        <span onclick="decline_getdata()">Decline</span>
+                                    </a>
+                      </li> -->
+                    </ul>
+
+                  </div>
+                </div>
+            </nav>
+      <a href="https://yourcarintocash.com/dev-carcash/" class="elementor-button-link elementor-button elementor-size-md" role="button">
+        <span class="elementor-button-text">{{labelArr['header_btn_txt']}}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"/></svg>
+      </a>
+        </div>
+    </header>
+   </div>
+  <div class="custom-wrapper">
+    <div class="content-wrapper">
+        <div class="content_sidebar">
+		  <div class="responsive-sticky">
+			<div class="rs-left">
+			  <i class="circle-rounded"></i><span id="progressive-text">About your car</span>
+			</div>
+			<div id="progress-toggle" class="rs-right">
+			  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+			</div>
+		  </div>
+          <div class="sidebar_title">
+                <h3>{{labelArr['sidebar_heading']}}</h3>
+                <p>{{labelArr['sidebar_description']}}</p>
+
+               <div class="progress-container">
+                    <!--<div class="progress" id="progress"></div>-->
+                    <div class="progress_part_1">
+                        <div class="circle circletab_1 active">{{labelArr['sidebar_question1']}}</div>
+                        <div class="circle circletab_2">{{labelArr['sidebar_question2']}}</div>
+                        <div class="circle circletab_3">{{labelArr['sidebar_question3']}}</div>
+                        <div class="circle circletab_4">{{labelArr['sidebar_question4']}}</div>
+                        <div class="circle circletab_5">{{labelArr['sidebar_question5']}}</div>
+                        <div class="circle circletab_6">{{labelArr['sidebar_question6']}}</div>
+                        <div class="circle circletab_7">{{labelArr['sidebar_question7']}}</div>
+                        <div class="circle circletab_8">{{labelArr['sidebar_question8']}}</div>
+                        <div class="circle circletab_9">{{labelArr['sidebar_question9']}}</div>
+                        <div class="circle circletab_10">{{labelArr['sidebar_question10']}}</div>
+                        <div class="circle circletab_11 ">{{labelArr['sidebar_question11']}}</div>
+                    </div>
+                    <div class="progress_part_2" style="display: none;">
+                        <div class="circle active complete">{{labelArr['sidebar_question12']}}</div>
+                        <div class="circle circletab_12">{{labelArr['sidebar_question13']}}</div>
+                        <div class="circle circletab_13">{{labelArr['sidebar_question14']}}</div>
+                        <div class="circle circletab_14">{{labelArr['sidebar_question15']}}</div>
+                        <div class="circle circletab_15">{{labelArr['sidebar_question16']}}</div>
+
+                    </div>
+
+                  <!--<div class="circle circletab_10">10</div>-->
+                </div>
+            </div>
+        </div>
+		<div class="content_sidebar thankyou-sidebar"style="display: none;">
+			<p>
+				<img width="100%" alt="thankyou car" src="{{ url_for('static', filename='images/thankyou-car.png')}}" >
+			</p>
+			<div class="sidebar_title">
+              <p>We appreciate your decision to accept our offer for your vehicle. </p>
+			</div>
+			<p><b>Expect a call from our team: <br>From <a href="tel:763-200-1147">763-200-1147</a> <br>between 8 AM and 5 PM on Weekdays.</b></p>
+			<p>For swift processing, please send a copy of your vehicle's title (front and back) to <a href="mailto:support@yourcarintocash.com">support@yourcarintocash.com</a> along with your Offer ID.</p>
+			<p>Require assistance? Feel free to reach out to us at : <a href="tel:763-200-1147">763-200-1147</a></p>
+			
+		</div>
+        <div class="container_form">
+            <section class="form_section">
+        <!-- Modal -->
+
+                {% for message in get_flashed_messages()%}
+                <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ message }}
+                </div>
+                {% endfor%}
+
+             <form class="form-horizontal" id="formproquotes" method="POST" action="/addphone">
+
+              <input type="hidden" id="setproquote1"  value="{{ proquotesget[0][1] }}">
+              <input type="hidden" id="setproquote2"  value="{{ proquotesget[0][2] }}">
+              <input type="hidden" id="setproquote3"  value="{{ proquotesget[0][3] }}">
+              <input type="hidden" id="setproquote4"  value="{{ proquotesget[0][4] }}">
+              <input type="hidden" id="hostname" name="hostname" value="{{ hostname }}">
+              <input type="hidden" id="ipaddr" name="ipaddr"  value="{{ IPAddr }}">
+
+              <input type="hidden" id="original_price" name="original_price" value="">
+              <input type="hidden" id="revised_price" name="revised_price" value="">
+
+              <input type="hidden" id="currenttab" name="currenttab" value="1">
+              <input type="hidden" id="no_load" name="no_load" value="no">
+
+              <input type="hidden" id="ref_id" name="ref_id" value="{{u1}}">
+
+              <input type="hidden" id="no_repeat" name="no_repeat" value="notok">
+
+              <input type="hidden" id="no_repeat1" name="no_repeat1" value="ok">
+              {% if sharing != None %}
+              <input type="hidden" name="" id="sharing_id" value="{{ sharing }}">
+                {% endif %}
+
+              <div class="all_steps">
+                  <div id="loadingdiv" class="loadingdiv" style="display: none;">
+            <img src="{{ url_for('static', filename='images/imgpsh_fullsize_anim.gif')}}" >
+          </div>
+          <div id="loading-cal-gif" class="loadingd-cal-gif" style="display: none;">
+					  <div class="loading-wrapper">
+                        <div class="carAnimation">
+                            <div class="road"></div>
+                            <div class="car">
+                              <div class="colour"></div>
+                              <div class="windows"></div>
+                              <div class="leftWheel">
+                                <div class="wheel"></div>
+                              </div>
+                              <div class="rightWheel">
+                                <div class="wheel"></div>
+                              </div>
+                            </div>
+                            <div class="clouds"></div>
+                          </div>
+                          <h5> {{labelArr['Calculating']}}</h5>
+					  </div>
+				  </div>
+
+                  <div id="steps_1" class="steps">
+
+                      <div id="autofill_year">
+                         <h2>{{labelArr['step_question1']}}</h2>
+                         <div id="steps_error_1" class=""></div>
+                         <div class="box-body pt-5">
+                             <div class="row" >
+                                  <div class="col-md-6 mb-3">
+
+                                      <!--<label class="form-label">Select a year</label>-->
+                                      <select name="year" id="year_drop" class="form-control">
+                                          <option value="">{{labelArr['year_label']}}</option>
+                                          {% for item in year: %}
+                                              {% if item[0] == inquiryget[1] :  %}
+                                                  <option value="{{ item[0] }}" selected >{{ item[0] }}</option>
+                                              {% else:  %}
+                                                  <option value="{{ item[0] }}" >{{ item[0] }}</option>
+                                              {% endif %}
+                                          {%endfor%}
+                                      </select>
+                                  </div>
+                                  <div class="col-md-6 mb-3 text-end">
+                                      <button type="button" class="btn autofill_vin w-100 btn-outline-dark btn-lg" onclick="vip_autofill(1);">{{labelArr['Autofill_with_VIN']}}</button>
+                                  </div>
+                                  <div class="col-md-6 mb-3">
+                                      <!--<label class="form-label">Select a make</label>-->
+                                       <select name="make" id="make_drop" class="form-control">
+                                          <option value="">{{labelArr['make_label']}}</option>
+                                      </select>
+                                      <input type="hidden" id="make_id" name="make_id" value="{{ inquiryget[2] }}">
+                                      <input type="hidden" id="make_code" name="make_code" value="{{ inquiryget[6] }}">
+                                  </div>
+                                  <div class="col-md-6 mb-3">
+                                      <!--<label class="form-label">Select a model</label>-->
+                                      <select name="model" id="model_drop" class="form-control">
+                                          <option value="">{{labelArr['model_label']}}</option>
+                                      </select>
+                                      <input type="hidden" id="model_id" name="model_id" value="{{ inquiryget[3] }}">
+                                  </div>
+                                  <input type="hidden" id="user_city" name="user_city" value="{{ locationInfo['city'] }}">
+                                  <input type="hidden" id="user_state" name="user_state" value="{{ locationInfo['region'] }}">
+                                  <input type="hidden" id="user_country" name="user_country" value="{{ locationInfo['country'] }}">
+                              </div>
+                         </div>
+                      </div>
+
+                      <div id="divautofill_vin" style="display: none;">
+                         <h2>{{labelArr['title_vin']}}</h2>
+                         <p class="subtitle">{{labelArr['subtitle_vin']}}</p>
+                         <div id="steps_error_01" class=""></div>
+                         <div class="box-body pt-3">
+                             <div class="row">
+                                  <div class="col-md-12 mb-3">
+                                     <!--<label class="form-label">VIN</label>-->
+                                     <input name="vin" id="vip_input" type="text" value="" class="form-control" maxlength="17" placeholder="VIN" autocomplete="off" required>
+                                      <div class="px-3 pt-1">
+                       <small id="newvinset"></small>
+                    </div>
+                                  </div>
+                                  <div id="carInfo" class="mb-3" style="display: none;">
+                                      <table class="table table-bordered" style="min-width: 33%; width: auto;">
+                                          <tr>
+                                              <td><b>{{labelArr['year_label']}}:</b> <span id="vinyear"></span></td>
+                                          </tr>
+                                          <tr>
+                                              <td><b>{{labelArr['make_label']}}:</b> <span id="vinmake"></span></td>
+                                          </tr>
+                                          <tr>
+                                              <td><b>{{labelArr['model_label']}}:</b> <span id="vinmodel"></span></td>
+                                          </tr>
+                                      </table>
+                                  </div>
+                                  <div class="col-md-12 mb-3 ">
+                                     <button type="button" class="btn btn-prev btn-dark " onclick="vip_autofill(2);" id="vin_back_btn" style="margin-right:5px;">{{labelArr['back']}}</button>
+                                     <button type="button" class="btn btn-next btn-primary" onclick="vip_autofill(222);" id="autofill_id" disabled="true">{{labelArr['autofill']}}</button>
+                                  </div>
+                              </div>
+                         </div>
+                     </div>
+                  </div>
+                  <!-- darshan added for sharing 2-11-2023  -->
+                  <input type="hidden" id="sharing_genrate_id" name="sharing_genrate_id">
+                  <!-- darshan added for sharing 2-11-2023  -->
+                  <input type="hidden" id="record_id" name="record_id" value="">
+                  <div id="steps_2" class="steps">
+                      <h2>{{labelArr['where_is_your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['located']}}</h2>
+                      <p class="subtitle">{{labelArr['zip_subtitle1']}} <span class="make_name"></span> {{labelArr['zip_subtitle2']}}</p>
+                       <div id="steps_error_2" class=""></div>
+                          <div class="box-body  pt-4">
+                              <div class="row">
+                                  <div class="col-md-7 mb-3">
+                                      <label class="form-label">{{labelArr['Enter_vehicle_location']}}</label>
+                                      <input name="v_zip" id="v_zip_code" onkeypress="return onlyNumberKey(event)" type="text" class="form-control" value="{{ inquiryget[8] }}" placeholder="{{labelArr['ZIP_code']}}" autocomplete="off" required maxlength="5">
+                                  </div>
+                              </div>
+                          </div>
+                  </div>
+
+                  <div id="steps_3" class="steps">
+                      <h2>{{labelArr['mileage_title']}}</h2>
+                      <p class="subtitle">{{labelArr['mileage_subtitle']}}</p>
+                      <div id="steps_error_3" class=""></div>
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              <div class="col-md-7">
+                                  <label for="mileage" class="form-control mb-3 odometer-container" id="mileage_label">
+                                  <input name="mileage" id="mileage" type="text" class="" value="{{ inquiryget[13] }}" autocomplete="off" required maxlength="3">
+                                  <span>,000</span>
+								  </label>
+								  <style>
+									  .odometer-container input{
+											border: none;
+											padding: 0px;
+											width: 27px;
+											outline: none;
+											text-align: right;
+											margin-right: -3px;
+									  }
+									  .odometer-container span{
+										   color: var(--bs-body-color);
+									  }
+								  </style>
+                                  <input class="form-check-input" name="utv" value="utv" id="utv" type="checkbox"  style="height: 25px;width: 25px;margin-top: 0px; border-radius: 50px;" onclick="nextsteps(3);"><label class="form-check-label radio-lb" for="utv" >{{labelArr['Unable_to_verify']}}</label>
+                              </div>
+                              <div class="col-md-5">
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+
+
+                  <div id="steps_4" class="steps">
+                      <h2>{{labelArr['Does_your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['damage_title']}}</h2>
+
+                      <p class="subtitle">{{labelArr['damage_subtitle']}}</p>
+
+                      <div id="steps_error_4" class=""></div>
+
+                      <div class="box-body pt-2">
+                          <div class="row" id="pdamagediv">
+                              <div class="col-md-10 mb-2">
+                                <div class="input_check_list">
+                                  <input class="form-check-input" id="damage1" name="damage" type="radio"  value="MN"/>
+                                  <label for="damage1" class="check_list form-check-label question__label mb-1 question__label mb-1" onclick="nextsteps(4,'no');" >
+                                      <span>{{labelArr['damage_question1']}}</span>
+                                  </label>
+                                </div>
+                              </div>
+                              <div class="col-md-10 mb-2">
+                                <div class="input_check_list">
+                                  <input class="form-check-input" id="damage2" name="damage" type="radio"  value="Yes"/>
+                                  <label for="damage2" class="check_list form-check-label question__label mb-1 question__label mb-1" onclick="nextsteps(4,'Yes');">
+                                      <span>{{labelArr['damage_question2']}}</span>
+                                  </label>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                  </div>
+
+                  <div id="steps_5" class="steps">
+
+                      <h2  >{{labelArr['Select_where_your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['has_rust_or_body_damage']}}</h2>
+                      <p  class="subtitle">{{labelArr['damage_subtitle']}}</p>
+
+                      <div id="steps_error_5" class=""></div>
+
+                      <div class="box-body pt-2">
+                          <div class="row">
+                            <div class="car-tires-areas">
+                              <div class="input_check_list">
+                                <input class="form-check-input" id="cartires1" name="damageimg[]" type="checkbox" value="RR">
+                                <label for="cartires1" class="check_list form-check-label question__label mb-1 question__label mb-1">
+                                <span>All Over</span>
+                                </label>
+                              </div>
+                              <div class="input_check_list">
+                                <input class="form-check-input" id="cartires2" name="damageimg[]" type="checkbox" value="SD">
+                                <label for="cartires2" class="check_list form-check-label question__label mb-1 question__label mb-1">
+                                <span>All Over</span>
+                                </label>
+                              </div>
+                              <div class="input_check_list">
+                                <input class="form-check-input" id="cartires3" name="damageimg[]" type="checkbox" value="TP">
+                                <label for="cartires3" class="check_list form-check-label question__label mb-1 question__label mb-1">
+                                <span>All Over</span>
+                                </label>
+                              </div>
+                              <div class="input_check_list">
+                                <input class="form-check-input" id="cartires4" name="damageimg[]" type="checkbox" value="SD">
+                                <label for="cartires4" class="check_list form-check-label question__label mb-1 question__label mb-1">
+                                <span>All Over</span>
+                                </label>
+                              </div>
+                              <div class="input_check_list">
+                                <input class="form-check-input" id="cartires5" name="damageimg[]" type="checkbox" value="FR">
+                                <label for="cartires5" class="check_list form-check-label question__label mb-1 question__label mb-1">
+                                <span>All Over</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                  </div>
+                  <div id="steps_6" class="steps">
+                      <h2>{{labelArr['airbag_title1']}}</h2>
+                      <p class="subtitle">{{labelArr['airbag_subtitle1']}}</p>
+
+                      <div id="steps_error_6" class=""></div>
+
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              <div class="col-md-7">
+                                {% for deployedbag in deployedbags: %}
+                                  <div class="mb-2">
+                                      <div class="input_check_list">
+                                         {% if deployedbag['shortname'] == inquiryget[14] :  %}
+                                            <input class="form-check-input" id="deployedbag{{ deployedbag['id'] }}" checked name="airbag" type="radio"  value="{{ deployedbag['shortname'] }}"/>
+                                         {% else:  %}
+                                            <input class="form-check-input" id="deployedbag{{ deployedbag['id'] }}" name="airbag" type="radio"  value="{{ deployedbag['shortname'] }}"/>
+                                         {% endif %}
+                                          <label class="check_list form-check-label question__label mb-1" for="deployedbag{{ deployedbag['id'] }}" onclick="nextsteps(6);"><span>{{ deployedbag['name'] }} </span></label>
+                                      </div>
+                                    </div>
+                                {%endfor%}
+                              </div>
+                              <div class="col-md-5">
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="steps_7" class="steps">
+                      <h2>{{labelArr['drive_title1']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span>?</h2>
+                      <p class="subtitle">{{labelArr['drive_subtitle1']}} <span class="make_name"></span> {{labelArr['drive_subtitle2']}}</p>
+                      <div id="steps_error_7" class=""></div>
+                      <div class="box-body pt-2">
+                          <div class="row">
+                            {% for drive in drives: %}
+                                <div class="col-md-7 mb-2">
+                                    <div class="input_check_list">
+                                        {% if drive['shortname'] == inquiryget[12] :  %}
+                                            <input class="form-check-input" id="drive{{ drive['id'] }}" checked name="drive" type="radio"  value="{{ drive['shortname'] }}"/>
+                                        {% else:  %}
+                                            <input class="form-check-input" id="drive{{ drive['id'] }}" name="drive" type="radio"  value="{{ drive['shortname'] }}" onclick="nextsteps(7);" />
+                                        {% endif %}
+                                        <label class="check_list form-check-label question__label mb-1" for="drive{{ drive['id'] }}" ><span>{{ drive['name'] }}</span></label>
+                                    </div>
+                                </div>
+                            {%endfor%}
+                          </div>
+                        </div>
+                  </div>
+
+
+                  <!-- For new tab add start -->
+                  <div id="steps_8" class="steps">
+                      <h2>{{labelArr['Does_your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['mechanical_title1']}}</h2>
+                      <p class="subtitle">{{labelArr['mechanical_subtitle1']}}</p>
+                      <div id="steps_error_8" class=""></div>
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              {% for sdamage in sbodydamage: %}
+                                <div class="col-md-7 mb-2">
+                                    <div class="input_check_list">
+                                        {% if sdamage['shortname'] == inquiryget[10] :  %}
+                                            <input class="form-check-input" id="sdamage{{ sdamage['id'] }}" name="sdamage" checked type="radio"  value="{{ sdamage['shortname'] }}"/>
+                                        {% else:  %}
+                                            <input class="form-check-input" id="sdamage{{ sdamage['id'] }}" name="sdamage" type="radio"  value="{{ sdamage['shortname'] }}"/>
+                                        {% endif %}
+                                        <label for="sdamage{{ sdamage['id'] }}" class="check_list form-check-label question__label mb-1 question__label mb-1" onclick="nextsteps(8);" >
+                                            <span>{{ sdamage['name'] }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                              {%endfor%}
+                          </div>
+                        </div>
+                  </div>
+
+                  <div id="steps_9" class="steps">
+                      <h2>{{labelArr['key_title1']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span>?</h2>
+                      <p class="subtitle">{{labelArr['key_subtitle1']}}</p>
+                      <div id="steps_error_9" class=""></div>
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              {% for doesk in doeskey: %}
+                                <div class="col-md-7 mb-2">
+                                    <div class="input_check_list">
+                                        {% if doesk['shortname'] == inquiryget[11] :  %}
+                                            <input class="form-check-input" id="key{{ doesk['id'] }}" checked name="key" type="radio"  value="{{ doesk['shortname'] }}"/>
+                                        {% else:  %}
+                                            <input class="form-check-input" id="key{{ doesk['id'] }}"  name="key" type="radio"  value="{{ doesk['shortname'] }}"/>
+                                        {% endif %}
+                                        <label class="check_list form-check-label question__label mb-1"  for="key{{ doesk['id'] }}" onclick="nextsteps(9);"><span>{{ doesk['name'] }}</span></label>
+                                    </div>
+                                </div>
+                              {%endfor%}
+                          </div>
+                      </div>
+                  </div>
+                  <!-- For new tab add end -->
+                  <div id="steps_10" class="steps">
+                      <h2>{{labelArr['Does_your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['title_title1']}}</h2>
+                      <p class="subtitle">{{labelArr['title_subtitle1']}}</p>
+                      <div id="steps_error_10" class=""></div>
+
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              {% for tytitle in typeoftitle: %}
+                                <div class="col-md-12 mb-2">
+                                    <div class="input_check_list">
+                                        {% if tytitle['shortname'] == inquiryget[10] :  %}
+                                            <input class="form-check-input" id="tytitle{{ tytitle['id'] }}" checked name="title" type="radio"  value="{{ tytitle['shortname'] }}"/>
+                                        {% else:  %}
+                                            <input class="form-check-input" id="tytitle{{ tytitle['id'] }}" name="title" type="radio"  value="{{ tytitle['shortname'] }}"/>
+                                        {% endif %}
+                                        <label for="tytitle{{ tytitle['id'] }}" class="check_list form-check-label question__label mb-1" onclick="nextsteps(10);" >
+                                            <span>{{ tytitle['name'] }}</span>
+                                         </label>
+                                    </div>
+                                </div>
+                              {%endfor%}
+                          </div>
+                        </div>
+                  </div>
+                  <div id="steps_11" class="steps">
+                      <h2>{{labelArr['firedamage_title1']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['firedamage_title2']}}</h2>
+                      <p class="subtitle">{{labelArr['firedamage_subtitle1']}}</p>
+                      <div id="steps_error_11" class=""></div>
+                      <div class="box-body pt-2">
+                          <div class="row">
+                              <div class="col-md-7">
+                                {% for firedamag in firedamage: %}
+                                  <div class="mb-2">
+                                      <div class="input_check_list">
+                                         {% if firedamag['shortname'] == inquiryget[15] :  %}
+                                            <input class="form-check-input" id="firedamag{{ firedamag['id'] }}" checked name="fire_damage" type="radio"  value="{{ firedamag['shortname'] }}"/>
+                                         {% else:  %}
+                                            <input class="form-check-input" id="firedamag{{ firedamag['id'] }}" name="fire_damage" type="radio"  value="{{ firedamag['shortname'] }}"/>
+                                         {% endif %}
+                                          <label class="check_list form-check-label question__label mb-1" for="firedamag{{ firedamag['id'] }}" onclick="nextsteps(11);"><span>{{ firedamag['name'] }} </span></label>
+                                      </div>
+                                    </div>
+                                {%endfor%}
+                              </div>
+                              <div class="col-md-5">
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                   <div id="steps_12" class="steps steps_10">
+                      <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                      <div id="steps_error_12" class=""></div>
+                         <div class="box-body">
+
+                           <div class="closing-text offer_amount_text">
+                           <!-- <h5 style="text-align: left;" id="your_offer_id_1">offer-id</h5>  -->
+                               <!-- <h2> We will pay you</h2>  -->
+                               <h3 id="proQuote_span_offer_original" style="font-size: 25px;color:green;margin-top:20px;"></h3>
+
+                               <h3 >{{labelArr['Your']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span> {{labelArr['offer_title1']}} </h3>
+
+                               <h2> {{labelArr['offer_title2']}}</h2>
+
+                               <h1><sup>$</sup><span id="proQuote_span_offer"></span></h1>
+
+
+
+                               <button id="sell-instantly-btn" type="button"  name='sellInt' onclick="nextsteps(12);" class='btn btn-next btn-primary mt-3 btn_instantly'>{{labelArr['Sell_instantly']}}</button>
+
+                               <div class="mt-4">
+                                    <a href="javascript:void(0)" class="mx-1 btn btn-prev btn-dark btn-danger decline_but" data-bs-toggle="modal" data-bs-target="#DeclineSteppopup">
+                                        <span onclick="decline_getdata()">{{labelArr['Decline']}}</span>
+                                    </a>
+                                   <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="share_offer_but dropdown-toggle">
+                                        <span>Share This Offer</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z" fill="#ffffff"></path></svg>
+                                    </button>
+                                    <div class="dropdown-menu set all_share_offer_btn">
+                                        <div class="btn-container">
+                                            <button class="dropdown-item share_facebook" id="revised_price2"><img src="{{url_for('static' , filename ='images/share/facebook.svg')}}" alt="" /> <span>Share</span></button>
+                                            <button class="dropdown-item share_twitter" id="revised_price3"><img src="{{url_for('static' , filename ='images/share/twitter.svg')}}" alt="" /> <span>Share</span></button>
+                                            <button class="dropdown-item share_telegram" id="revised_price4"><img src="{{url_for('static' , filename ='images/share/telegram.svg')}}" alt="" /> <span>Share</span> </button>
+                                            <button class="dropdown-item share_whatsapp" id="revised_price5"><img src="{{url_for('static' , filename ='images/share/whatsapp.svg')}}" alt="" /> <span>Share</span> </button>
+                                            <button class="dropdown-item share_linkedin" id="revised_price6"><img src="{{url_for('static' , filename ='images/share/linkedin.svg')}}" alt="" /> <span>Share</span> </button>
+                                            <button class="dropdown-item share_messenger" id="revised_price8" ><img src="{{url_for('static' , filename ='images/share/messenger.svg')}}" alt="" /> <span>Share</span></button>
+                                            <button class="dropdown-item share_email" id="revised_price7" ><img src="{{url_for('static' , filename ='images/share/email.svg')}}" alt="" /> <span>Share</span></button>
+                                            <button class="dropdown-item share_copy" id="revised_price9" style="background: #22b573;"><img src="{{url_for('static' , filename ='images/share/copy-link.svg')}}" alt="" /> <span>Copy</span></button>
+                                            
+                                            <!-- <button class="btn st-custom-button" data-network="sms" data-url="https://google.com"  id="">share</button> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+
+                              <p style="margin-top:20px;">{{labelArr['offer_title3']}}</p>
+                             </div>
+                        </div>
+                  </div>
+                  <div id="steps_13" class="steps">
+                      <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                      <h2>{{labelArr['accept_title1']}} <span class="my_year"></span> <span class="make_name"></span> <span class="my_model"></span>?</h2>
+                      <div id="steps_error_13" class=""></div>
+                      <div class="box-body pt-2">
+
+                          <div class="row">
+                              <div class="col-md-12 mb-3">
+                                {% if inquiryget[16] == 'R' :  %}
+                                    <input class="form-check-input" name="type" checked id="type1" type="radio" value="R" checked>
+                                {% else:  %}
+                                    <input class="form-check-input" name="type" id="type1" type="radio" value="R" checked>
+                                {% endif %}
+
+                                  <label class="form-check-label radio-lb mx-2" for="type1">{{labelArr['Residence']}}</label>
+                                {% if inquiryget[16] == 'B' :  %}
+                                    <input class="form-check-input" name="type" checked id="type2" type="radio" value="B">
+                                {% else:  %}
+                                    <input class="form-check-input" name="type" id="type2" type="radio" value="B">
+                                {% endif %}
+
+                                  <label class="form-check-label radio-lb mx-2" for="type2">{{labelArr['Business']}}</label>
+                              </div>
+                              <div class="col-md-12 mb-3">
+                                  <!--<label class="form-label">Location Name:</label>-->
+                                  <input placeholder="{{labelArr['Location_Name']}}" class="form-control" name="locationname"  type="text" value="{% if inquiryget[17] != 'None' :  %}{{ inquiryget[17] }}{% endif %}">
+                              </div>
+                              <div class="col-md-12 mb-3 locationsearchBoxContainer">
+                                  <!--<label class="form-label">Address line 1:</label>-->
+                                  <input placeholder="{{labelArr['Street_name']}}" class="form-control" name="address1" id="locationNameinput"  type="text" value="{% if inquiryget[18] != 'None' :  %}{{ inquiryget[18] }}{% endif %}">
+                              </div>
+                              <div class="col-md-12 mb-3 locationsearchBoxContainer">
+                                  <!--<label class="form-label">Address line 2:</label>-->
+                                  <input placeholder="{{labelArr['Address_line_2']}}" class="form-control" name="address2" id="address2" type="text" value="{% if inquiryget[19] != 'None' :  %}{{ inquiryget[19] }}{% endif %}">
+                              </div>
+                              <div class="col-md-4 mb-3 locationsearchBoxContainer">
+                                  <!--<label class="form-label">City:</label>-->
+                                  <input placeholder="{{labelArr['City']}}" class="form-control readonly" name="city" id="cityinput" type="text" value="{% if inquiryget[20] != 'None' :  %}{{ inquiryget[20] }}{% endif %}">
+                              </div>
+                              <div class="col-md-4 mb-3 readonly_select2">
+                                  <select name="state" id="states_drop" class="form-control readonly">
+                                      <option value="">{{labelArr['Select_a_state']}}</option>
+                                      {% for state in states: %}
+                                        {% if inquiryget[21] == state['id'] :  %}
+                                            <option value="{{ state['id'] }}" selected data-code="{{ state['name'] }}">{{ state['name'] }}</option>
+                                        {% else:  %}
+                                             <option value="{{ state['id'] }}"  data-code="{{ state['name'] }}">{{ state['name'] }}</option>
+                                         {% endif %}
+                                      {%endfor%}
+                                  </select>
+                              </div>
+                              <div class="col-md-4 mb-3 ">
+                                <!--<label class="form-label">City:</label>-->
+                                <input placeholder="{{labelArr['ZIP_code']}}" class="form-control readonly" name="v_zip1" id="v_zip1" type="text" value="">
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="steps_14" class="steps">
+                      <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                      <h2>{{labelArr['What_is_your_name_and_phone_number']}}</h2>
+                      <div id="steps_error_14" class=""></div>
+                      <div class="box-body pt-3">
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <input placeholder="{{labelArr['Full_Name']}}" class="form-control" id="fnameinput" name="fname" type="text" value="{% if inquiryget[22] != 'None' :  %}{{ inquiryget[22] }}{% endif %}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                  <!--<label class="form-label">Phone:</label>-->
+                                  <input placeholder="{{labelArr['Phone']}}" class="form-control" name="phone" id="phoneinput" type="text" value="{% if inquiryget[24] != 'None' :  %}{{ inquiryget[24] }}{% endif %}" inputmode="numeric">
+                              </div>
+                              <div class="col-md-12 mb-3">
+                                  <!--<label class="form-label">Alternate Phone:</label>-->
+                                  <input placeholder="{{labelArr['Alternate_Phone']}}" class="form-control" name="alternatephone" id="alternatePhoneinput" type="text" value="{% if inquiryget[25] != 'None' :  %}{{ inquiryget[25] }}{% endif %}" inputmode="numeric">
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div id="steps_15" class="steps">
+                      <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                      <h2>{{labelArr['owner_title1']}}</h2>
+                      <p class="subtitle">{{labelArr['owner_subtitle1']}}</p>
+                      <div id="steps_error_15" class=""></div>
+                      <div class="box-body pt-3">
+
+                          <div class="row">
+                              <div class="col-md-12 mb-3">
+                                  <a href="javascript:void(0)" onclick="usemyname(1);" class='btn btn-primary px-4 text-center'> {{labelArr['USE_MY_NAME']}} </a>
+                              </div>
+                              <div class="col-md-12 mb-3">
+                                  <!--<label class="form-label">First Name on the title:</label>-->
+                                  <input placeholder="{{labelArr['Full_Name_on_the_title']}}" class="form-control" id="ownerFnameinput" name="ownerfname" type="text" value="{% if inquiryget[26] != 'None' : %}{{ inquiryget[26] }}{% endif %}" >
+                              </div>
+                              <!--<div class="form-group">-->
+                                  <!--<label class="form-label">Last Name on the title:</label>-->
+                              <!--    <input placeholder="Last Name on the title" class="form-control" id="ownerLnameinput" name="ownerlname" type="text" value="{% if inquiryget[27] != 'None' : %}{{ inquiryget[27] }}{% endif %}" inputmode="numeric">-->
+                              <!--</div>-->
+                          </div>
+                      </div>
+                  </div>
+                  <div id="steps_16" class="steps">
+                      <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                      <h2>{{labelArr['getting_paid']}}</h2>
+                      <div id="steps_error_16" class=""></div>
+                      <div class="box-body pt-3">
+                          <div class="row">
+                              <div class="col-md-12 mb-3">
+                                  <a href="javascript:void(0)" onclick="usemyname(2);" class='btn btn-primary px-4 text-center'> {{labelArr['USE_MY_NAME']}} </a>
+                              </div>
+                              <div class="col-md-12 mb-3">
+                                  <!--<label class="form-label">Payee First Name:</label>-->
+                                  <input placeholder="{{labelArr['Payee_Full_name']}}" class="form-control" id="payeeFnameinput" name="payeefname" type="text" value="{% if inquiryget[28] != 'None' : %}{{ inquiryget[28] }}{% endif %}" >
+                              </div>
+                              <!--<div class="col-md-12 mb-3">-->
+                                  <!--<label class="form-label">Payee Last Name:</label>-->
+                              <!--    <input placeholder="Payee Last Name" class="form-control" id="payeeLnameinput" name="payeelname" type="text" value="{% if inquiryget[29] != 'None' : %}{{ inquiryget[29] }}{% endif %}" >-->
+                              <!--</div>-->
+                          </div>
+                      </div>
+                  </div>
+                  <div id="steps_17" class="steps">
+                      <div id="steps_error_17" class=""></div>
+                      <div class="box-body">
+                        <!--Accept your offer-->
+                         <div class="offer_amount_text">
+                             <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+                             <h3> We will pay you</h3>
+                             <h1><sup >$</sup><span id="proQuotespanoffer"></span></h1>
+                             <h3>and pick it up less than 48 hours and tow it away for free</h3>
+                             <!-- <p class="class='mb-1'">We have everything we need and you're ready to accept your offer! Soon after you accept this offer, we will contact you to arrange a time to pick up your car. At the time of pick up, we will inspect your car's condition and documentation, then pay you on the spot and tow it!</p> -->
+                             <p class="subtitle mb-1">Our transport partner will be reaching out to you to get this picked up.</p>
+
+                             <a id="accept-btn" href="javascript:void(0)" onclick="autoinquirybid(111);" class="btn btn-next btn-primary mt-3 btn_instantly" style="padding: 18px 70px;font-size: 22px;">
+                                 <span>Accept</span>
+                             </a>
+
+
+                             <div class="d-flex mt-4 justify-content-center">
+                                 <a href="javascript:void(0)" class="mr10 btn btn-prev btn-dark " onclick="prevsteps(17);">
+                                     <svg width="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path></svg>
+                                     <span>{{labelArr['back']}}</span>
+                                 </a>
+                                  <!-- <a href="javascript:void(0)" class="ml10 btn btn-prev btn-dark btn-danger" data-bs-toggle="modal" data-bs-target="#DeclineSteppopup">
+                                     <span>Decline</span>
+                                 </a> -->
+                             </div>
+                        </div>
+                    </div>
+                  </div>
+                  <!-- added By Nigam Solanki start -->
+                  <div id="steps_18" class="steps">
+                      <div id="steps_error_18" class=""></div>
+                      <div class="box-body">
+                        <!--Accept your offer-->
+                         <div class="offer_amount_text ">
+							 <div class="thankyou-laststep">
+							<h2>$<span id="proQuote_span_offer_a"></span></h2>
+							 <h1>YAYY!</h1>
+                             <!-- <h1 style="color: #2ab573">{{labelArr['You_are_all_finished']}}</h1>-->
+							 <h2>Thank you for accepting the offer!</h2>
+                             <!--<p class="class='mb-1'">{{labelArr['reaching']}}</p>-->
+								 <p><a class="offerid-btn" href="javacrript:void(0);" onclick="clickToCopy()"><span class="tooltip-text">Copied!</span>Offer ID: <span class="copy-text new_offer"></span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14px" ><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"></path></svg></a></p>
+							 </div>
+							 
+                             <a  href="javascript:void(0)" onclick="goToDashboard();" class="btn btn-next btn-primary mt-3 btn_instantly">
+                                 <span>{{labelArr['Have_another_car_to_sell']}}</span>
+                             </a>
+							
+                        </div>
+                    </div>
+                  </div>
+                  <!-- added By Nigam Solanki end -->
+              </div>
+            </form>
+            </section>
+      <div class="bottom-btn-wrapper">
+        <div class="button_section custom-mlr" id="next-prev-id">
+         <a href="javascript:void(0)" class="btn btn-prev btn-dark" onclick="prevsteps(12);">
+          <svg width="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path></svg>
+          <span>{{labelArr['back']}}</span>
+         </a>
+        <a href="javascript:void(0)" onclick="prevsteps(1);resetForm();" class="btn btn-prev btn-dark">
+          <span>{{labelArr['start_from_begining']}}</span>
+          <svg width="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path></svg>
+        </a>
+        </div>
+              <section class="button_section">
+                <button class="btn btn-prev btn-dark" id="prev" disabled>
+                    <svg width="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                    <span>{{labelArr['back']}}</span></button>
+                <button class="btn btn-next btn-primary" id="next">
+                    <span id="d_next_btn">{{labelArr['next']}}</span>
+                    <svg width="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" id="svg_t"><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+                </button>
+            </section>
+      </div>
+      </div>
+    </div>
+  </div>
+     
+	<style>
+		.thankyou-laststep a.offerid-btn{
+			position: relative;
+		}
+		.tooltip-text{
+			position: absolute;
+			text-transform: capitalize;
+			font-size: 12px;
+			background: #000;
+			color: #fff!important;
+			padding: 3px 6px;
+			border-radius: 3px;
+			font-family: 'Roboto', sans-serif;
+			font-weight: 500;
+			right: -70px;
+			min-width: auto;
+			opacity: 1;
+			top: 50%;
+			transform: translate(0%, -50%);
+			min-width: 62px;
+			display: none;
+		}
+	</style>
+
+    
+    <div class="modal fade" id="modelSelectPopup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="" aria-hidden="true">
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div id="loadingdieditvvehicle123" class="tcaloader" style="display:none;">
+            <div class="load-icon center">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">{{labelArr['select_model_title']}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="dicline" enctype="multipart/form-data">
+              <input type="hidden" class="comman_get_offer_id" name="id" id="d_id" value="">
+              <div class="alert alert-success" role="alert" id="model_select_msg" style="display:none;"></div>
+                <div class="alert alert-danger" role="alert" id="model_select_msg_error" style="display:none;"></div>
+                  <div class="form-row">
+                    <div class="form-group col-md-12 col-12">
+                      <select name="model_select" id="model_select_drop" class="form-control">
+                            <option value="">{{labelArr['model_label']}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12 col-12">
+                      <img src="{{url_for('static' , filename ='images/Spinner.gif')}}" width="42px" style="display: none;" id="loderscrren123">
+                      <input type="button" class="btn btn-next btn-primary" value="{{labelArr['Submit']}}" onclick="setModelID();">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+	
+      </div>
+    </div>
+    
+   <div class="modal fade" id="DeclineSteppopup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div id="loadingdieditvvehicle" class="tcaloader" style="display:none;">
+            <div class="load-icon center">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">{{labelArr['Decline_offer']}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+            <div class="modal-body">
+            <!-- darshan changes 31-08-2023 1 -->
+             <form action="" id="dicline" enctype="multipart/form-data">
+                <input type="hidden" class="comman_get_offer_id" name="id" id="d_id" value="">
+                <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
+                <div class="alert alert-danger" role="alert" id="inquiry_msg_error" style="display:none;"></div>
+           		<div class="form-row">
+    				<div class="form-group col-md-6 col-12">
+    				   <label for="Name">{{labelArr['Name']}}</label>
+    				   <input type="text" class="form-control" name="d_name" id="d_name" placeholder="{{labelArr['Enter_name']}}">
+                       <span id="d_name_span"></span>
+    				</div>
+    				<div class="form-group col-md-6 col-12">
+    				  <label for="inputEmail4">{{labelArr['Email']}}</label>
+    				  <input type="email" class="form-control"  name="d_email" id="d_email" placeholder="{{labelArr['Enter_email']}}">
+                      <span id="d_email_span"></span>
+    				</div>
+    				<div class="form-group col-md-6 col-12">
+    				  <label for="Phone">{{labelArr['Phone_Number']}}</label>
+                  <input type="text" class="form-control" name="d_phone" id="d_phone" placeholder="{{labelArr['Enter_phone_number']}}">
+                  <span id="d_phone_span"></span>
+    				</div>
+    				<div class="form-group col-md-6 col-12">
+              <label for="except_price">{{labelArr['decline_question1']}}</label>
+                  <input type="text" class="form-control" name="except_price" id="except_price" placeholder="{{labelArr['decline_question1']}}">
+                  <span id="d_except_price_span"></span>
+            </div>
+            <div class="form-group col-md-12 col-12">
+                <label for="Mileage">{{labelArr['decline_question2']}}</label>
+                <textarea name="why_did_decline" id="why_did_decline" class="form-control"></textarea>
+                <span id="why_did_decline_error"></span>
+              </div>
+
+    			</div>
+    			<div class="form-row">
+    				<div class="form-group col-md-12 col-12">
+    				    <label>{{labelArr['decline_question3']}}</label>
+    				</div>
+    			</div>
+    		    <div class="form-row">
+    				<div class="form-group col-md-6 col-12">
+    				   <label for="InteriorPhoto">{{labelArr['decline_question4']}}</label>
+    					<div class="upload-container">
+                <input type="file" name="file-2[]" id="file-2" class="inputfile inputfile-1"  multiple="multiple" accept="image/png, image/gif, image/jpeg" />
+                <input type="hidden" name="hidden_file-2" id="hidden_file-2" value="">
+    						<label for="file-2"><span>{{labelArr['Click_to_upload']}}</span></label>
+    					</div>
+              <div id="image-previews" class="upload-image"></div>
+              <span id="d_file2_span"></span>
+    				</div>
+                    <div class="form-group col-md-6 col-12">
+                        <label for="InteriorPhoto">{{labelArr['decline_question5']}}</label>
+                         <div class="upload-container">
+                             <input type="file" name="file-5[]" id="file-5" class="inputfile inputfile-1"  accept="image/png, image/gif, image/jpeg" />
+                             <label for="file-5"><span>{{labelArr['Click_to_upload']}}</span></label>
+                             <input type="hidden" name="interior_photo" id="hidden_file-5" value="">
+                         </div>
+                         <div id="image-previews5" class="upload-image"></div>
+                         <span id="d_file5_span"></span>
+                     </div>
+    				<div class="form-group col-md-6 col-12">
+    				  <label for="VINphoto">{{labelArr['decline_question6']}}</label>
+    				  <div class="upload-container">
+                        <input type="file" name="file-3[]" id="file-3" class="inputfile inputfile-2" data-multiple-caption="{count} files selected" accept="image/png, image/gif, image/jpeg" >
+                        <input type="hidden" name="vin_photo" id="hidden_file-3" value="">
+                        <label for="file-3"><span>{{labelArr['Click_to_upload']}}</span></label>
+                    </div>
+                    <div id="image-previews1" class="upload-image"></div>
+                    <span id="d_file3_span"></span>
+    				</div>
+    				<div class="form-group col-md-6 col-12">
+    				  <label for="Mileage">{{labelArr['decline_question7']}}</label>
+    				  <div class="upload-container">
+                        <input type="file" name="file-4[]" id="file-4" class="inputfile inputfile-2" data-multiple-caption="{count} files selected" accept="image/png, image/gif, image/jpeg" >
+                        <input type="hidden" name="mileage_photo" id="hidden_file-4" value="">
+                        <label for="file-4"><span>{{labelArr['Click_to_upload']}}</span></label>
+                        </div>
+                        <div id="image-previews2" class="upload-image" ></div>
+                    <span id="d_file4_span"></span>
+    				</div>
+    			</div>
+                <small>{{labelArr['decline_question8']}} </small>
+    			<div class="form-row">
+    				 <div class="form-group col-md-12 col-12 text-end">
+    				     <img src="{{url_for('static' , filename ='images/Spinner.gif')}}" width="42px" style="display: none;" id="loderscrren">
+    					<input type="button" class="btn btn-next btn-primary" value="{{labelArr['Submit']}}"  onclick="diclinebtn(111);">
+    				 </div>
+    			</div>
+            </form>
+            <!-- darshan changes 31-08-2023 1 close -->
+          </div>
+    		<!--
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>-->
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="raister_popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true" >
+      <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+              <div class="modal-header" style="justify-content: space-between; align-items: center;">
+                  <h4 class="modal-title" id="title">Ragister</h4>
+                  <div style="display: flex; align-items: center;">
+                      <button type="button" class="close" id="close-popup" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                  </div>
+              </div>
+              <div class="alert alert-success mt-2" role="alert" id="ragister_success" style="display:none;"></div>
+            <div class="alert alert-danger" role="alert" id="ragister_success_error" style="display:none;"></div>
+
+              <div class="modal-body">
+                  <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
+                  <div class="alert alert-error" role="alert" id="inquiry_msg_error" style="display:none;"></div>
+                  <form id="ragister_form" method="POST">
+                      <input type="hidden" name="id" id="id">
+                      <div class="row form-group">
+                          <div class="col">
+                              <label for="email">First Name*</label>
+                              <input type="text"  class="form-control" id="first_name_ragister" placeholder="Enter First name*"
+                                  name="first_name" autofocus>
+                              <span id="firstname_span_ragister"></span>
+                              <!-- /* darshan changes 31-08-2023 1  close*/ -->
+                          </div>
+                          <div class="col">
+                              <label for="email">Last Name*</label>
+                              <input type="text" class="form-control" id="last_name_ragister" placeholder="Enter Last name*"
+                                  name="last_name">
+                              <span id="lastname_span_ragister"></span>
+                          </div>
+                      </div>
+                      <div class="row form-group">
+                          <div class="col">
+                              <label for="email">Phone Number*</label>
+                              <input type="text" class="form-control" id="phone_ragister" placeholder="Enter phone number*" name="phone" numeric>
+                              <span id="phone_span_ragister"></span>
+                          </div>
+                          <div class="col">
+                              <label for="email">Username*</label>
+                              <input type="text" class="form-control" id="username_ragister" placeholder="Enter Username*"
+                                  name="username">
+                                <input type="hidden" name="address" id="">
+                                <input type="hidden" name="role">
+                              <span id="username_span_ragister"></span>
+                          </div>
+                      </div>
+                      <div class="row form-group">
+                          <div class="col">
+                              <label for="email">Email*</label>
+                              <input type="text" class="form-control" id="email_ragister" placeholder="Enter email*" name="email">
+                              <span id="email_span_ragister"></span>
+                          </div>
+                          <div class="col-md-6" id="hidediv">
+                            <label for="email">Password*</label>
+                            <input type="password" class="form-control" id="password_ragister" placeholder="Enter password*"
+                                name="password">
+                                <span><small>(*The password must be at least 8 characters, must include at least one uppercase, one lowercase one special characters and one numeric value.)</small></span><br>
+                                <span id="password_span_ragister"></span><br>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                          <div class="col">
+                              <!-- <input type="submit" class="btn btn-primary" id="ragister_save" value="Save"> -->
+                              <button type="button"  id="ragister_save" class="btn btn-primary" onclick="ragister_form_save()">Save</button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-2.2.3.min.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ url_for('static' , filename ='js/admin.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/signUp.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/upload_image.js')}}"></script>
+
+    <script type="text/javascript"
+        src="https://platform-api.sharethis.com/js/sharethis.js#property=64dca79cd8173e00123bb25d&product=inline-share-buttons&source=platform"
+        async="async"></script>
+    <script>
+		
+		$(window).load(function(){
+			//tooltip, by default, activated by hover event
+			 $('body').tooltip({   
+			   selector: '[data-toggle=tooltip]',
+			   container: 'body'
+			 });
+
+			//popover, by default, activated with clicking {toggle}
+			 $('body').popover({   
+			   selector: '[data-toggle=popover]',
+			   container: 'body'
+			 });
+		});
+        $(document).ready(function () {
+            $("#show").click(function () {
+                $("#con1").toggle();
+            });
+            /*$("#con1").mouseleave(function () {
+                $("#con1").hide();
+            });*/
+        });
+        document.getElementById("revised_price2").addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent the default behavior of the link
+            var url = WS_PATH + 'share';
+            var shareTitle = "Example Title";
+            var shareDescription = "Check out this example website!";
+            var amt = $('#d_id').val();
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            var facebookURL = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(fullURL) + "&quote=" + encodeURIComponent("Check out this offer I just received on my car - ");
+            window.open(facebookURL, "_blank");
+        });
+
+        $("#revised_price3").click(function (event) {
+            event.preventDefault();
+            var url = WS_PATH + 'share'
+            var amt = $('#d_id').val()
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            var twitterURL = "https://twitter.com/intent/tweet?url=" + encodeURIComponent(fullURL)+"&text="+encodeURIComponent("Check out this offer I just received on my car - ");
+            window.open(twitterURL, "_blank");
+        });
+
+         $("#revised_price4").click(function(event) {
+            event.preventDefault();
+            var url = WS_PATH +'share'
+            var amt = $('#d_id').val()
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            var instagramURL = "https://t.me/share/url?url="+encodeURIComponent("Check out this offer I just received on my car - ")+ encodeURIComponent(fullURL);
+            window.open(instagramURL, "_blank");
+          });
+
+        $("#revised_price5").click(function (event) {
+            event.preventDefault();
+            var url = WS_PATH + 'share'
+            var amt = $('#d_id').val()
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            var whatsappURL = "https://api.whatsapp.com/send?text=Check out this offer I just received on my car - " + encodeURIComponent(fullURL);
+            window.open(whatsappURL);
+        });
+        $("#revised_price6").click(function (event) {
+            event.preventDefault();
+            var url = WS_PATH + 'share'
+            var amt = $('#d_id').val()
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            var linkedinURL = "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(fullURL)+"&title="+encodeURIComponent("Check out this offer I just received on my car - ");
+            // var linkedinAPIURL = "https://www.linkedin.com/sharing/share-offsite/";
+            // linkedinAPIURL += "?url=" + encodeURIComponent(fullURL);
+            // linkedinAPIURL += "&title=" + encodeURIComponent("Check out this offer I just received on my car - ");
+            window.open(linkedinURL, "_blank");
+        });
+
+        $("#revised_price7").click(function (event) {
+            event.preventDefault();
+            var baseUrl = WS_PATH + 'share';
+            var amt = $('#d_id').val();
+            var customURL = baseUrl + '?amt=' + amt;
+            var revised_price = $("#revised_price").val()
+            var fullURL = window.location.origin + customURL;
+            var subject = "Look at this instant offer I received just now on my vehicle! ";
+            var emailLink ="//mail.google.com/mail/u/0/?to&su="+encodeURIComponent("Check out this offer I just received on my car - ")+"&body=Check out this offer I just received on my car - "+encodeURIComponent(fullURL) +"&bcc&cc&fs=1&tf=cm";
+            window.open(emailLink, "_blank");
+        });
+        
+        $("#revised_price9").click(function (event) {
+            event.preventDefault();
+            var baseUrl = WS_PATH + 'share';
+            var amt = $('#d_id').val();
+            var customURL = baseUrl + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+            
+            var shareableLink = fullURL;
+            var tempInput = $('<input>');
+            $('body').append(tempInput);
+
+            // Set the input value to the shareable link
+            tempInput.val(shareableLink).select();
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the temporary input element
+            tempInput.remove();
+
+            // Optionally, provide feedback to the user
+            alert('Link copied to clipboard. ');
+        });
+        
+        //revised_price9
+        // $("#revised_price8").click(function(event) {
+        //     event.preventDefault();
+        //     var url = WS_PATH +'share'
+        //     var amt = $('#d_id').val()
+        //     var customURL = url + '?amt=' + amt;
+        //     var fullURL = window.location.origin + customURL;
+        //     var messenger = "//www.facebook.com/dialog/send?link=" + encodeURIComponent(fullURL) + "&app_id=291494419107518&redirect_uri=https%3A%2F%2Fwww.sharethis.com";
+        //     window.open(messenger, "_blank");
+        //   });
+        $("#revised_price8").click(function (event) {
+            event.preventDefault();
+            var url = WS_PATH + 'share';
+            var amt = $('#d_id').val();
+            var customURL = url + '?amt=' + amt;
+            var fullURL = window.location.origin + customURL;
+
+            // Customize your title
+            var title = "Check out this offer I just received on my car - ";
+
+            // Construct the Messenger Share Dialog URL
+            var messengerURL = "https://www.facebook.com/dialog/send?";
+            messengerURL += "link=" + encodeURIComponent(fullURL);
+            messengerURL += "&app_id=291494419107518";
+            messengerURL += "&redirect_uri=https%3A%2F%2Fwww.sharethis.com";
+            messengerURL += "&title=" + encodeURIComponent(title);
+
+            // Open a new window with the Messenger Share Dialog URL
+            window.open(messengerURL, "_blank");
+        });
+    </script>
+    <script>
+           /* function displayImagePreviews(input) {
+                var imagePreviews = document.getElementById('image-previews');
+                imagePreviews.innerHTML = ''; // Clear any previous previews
+
+                var length = input.files.length;
+                if (length <= 4) {
+                    var files = input.files;
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+
+                        if (file.type.match('image.*')) {
+                            var reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                var img = document.createElement('img');
+                                img.className = 'img-preview';
+                                img.src = e.target.result;
+                                imagePreviews.appendChild(img);
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                    $("#d_file2_span").text("");
+                    $("#d_file2_span").addClass("error");
+                }else{
+                    $("#d_file2_span").text("Select only four images.");
+                    $("#d_file2_span").addClass("error");
+                }
+            }
+
+            // Trigger the displayImagePreviews function when a file is selected
+            document.getElementById('file-2').addEventListener('change', function(event) {
+                displayImagePreviews(event.target);
+            });
+
+
+            function displayImagePreviews1(input) {
+            var imagePreviews1 = document.getElementById('image-previews1');
+            imagePreviews1.innerHTML = ''; // Clear any previous previews
+
+            var length = input.files.length;
+                if (length <= 1) {
+                    var files = input.files;
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+
+                        if (file.type.match('image.*')) {
+                            var reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                var img = document.createElement('img');
+                                img.className = 'img-preview';
+                                img.src = e.target.result;
+                                imagePreviews1.appendChild(img);
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                    $("#d_file3_span").text("");
+                    $("#d_file3_span").addClass("error");
+                }else{
+                    $("#d_file3_span").text("Select only one image.");
+                    $("#d_file3_span").addClass("error");
+                }
+          }
+          document.getElementById('file-3').addEventListener('change', function(event) {
+              displayImagePreviews1(event.target);
+          });
+        function displayImagePreviews5(input) {
+            var imagePreviews5 = document.getElementById('image-previews5');
+            imagePreviews5.innerHTML = ''; // Clear any previous previews
+
+            var length = input.files.length;
+                if (length <= 1) {
+                    var files = input.files;
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+
+                        if (file.type.match('image.*')) {
+                            var reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                var img = document.createElement('img');
+                                img.className = 'img-preview';
+                                img.src = e.target.result;
+                                imagePreviews5.appendChild(img);
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                    $("#d_file5_span").text("");
+                    $("#d_file5_span").addClass("error");
+                }else{
+                    $("#d_file5_span").text("Select only one image.");
+                    $("#d_file5_span").addClass("error");
+                }
+        }
+        // Trigger the displayImagePreviews function when a file is selected
+        document.getElementById('file-5').addEventListener('change', function(event) {
+            displayImagePreviews5(event.target);
+        });
+
+
+        function displayImagePreviews2(input) {
+            var imagePreviews2 = document.getElementById('image-previews2');
+            imagePreviews2.innerHTML = ''; // Clear any previous previews
+
+            var length = input.files.length;
+                if (length <= 1) {
+                    var files = input.files;
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+
+                        if (file.type.match('image.*')) {
+                            var reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                var img = document.createElement('img');
+                                img.className = 'img-preview';
+                                img.src = e.target.result;
+                                imagePreviews2.appendChild(img);
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                    $("#d_file4_span").text("");
+                    $("#d_file4_span").addClass("error");
+                }else{
+                    $("#d_file4_span").text("Select only one image.");
+                    $("#d_file4_span").addClass("error");
+                }
+        }
+
+        // Trigger the displayImagePreviews function when a file is selected
+        document.getElementById('file-4').addEventListener('change', function(event) {
+            displayImagePreviews2(event.target);
+        });*/
+        // darshan changes 06-09-2023 img privew  close
+    </script>
+    <script>
+        $(function () {
+            if($("#sharing_id").val()){
+                jQuery(".steps").hide();
+                jQuery("#steps_13").show();
+            }else{
+                jQuery(".steps").hide();
+                jQuery("#steps_1").show();
+            }
+            //jQuery(".steps").hide();
+           // jQuery("#steps_1").show();
+            jQuery("#year_drop, #make_drop, #model_drop, #states_drop,#model_select_drop").select2();
+
+            jQuery('#mileage').keyup(function() {
+              jQuery(this).val(function(i, v) {
+                return v.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              });
+            });
+            
+            $("#mileage").keypress(function(event) {
+              jQuery(this).val(function(i, v) {
+                return v.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              });
+            });
+
+          if (jQuery(window).width() <= 767) {
+            //console.log('mobile');
+            jQuery(".responsive-sticky").on( "click", function() {
+              jQuery( ".sidebar_title" ).slideToggle( "500", function() { });
+            });
+            jQuery(window).click(function() {
+              jQuery( ".sidebar_title" ).slideUp();
+            });
+            jQuery('.content_sidebar').click(function(event){
+              event.stopPropagation();
+            });
+          }
+          else{
+            //console.log('desktop');
+          }
+          
+            $("#v_zip_code").keypress(function(event) {
+                if (event.which === 13) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        function showImage(){
+
+          $('.car-tires-areas').show();
+          $('#pdamagediv').hide();
+          $('#no_repeat1').val('ok');
+          $('#d_title').hide();
+          $('#d_title1').show();
+          $('#d_subtitle').hide();
+          $('#d_subtitle1').show();
+        }
+
+        function onlyNumberKey(evt) {
+          // Only ASCII character in that range allowed
+          var ASCIICode = (evt.which) ? evt.which : evt.keyCode
+          if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57))
+            return false;
+          return true;
+        }
+
+        //for language translation function start
+        function changeLanguage(slug){
+
+          var slug = slug;
+          var currentUrl = window.location.href;
+          var param1 = getUrlParameter1('year');
+
+          if(slug==''){
+            slug = 'en';
+          }else{
+            slug = slug;
+          }
+
+          if(param1==''){
+            if(currentUrl.indexOf('lang=') !== -1){
+              var updatedUrl = currentUrl.replace(/lang=.*?(?=&|$)/, 'lang=' + slug);
+              window.location.href = updatedUrl;
+            }else{
+              window.location.href = currentUrl + '?lang=' + slug;
+            }
+
+          }else{
+            if(currentUrl.indexOf('lang=') !== -1){
+              var updatedUrl = currentUrl.replace(/lang=.*?(?=&|$)/, 'lang=' + slug);
+              window.location.href = updatedUrl;
+            }else{
+              window.location.href = currentUrl + '&lang=' + slug;
+            }
+          }
+        }
+
+        function getUrlParameter1(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        //for language translation function end
+
+    </script>
+    <script>
+        $(function () {
+            var aaa = '{{year_1}}';
+            if(aaa!=''){
+                $("#currenttab").val(1);
+                $('#prev').attr("disabled",false);
+                $('#year_drop').val('{{year_1}}').trigger('change');
+                $('#no_load').val('yes');
+                setTimeout(function(){
+
+                    selectMake('{{make_1}}');
+                    nextsteps(1);
+                    $("#make_drop").select2( "close" );
+                    setTimeout(function(){
+                        selectModel('{{model_1}}');
+                        $("#model_drop").select2( "close" );
+                    },1100);
+                },1000);
+            }
+        });
+    </script>
+     {% if inquiryget:  %}
+        <script>
+            $(function () {
+                get_model(2,{{inquiryget[1]}});
+                get_make(2,{{inquiryget[1]}},{{inquiryget[2]}})
+            });
+        </script>
+       {% endif %}
+
+
+</body>
+</html>
+

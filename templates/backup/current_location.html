@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>HTML Geolocation</h1>
+    <p>Click the button to get your coordinates.</p>
+
+<!-- <button onclick="getLocation()">Try It</button> -->
+
+<p id="demo"></p>
+<p id="zipCode"></p>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+const x = document.getElementById("demo");
+const zipCodeDisplay = document.getElementById("zipCode");
+
+$(document).ready(function () {
+  getLocation()
+});
+
+function getLocation() {
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+function showPosition(position) {
+  x.innerHTML = "Latitude: " + position.coords.latitude +
+    "<br>Longitude: " + position.coords.longitude;
+
+  const a = position.coords.latitude;
+  const b = position.coords.longitude;
+
+  getZipCode(a, b);
+}
+
+function getZipCode(latitude, longitude) {
+  const bingMapsApiKey = "AsWsf1W37cp_tJ6fMTazsjLk9Ip0TxQyImLb2xzuWbVSYE9aRz_gEsYmakx-uibu";
+  const reverseGeocodeURL = `https://dev.virtualearth.net/REST/v1/Locations/${latitude},${longitude}?o=json&key=${bingMapsApiKey}`;
+
+  fetch(reverseGeocodeURL)
+    .then(response => response.json())
+    .then(data => {
+      if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
+        const address = data.resourceSets[0].resources[0].address;
+        zipCodeDisplay.innerHTML = "Zip Code: " + address.postalCode + "<br> addressLine " + address.addressLine +  "<br> adminDistrict " + address.adminDistrict + " <br> adminDistrict2 " + address.adminDistrict2 + "<br> countryRegion " + address.countryRegion + "<br> locality " + address.locality;
+
+      } else {
+        zipCodeDisplay.innerHTML = "Location not found.";
+      }
+    })
+    .catch(error => {
+      zipCodeDisplay.innerHTML = "Error: " + error.message;
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2546 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" type="text/css" media="all" />
+{% include "header.html" %}
+<style type="text/css">
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+    .tcaloader {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background-image: url({{url_for('static' , filename ='images/car-logo.png')}});
+        background-size: 92px;
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        background-color: #fff;
+        background-color: rgb(255 255 255 / 90%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+    }
+    .load-icon {
+        width: 55px;
+        height: 20px;
+        margin-top: 130px;
+        position: relative;
+    }
+    .load-icon span {
+        animation-name: loading;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
+        animation-fill-mode: both;
+        position: absolute;
+        display: inline-block;
+        background: #222;
+        width: 12px;
+        height: 12px;
+        border-radius: 100px;
+    }
+    .load-icon span:nth-of-type(1) {
+        left: 0;
+    }
+    .load-icon span:nth-of-type(2) {
+        animation-delay: .2s;
+        left: 40%;
+    }
+    .load-icon span:nth-of-type(3) {
+        animation-delay: .4s;
+        right: 0;
+    }
+    @keyframes loading {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+</style>
+<div id="loadingdieditvvehicle" class="tcaloader" style="display: none">
+            <div class="load-icon center">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div id="loadingdiv" class="loadingdiv" style="display: none;">
+            <img src="{{ url_for('static', filename='images/imgpsh_fullsize_anim.gif')}}" >
+          </div>
+<div class="content-wrapper" style="min-height: 544px;">
+    <div class="container">
+        <div class="page-title-box">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h4 class="page-title">Condition Filter</h4>
+                </div>
+                <div class="col-lg-6 text-right">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#flipFlop">Add New</button>
+                </div>
+            </div>
+        </div>
+        <section class="content">
+            <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
+            <div class="box">
+                <div class="box-body">
+                    <table class="table table-bordered table-striped condition_filter_table">
+					  <thead align="center">
+						<tr>
+						  <th width="10%">Title</th>
+						  <th width="29%">Vehicle Information</th>
+						  <th width="30%">Condition Information</th>
+						  <th width="15%">Buying Rules</th>
+						  <th width="16%">Action</th>
+						</tr>
+					  </thead>
+					  <tbody id="conditional_filter_tbl">
+					  </tbody>
+					</table>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel">Condition Filter</h4>
+                <div style="text-align:center;">
+                <div class="error-filter" id="filter_error" style="display:none" style="color: red;">Please make sure to enter Title, conditions & Buying rules.</div>
+                <div class="success-filter" id="success_error" style="display:none" style="color: green;">Condition filter report saved successfully.</div>
+                <div class="error-filter" id="filter_error111" style="color: red;"></div>
+                </div>
+                <div class="modal-title_btn">
+                    <button type="button" class="btn btn-primary" onclick="formSubmit();" id="conditionalBtn">Save</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="model-wrapper">
+                   <div class="left-sidebar">
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+							<div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingzero">
+									<ul class="left-sidebar-menu nodropdown">
+                                            <li>
+                                                <a href="#" data-tab="step_0_0" class="active btnone">Define*</a>
+                                            </li>
+									</ul>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingOne">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+                                            Vehicle Information
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne" aria-expanded="false" style="height: 0px;">
+                                    <div class="panel-body">
+                                        <ul class="left-sidebar-menu">
+                                            <li>
+                                                <a href="#" class="" data-tab="step_1_1">Make &amp; Model</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_1_2" class="">Year</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_1_3" class="">Location & Distance</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_1_4" class="">Mileage</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingTwo">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                            Condition Information
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
+                                    <div class="panel-body">
+                                        <ul class="left-sidebar-menu">
+                                            <li>
+                                                <a href="#" data-tab="step_2_1" class="active">Body damage</a>
+                                            </li>
+                                            <li class="active">
+                                                <a href="#" data-tab="step_2_2">Air bags</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_2_3">Starts and drives</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_2_4">Mechanical issues</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_2_5">Keys</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_2_6">Title Type</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_2_7">Water or fire damage</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingThree">
+									<ul class="left-sidebar-menu nodropdown">
+										<li>
+											<a href="#" data-tab="step_3_1"> Buying Rules*</a>
+										</li>
+									</ul>
+                                </div>
+								<!---
+                                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree" aria-expanded="false" style="height: 0px;">
+                                    <div class="panel-body">
+                                        <ul class="left-sidebar-menu">
+                                            <li>
+                                                <a href="#" data-tab="step_3_1" class="">Proquote Estimate</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-tab="step_3_2">Fixed Amount</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div id="content-tab" class="right-sidebar">
+                        <form id="conditionFilterFrm" name="conditionFilterFrm">
+                            <input type="hidden" name="condition_report_id" id="condition_report_id">
+
+                            <input type="hidden" name="make_name" id="make_name">
+                            <input type="hidden" name="model_name" id="model_name">
+
+    						<div id="content_step_0_0" class="listmenu" style="">
+                                <h4 class="mb-5">Title*</h4>
+                                <div class="row">
+    								<div class="col-lg-12">
+    									<input class="form-control" type="text" id="filter_title" name="filter_title">
+    								</div>
+    							</div>
+                            </div>
+    						
+                            <div id="content_step_1_1" class="listmenu" style="display: none;">
+                                <h4 class="mb-4">Make & Model</h4>
+                                <div class="checkbox-group">
+                                    {% for row in modelresult %}
+                                    <div class="checkbox-pannel">
+                                        <div class="custom-control custom-checkbox mb-10">
+                                            <input type="checkbox" class="custom-control-input make-select" data-trigger="make_trigger_{{row[0]}}" id="make_{{row[0]}}" onchange="getModelFunc({{row[0]}})" name="make[]" value="{{row[0]}}" data-id="{{row[1]}}">
+                                            <label class="custom-control-label" for="make_{{row[0]}}">{{row[1]}}</label>
+                                        </div>
+                                        <div id="make_trigger_{{row[0]}}" class="checkbox-submenu make-select-sub">
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div id="content_step_1_2" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Year</h4>
+                                <div class="year-range-block">
+                                    <div id="slider-range" class="price-filter-range" name="rangeInput"></div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <input class="form-control" name="year_min" type="number" min=1990 max="2024" oninput="validity.valid||(value='1990');" id="min_price" class="price-range-field" />
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" name="year_max" type="number" min=1990 max="2024" oninput="validity.valid||(value='2024');" id="max_price" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_1_3" class="listmenu" style="display: none;">
+                                <!-- new code value added start here country -->
+                                <h4 class="mb-2">Location</h4>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-pannel">
+                                        <div class="custom-control custom-checkbox mb-10">
+                                            <input type="checkbox" class="custom-control-input country-chk" id="usa" name="usa" value="USA">
+                                            <label class="radio-control-label" for="usa">USA</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="state-div-hide" class="distance-section">
+                                    <div id="distance-city-template" class="distance-wrapper mb-4" > 
+                                        <div class="distance-left">
+                                            <div class="checkbox-group">
+                                                {% for state in states %}
+                                                <div class="checkbox-pannel">
+                                                    <div class="custom-control custom-checkbox mb-10">
+                                                        <input type="checkbox" class="custom-control-input state-chk" id="{{state[1]}}" name="state[]" value="{{state[1]}}" data-id="{{state[2]}}">
+                                                        <label class="radio-control-label" for="{{state[1]}}">{{state[2]}}</label>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="distance-right">
+                                            <div class="bootstrap-tagsinput" id="selected-labels"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <!-- new code value added end here country -->
+                                <h4 class="mb-2">Distance</h4>
+                                <!-- <p class="mb-5">ZIP Code</p> -->
+                                <div class="year-range-block" >
+                                    <div id="distance-range" class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"><div class="ui-slider-range ui-corner-all ui-widget-header ui-slider-range-min" style="width: 0%;"></div><span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default" style="left: 0%;"></span></div>
+                                    <div class="row mb-3">
+                                        <div class="col-lg-6">
+                                            <label>Miles</label>
+                                            <input class="form-control" type="text" id="distance_amt" name="distance_amt" value="1">
+                                            <span class="input_notes pl-0">Max: 2,000</span>
+                                        </div>
+
+                                        <div class="col-lg-6">
+                                            <label>From</label>
+                                            <input class="form-control" type="text" id="range_zip" name="range_zip" value="55330" maxlength="5" onkeypress="return onlyNumberKey(event)">
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <input type="hidden" name="distance_counter" id="distance_counter" value="1">
+                                    <div style="display:none;" id="distance-range1" class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"><div class="ui-slider-range ui-corner-all ui-widget-header ui-slider-range-min" style="width: 0%;"></div><span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default" style="left: 0%;"></span></div>
+                                    <div class="row mb-3" style="display:none;" id="range1">
+										<div class="col-lg-12">
+											 <p class="text-right"><a href="javascript:void(0)" onclick="hideZip('1');">Remove</a></p>
+										</div>
+                                        <div class="col-lg-6">
+                                            <label>Miles</label>
+                                            <input class="form-control" type="text" id="distance_amt1" name="distance_amt1" value="">
+                                            <span class="input_notes pl-0">Max: 2,000</span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label>From</label>
+                                            <input class="form-control" type="text" id="range_zip1" name="range_zip1" value="" maxlength="5" onkeypress="return onlyNumberKey(event)">
+                                        </div>
+                                    </div>
+
+                                    <div style="display:none;" id="distance-range2" class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"><div class="ui-slider-range ui-corner-all ui-widget-header ui-slider-range-min" style="width: 0%;"></div><span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default" style="left: 0%;"></span></div>
+                                    <div class="row mb-3" style="display:none;" id="range2">
+										<div class="col-lg-12">
+											<p class="text-right"><a href="javascript:void(0)" onclick="hideZip('2');">Remove</a></p>
+										</div>
+                                        <div class="col-lg-6">
+                                            <label>Miles</label>
+                                            <input class="form-control" type="text" id="distance_amt2" name="distance_amt2" value="" onkeypress="return onlyNumberKey(event)">
+                                            <span class="input_notes pl-0">Max: 2,000</span>
+                                        </div>
+
+                                        <div class="col-lg-6">
+                                            <label>From</label>
+                                            <input class="form-control" type="text" id="range_zip2" name="range_zip2" value="" maxlength="5">
+                                           
+                                        </div>
+                                    </div>
+                                    <input class="form-control" type="hidden"  name="zip" id="zip" value="">
+                                    <hr>
+    								<div id="addzipcode_input"> 
+    									<button type="button" class="btn btn-outline w-full" onclick="showDistanceZipRange()">Add Zip Code</button>
+    									<hr>
+    								</div>
+                                </div>
+                            </div>
+                            <div id="content_step_1_4" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Mileage</h4>
+                                <div class="year-range-block">
+                                    <div id="mileage-range" class="price-filter-range" name="rangeInput"></div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <input class="form-control" name="mileage_min" type="text" min=0 max="999999" maxlength="6" oninput="validity.valid||(value='0');" id="min_mileage" class="price-range-field" />
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" name="mileage_max" type="text" min=0 max="999999" maxlength="6" value="999999" oninput="validity.valid||(value='999999');" id="max_mileage" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="checkbox-group " style="margin-top: 20px;">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="unable_to_verify" name="unable_to_verify" value="yes"  onchange="checkUnable();">
+                                                <label class="radio-control-label" for="unable_to_verify">Unable to verify</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="content_step_2_1" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Body damage</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_1_q1" name="damage[]" value="MN" >
+                                                <label class="radio-control-label" for="step_1_q1">No, my vehicle is in good shape!</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox mb-10">
+                                                <input type="checkbox" class="custom-control-input" data-trigger="step_1_q2_sub_1" id="step_1_q2" name="damage[]" value="Yes" >
+                                                <label class="radio-control-label" for="step_1_q2">Yes, my vehicle has some damage or rust</label>
+                                            </div>
+                                            <div id="step_1_q2_sub_1" class="checkbox-submenu">
+                                                <div class="custom-control custom-checkbox mb-10">
+                                                    <input type="checkbox" class="custom-control-input damage-sub" id="ckb1_4_1" value="FR" name="damageimg[]">
+                                                    <label class="custom-control-label" for="ckb1_4_1">Front end</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox mb-10">
+                                                    <input type="checkbox" class="custom-control-input damage-sub" id="ckb1_4_3" value="RR" name="damageimg[]">
+                                                    <label class="custom-control-label" for="ckb1_4_3">Rear end</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox mb-10">
+                                                    <input type="checkbox" class="custom-control-input damage-sub" id="ckb1_4_4" value="SD" name="damageimg[]">
+                                                    <label class="custom-control-label" for="ckb1_4_4">Side</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox mb-10">
+                                                    <input type="checkbox" class="custom-control-input damage-sub" id="ckb1_4_5" value="TP" name="damageimg[]">
+                                                    <label class="custom-control-label" for="ckb1_4_5">Top/roof</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_2" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Air bags</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_2_q1"  name="airbag[]" value="Y">
+                                                <label class="radio-control-label" for="step_2_q1">Yes, the airbags are deployed</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_2_q2" name="airbag[]" value="N">
+                                                <label class="radio-control-label" for="step_2_q2">No, the airbags are not deployed</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_3" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Starts and drives</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_3_q1" name="drive[]" value="D">
+                                                <label class="radio-control-label" for="step_3_q1">Yes, it starts and drives</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_3_q2" name="drive[]" value="S">
+                                                <label class="radio-control-label" for="step_3_q2">No, it starts but does not drive</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_3_q3" name="drive[]" value="N">
+                                                <label class="radio-control-label" for="step_3_q3">No, it does not start</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_4" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Mechanical issues</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_4_q1" name="sdamage[]" value="No my vehicle is in good shape!">
+                                                <label class="radio-control-label" for="step_4_q1">No, my vehicle is in good shape!</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_4_q2" name="sdamage[]" value="Yes major engine issues">
+                                                <label class="radio-control-label" for="step_4_q2">Yes, major engine issues</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_4_q3" name="sdamage[]" value="Yes major transmission issues">
+                                                <label class="radio-control-label" for="step_4_q3">Yes, major transmission issues</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_4_q4" name="sdamage[]" value="Yes major frame issues">
+                                                <label class="radio-control-label" for="step_4_q4">Yes, major frame issues</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_5" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Keys</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_5_q1" name="key[]" value="Y">
+                                                <label class="radio-control-label" for="step_5_q1">Yes, I have the key</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_5_q2" name="key[]" value="N">
+                                                <label class="radio-control-label" for="step_5_q2">No, I do not have a key</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_6" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Title Type</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_6_q1" name="title[]" value="clean title">
+                                                <label class="radio-control-label" for="step_6_q1">Yes, I have a clean title</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_6_q2" name="title[]" value="Salvage Rebuilt">
+                                                <label class="radio-control-label" for="step_6_q2">No, my title is branded (Salvage, rebuilt, lemon law, etc.)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_6_q3" name="title[]" value="Unknown">
+                                                <label class="radio-control-label" for="step_6_q3">No, I don’t have a title</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_step_2_7" class="listmenu" style="display: none;">
+                                <h4 class="mb-5">Water or fire damage</h4>
+                                <div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_7_q1" name="fire_damage[]" value="no">
+                                                <label class="radio-control-label" for="step_7_q1">No, it has never had any fire or water damage</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-pannel">
+                                            <div class="custom-control custom-checkbox  mb-10">
+                                                <input type="checkbox" class="custom-control-input" id="step_7_q2" name="fire_damage[]" value="W">
+                                                <label class="radio-control-label" for="step_7_q2">Yes, it had fire or water damage</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="content_step_3_1" class="listmenu" style="display: none;">
+    							<h4 class="mb-3"> Buying Rules</h4>
+    							<div class="d-flex mb-3">
+    								<div class="radiobutton mr10">
+    									<input value="1" type="radio" name="Estimate" class="custom-control-input" id="ProquoteEstimate" checked>
+    									<label class="radio-control-label" for="ProquoteEstimate">Proquote Estimate</label>
+    								</div>
+    								<div class="radiobutton mr10">
+    									<input  value="2" type="radio" name="Estimate" class="custom-control-input" id="FixedAmount">
+    									<label class="radio-control-label" for="FixedAmount">Fixed Amount</label>
+    								</div>
+    							</div>
+    							
+    							<div id="estimate1" class="brwrapper" >
+                                	<h5 class="mb-3">Proquote Estimate*</h5>
+    								<div class="year-range-block estimate_step">
+                                    <div class="row mb-5">
+                                        <div class="col-lg-2">
+                                            <select class="form-control" name="not_to_exceed_type_action" id="not_to_exceed_type_action">
+                                                <option value="minus">-</option>
+                                                <option value="plus">+</option>
+                                            </select>
+
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <select class="form-control" name="not_to_exceed_type" id="not_to_exceed_type">
+                                                <option value="percentage">%</option>
+                                                <option value="amount">$</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <input class="form-control" type="text"  maxlength="3" name="not_to_exceed_per" id="not_to_exceed_per" onkeypress="return onlyNumberKey(event)">
+                                            <span class="error-filter" id="filter_error1" style="display:none" style="color: red;">Please enter a valid percentage, it must be less than 100.</span>
+                                            <span class="error-filter" id="not_to_exceed_per_err" style="display:none" style="color: red;">Please enter a valid positive percentage.</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <p class="mb-3">Not To Exceed*</p>
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon" id="basic-addon1">$</span> 
+                                                <input class="form-control"  aria-describedby="basic-addon1" maxlength="10" name="not_to_exceed" id="not_to_exceed" onkeypress="return onlyNumberKey(event)"> 
+                                                
+                                            </div>
+                                            <span class="error-filter" id="not_to_exceed_err" style="display:none" style="color: red;">Please enter a valid positive amount.</span>
+                                        </div>
+                                    </div>
+                                </div>
+    							</div>
+    							<div id="estimate2" class="brwrapper" style="display: none;">
+    								<h5 class="mb-3">Fixed Amount*</h5>
+    								<div class="year-range-block estimate_step">
+    									<div class="row mb-5">
+    										<div class="col-lg-12">
+    											<div class="input-group"> 
+                                                    <span class="input-group-addon" id="basic-addon2">$</span> 
+                                                    <input class="form-control" aria-describedby="basic-addon2" maxlength="10" name="fixed_amt_txt" id="fixed_amt_txt" onkeypress="return onlyNumberKey(event)"> 
+                                                </div>
+                                                <span class="error-filter" id="fixed_amt_txt_err" style="display:none" style="color: red;">Please enter a valid positive amount.</span>
+    										</div>
+    									</div>
+                                        <!-- <div class="row ">
+                                            <p class="mb-3">Not To Exceed</p>
+                                            <div class="col-lg-12">
+                                                <div class="input-group"> 
+                                                    <span class="input-group-addon" id="basic-addon2">$</span> 
+                                                    <input class="form-control" aria-describedby="basic-addon2" name="not_to_exceed1" id="not_to_exceed1"> 
+                                                </div>
+                                            </div>
+                                        </div> -->
+    								</div>
+    							</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="custom-footer">
+                    <div class="footerbox">
+                        <h5>Condition Include</h5>
+                        <div class="bootstrap-tagsinput">
+                            <span class="tag label-info"><b>Make & Model</b>: <span id="make_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('make','make_label_txt','make')" id="make_model_close" style="display:none;"><i class="ti-close"></i></a></span>
+                           <!-- <span class="tag label-info"><b>Model</b>: Maibu <a href="#"><i class="ti-close"></i></a></span>-->
+                            <span class="tag label-info"><b>Year</b><span id="year_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('year','year_label_txt','year')" id="year_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Mileage</b><span id="mileage_label_txt"></span> <span id="mileage_label_txt1"></span><a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>ZIP</b><span id="zip_label_txt">: 1 miles from 55330</span> <a href="javascript:void(0)" onclick="resetLabel('zip','zip_label_txt','zip')" id="zip_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info" style="display:none;" id="zip1_div"><b>ZIP</b><span id="zip_label_txt1">: 1 miles from 55330</span> <a href="javascript:void(0)" onclick="resetLabel('zip1','zip_label_txt1','zip1')" id="zip_close1" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info" style="display:none;" id="zip2_div"><b>ZIP</b><span id="zip_label_txt2">: 1 miles from 55330</span> <a href="javascript:void(0)" onclick="resetLabel('zip2','zip_label_txt2','zip2')" id="zip_close2" style="display:none;"><i class="ti-close" ></i></a></span>
+                        </div>
+                    </div>
+                    <div class="footerbox">
+                        <h5>Condition Exclusions </h5>
+                        <div class="bootstrap-tagsinput">
+                            <span class="tag label-info"><b>Body damage:</b><span id="bodydamage_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('damage','bodydamage_label_txt','damage')" id="damage_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Air bags:</b><span id="airbag_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('airbag','airbag_label_txt','airbag')" id="airbag_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Starts and drives:</b><span id="drive_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('drive','drive_label_txt','drive')" id="drive_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Mechanical issues:</b><span id="mechanical_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('sdamage','mechanical_label_txt','sdamage')" id="sdamage_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Keys:</b><span id="key_label_txt"></span><a href="javascript:void(0)" onclick="resetLabel('key','key_label_txt','key')" id="key_close" style="display:none;"> <i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Title Type:</b><span id="titletype_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('title','titletype_label_txt','title')" id="title_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                            <span class="tag label-info"><b>Water or fire damage:</b><span id="firedamage_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('fire_damage','firedamage_label_txt','fire_damage')" id="fire_damage_close" style="display:none;"><i class="ti-close" ></i></a></span>
+                        </div>
+                    </div>
+                    <div class="footerbox">
+                        <div class="rule_div" id="rule_div1">
+                            <h5>Buying Rules: <span id="buyingrule_label_txt">Proquote Estimate</span></h5>
+                            <h5>Proquote Estimate: <span id="buyingruletype_label_txt">- %</span></h5>
+                            <h5>Not To Exceed: <span id="nottoexceed_label_txt"></span></h5>
+                        </div>
+                        <div class="rule_div" id="rule_div2" style="display:none">
+                            <h5>Buying Rules: <span id="buyingrule1_label_txt">Fixed Amount</span></h5>
+                            <h5>Fixed Amount: <span id="fixed_amt_txt_label_txt"></span></h5>
+                            <!-- <h5>Not To Exceed: <span id="not_to_exceed1_label_txt"></span></h5> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+<script>
+    //new code value added start here country
+    function updateSelectedLabels() {
+            
+        var selectedLabels = jQuery('#distance-city-template .custom-control-input:checked').map(function() {
+            var checkboxId = jQuery(this).attr('id');
+            return '<span class="tag label-info"><b>' + $(this).attr("data-id") + '</b><a href="javascript:void(0)" data-checkbox-id="' + checkboxId + '"><i class="ti-close"></i></a></span>';
+        }).get();
+        jQuery('#selected-labels').html(selectedLabels.join(''));
+    }
+    //new code value added end here country
+    
+    $(function() {
+        
+        //new code value added start here country
+        $('.country-chk').change(function() {
+
+            var isChecked = $('.country-chk').prop('checked');
+
+            if(isChecked){
+
+                $('.state-chk').prop('checked', false);
+            }
+        });
+
+        jQuery('#distance-city-template .custom-control-input').on('change', function() {
+            
+            updateSelectedLabels();
+        });
+
+        jQuery('#selected-labels').on('click', '.tag a', function() {
+            var checkboxId = jQuery(this).data('checkbox-id');
+            jQuery('#' + checkboxId).prop('checked', false);
+            updateSelectedLabels();
+        });
+
+        
+    
+        $('#usa').change(function(){
+
+            if($(this).is(':checked')){
+
+                $('#state-div-hide').hide();
+            }else{
+                $('#state-div-hide').show();
+            }
+        });
+        //new code value added end here country
+        
+        $('#distance_amt').keyup(function(){
+          if ($(this).val() > 2000){
+            alert("Mile range should not exceed 2000");
+            $(this).val('2000');
+          }
+        });
+
+        $('#distance_amt1').keyup(function(){
+          if ($(this).val() > 2000){
+            alert("Mile range should not exceed 2000");
+            $(this).val('2000');
+          }
+        });
+
+        $('#distance_amt2').keyup(function(){
+          if ($(this).val() > 2000){
+            alert("Mile range should not exceed 2000");
+            $(this).val('2000');
+          }
+        });
+		
+        getConidtionList();
+
+		$("input[name$='Estimate']").click(function() {
+			var test = $(this).val();
+			$("div.brwrapper").hide();
+			$("#estimate" + test).show();
+            $(".rule_div").hide();
+
+            $("#rule_div" + test).show();
+		});
+
+        $("input:checkbox[name='damage[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues = [];
+                $("input:checkbox[name='damage[]']:checked").each(function() {
+
+                    if($(this).val()=='Yes'){
+                        selectedValues.push(' Yes, my vehicle has some damage or rust');
+                    }else{
+                        selectedValues.push(' No, my vehicle is in good shape!');
+                    }
+                });
+                $('#bodydamage_label_txt').text(selectedValues);
+            }else{
+                var selectedValues = [];
+                $("input:checkbox[name='damage[]']:checked").each(function() {
+
+                    if($(this).val()=='Yes'){
+                        selectedValues.push(' Yes, my vehicle has some damage or rust');
+                    }else{
+                        selectedValues.push(' No, my vehicle is in good shape!');
+                    }
+                });
+                $('#bodydamage_label_txt').text(selectedValues);
+            }
+        });
+
+        $("input:checkbox[name='airbag[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues1 = [];
+                $("input:checkbox[name='airbag[]']:checked").each(function() {
+
+                    if($(this).val()=='Y'){
+                        selectedValues1.push(' Yes, the airbags are deployed');
+                    }else{
+                        selectedValues1.push(' No, the airbags are not deployed');
+                    }
+                    $('#airbag_close').show();
+                });
+                $('#airbag_label_txt').text(selectedValues1);
+            }else{
+                var selectedValues1 = [];
+                $("input:checkbox[name='airbag[]']:checked").each(function() {
+
+                    if($(this).val()=='Y'){
+                        selectedValues1.push(': Yes, the airbags are deployed');
+                    }else{
+                        selectedValues1.push(': No, the airbags are not deployed');
+                    }
+
+                });
+                $('#airbag_label_txt').text(selectedValues1);
+            }
+        });
+
+        $("input:checkbox[name='drive[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues2 = [];
+                $("input:checkbox[name='drive[]']:checked").each(function() {
+
+                    if($(this).val() == "D"){
+                        selectedValues2.push(' Yes, it starts and drives');
+                    }else if($(this).val() == "S"){
+                        selectedValues2.push(' No, it starts but does not drive');
+                    }else{
+                        selectedValues2.push(' No, it does not start');
+                    }
+                    $('#drive_close').show();
+                });
+                $('#drive_label_txt').text(selectedValues2);
+            }else{
+                var selectedValues2 = [];
+                $("input:checkbox[name='drive[]']:checked").each(function() {
+
+                    if($(this).val() == "D"){
+                        selectedValues2.push(' Yes, it starts and drives');
+                    }else if($(this).val() == "S"){
+                        selectedValues2.push(' No, it starts but does not drive');
+                    }else{
+                        selectedValues2.push(' No, it does not start');
+                    }
+                });
+                $('#drive_label_txt').text(selectedValues2);
+            }
+        });
+
+        $("input:checkbox[name='sdamage[]']").click(function(){
+            
+            if($(this).is(':checked')){
+                var selectedValues3 = [];
+                $("input:checkbox[name='sdamage[]']:checked").each(function() {
+
+                    selectedValues3.push($(this).val());
+                    $('#sdamage_close').show();
+                });
+                $('#mechanical_label_txt').text(selectedValues3);
+            }else{
+                var selectedValues3 = [];
+                $("input:checkbox[name='sdamage[]']:checked").each(function() {
+
+                    selectedValues3.push($(this).val());
+                });
+                $('#mechanical_label_txt').text(selectedValues3);
+            }
+        });
+
+        $("input:checkbox[name='key[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues5 = [];
+                $("input:checkbox[name='key[]']:checked").each(function() {
+
+                    if($(this).val()=='Y'){
+                        selectedValues5.push(' Yes, I have the key');
+                    }else{
+                        selectedValues5.push(' No, I do not have a key');
+                    }
+                    $('#key_close').show();
+                });
+                $('#key_label_txt').text(selectedValues5);
+            }else{
+                var selectedValues5 = [];
+                $("input:checkbox[name='key[]']:checked").each(function() {
+
+                    if($(this).val()=='Y'){
+                        selectedValues5.push(' Yes, I have the key');
+                    }else{
+                        selectedValues5.push(' No, I do not have a key');
+                    }
+                    $('#key_close').show();
+                });
+                $('#key_label_txt').text(selectedValues5);
+            }
+        });
+
+        $("input:checkbox[name='title[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues6 = [];
+                $("input:checkbox[name='title[]']:checked").each(function() {
+
+                    if($(this).val()=='clean title'){
+                        selectedValues6.push(' Yes, I have a clean title');
+                    }else if($(this).val() == "Salvage Rebuilt"){
+                        selectedValues6.push(' No, my title is branded (Salvage, rebuilt, lemon law, etc.)');
+                    }else{
+                        selectedValues6.push(' No, I don’t have a title');
+                    }
+                    $('#title_close').show();
+                });
+                $('#titletype_label_txt').text(selectedValues6);
+            }else{
+                var selectedValues6 = [];
+                $("input:checkbox[name='title[]']:checked").each(function() {
+
+                    if($(this).val()=='clean title'){
+                        selectedValues6.push(' Yes, I have a clean title');
+                    }else if($(this).val() == "Salvage Rebuilt"){
+                        selectedValues6.push(' No, my title is branded (Salvage, rebuilt, lemon law, etc.)');
+                    }else{
+                        selectedValues6.push(' No, I don’t have a title');
+                    }
+                    
+                });
+                $('#titletype_label_txt').text(selectedValues6);
+            }
+        });
+
+        $("input:checkbox[name='fire_damage[]']").click(function(){
+
+            if($(this).is(':checked')){
+                var selectedValues7 = [];
+                $("input:checkbox[name='fire_damage[]']:checked").each(function() {
+
+                    if($(this).val()=='no'){
+                        selectedValues7.push(' No, it has never had any fire or water damage');
+                    }else{
+                        selectedValues7.push(' Yes, it had fire or water damage');
+                    }
+                    $('#fire_damage_close').show();
+                });
+                $('#firedamage_label_txt').text(selectedValues7);
+            }else{
+                var selectedValues7 = [];
+                $("input:checkbox[name='fire_damage[]']:checked").each(function() {
+
+                    if($(this).val()=='no'){
+                        selectedValues7.push(' No, it has never had any fire or water damage');
+                    }else{
+                        selectedValues7.push(' Yes, it had fire or water damage');
+                    }
+                });
+                $('#firedamage_label_txt').text(selectedValues7);
+            }
+        });
+
+
+		$('.checkbox-submenu').hide();
+		$('.checkbox-group .custom-checkbox.mb-10 .custom-control-input').change(function() {
+			var hiddenId = $(this).attr("data-trigger");
+			if ($(this).is(':checked')) {
+				$("#" + hiddenId).show();
+			} else {
+				$("#" + hiddenId).hide();
+			}
+		});
+
+        $("#fixed_amt_txt").blur(function() {
+          var fixed_amt_txt = $('#fixed_amt_txt').val();
+          $('#fixed_amt_txt_label_txt').text(fixed_amt_txt);
+        });
+
+        $("#not_to_exceed").blur(function() {
+          var not_to_exceed = $('#not_to_exceed').val();
+          $('#nottoexceed_label_txt').text(not_to_exceed);
+        });
+
+        $("#not_to_exceed_per").blur(function() {
+            
+            var not_to_exceed_type_action = $('#not_to_exceed_type_action').val();
+            var not_to_exceed_type = $('#not_to_exceed_type').val();
+            var not_to_exceed_per = $('#not_to_exceed_per').val();
+
+            if(not_to_exceed_type_action=='minus'){
+
+                var aa1 = '-';
+            }else{
+                var aa1 = '+';
+            }
+
+            if(not_to_exceed_type=='percentage'){
+
+                var aa2 = '%';
+            }else{
+                var aa2 = '$';
+            }
+            $('#buyingruletype_label_txt').text(aa1 +' '+' '+not_to_exceed_per+aa2);
+        });
+        
+    });
+    
+    function showDistanceZipRange(){
+
+        //distance_counter
+        var distance_counter = $('#distance_counter').val();
+        distance_counter = parseInt(distance_counter) + 1;
+        $('#distance_counter').val(distance_counter);
+
+        if(distance_counter==2){
+
+            $('#range1').show();
+            $('#distance-range1').show();
+            $('#range_zip1').val('');
+            $('#zip1_div').show();
+            $('#zip_close1').show();
+        }else if(distance_counter==3){
+
+            $('#range2').show();
+            $('#distance-range2').show();
+            $('#range1').show();
+            $('#distance-range1').show();
+            $('#addzipcode_input').hide();
+            $('#range_zip2').val('');
+            $('#zip1_div').show();
+            $('#zip2_div').show();
+            $('#zip_close1').show();
+            $('#zip_close2').show();
+        }
+    }
+
+    function hideZip(id){
+
+        var distance_counter = $('#distance_counter').val();
+
+        $('#range'+id).hide();
+        $('#distance-range'+id).hide();
+        $('#addzipcode_input').show();
+        $('#range_zip'+id).val('');
+        
+        $("#distance_amt"+id).val('1');
+        
+        $('#zip'+id+'_div').hide();
+        
+        $("#distance-range"+id).slider({
+            range: "min",
+            value: 1,
+            min: 1,
+            max: 2000,
+            slide: function(event, ui) {
+                $("#distance_amt"+id).val(ui.value);
+            }
+        });
+        
+
+        distance_counter = parseInt(distance_counter) - 1;
+        $('#distance_counter').val(distance_counter);
+    }
+    
+    function checkUnable(){
+
+        if ($('#unable_to_verify').prop('checked')) {
+            $('#mileage_label_txt1').text('Unable to verify');
+        }else{
+            $('#mileage_label_txt1').text('');
+        }
+    }
+
+    function resetLabel(name,id,name_id){
+        
+        if(name=='mileage'){
+
+            $('#min_mileage').val('0');
+            $('#max_mileage').val('999999');
+            $('#'+id).text('');
+            $('#mileage_label_txt1').text('');
+            $("#unable_to_verify").prop('checked', false);
+            $('#mileage_close').hide();
+            $("#mileage-range").slider({
+                values: [0, 999999]
+            });
+        }else if(name=='year'){
+
+            $('#min_price').val('1990');
+            $('#max_price').val('2024');
+            $('#'+id).text('');
+            $('#year_close').hide();
+            $("#slider-range").slider({
+                values: [1990, 2024]
+            });
+        }else if(name=='zip'){
+
+            $('#distance_amt').val('1');
+            $('#range_zip').val('55330');
+            $('#zip_close').hide();
+            $("#distance-range").slider({
+                range: "min",
+                value: 1,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt").val(ui.value);
+                }
+            });
+        }else if(name=='zip1'){
+
+            $('#distance_amt1').val('1');
+            $('#range_zip1').val('');
+            $('#zip_close1').hide();
+            $('#zip1_div').hide();
+            hideZip(1);
+            $("#distance-range1").slider({
+                range: "min",
+                value: 1,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt1").val(ui.value);
+                }
+            });
+        }else if(name=='zip2'){
+
+            $('#distance_amt2').val('1');
+            $('#range_zip2').val('');
+            $('#zip_close2').hide();
+            $('#zip2_div').hide();
+            hideZip(2);
+            $("#distance-range2").slider({
+                range: "min",
+                value: 1,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt2").val(ui.value);
+                }
+            });
+            
+        }else if(name=='make'){
+            $('input:checkbox[name="make[]"]').attr('checked',false);
+            $('.make-select-sub').hide();
+            $('#'+id).text('');
+            $('#make_model_close').hide();
+        }else{
+
+            $("input[type=radio][name="+name+"]").prop('checked', false);
+            
+            $('#'+id).text('');
+            $('#'+name+'_close').hide();
+
+            if (name=='airbag') { $('input:checkbox[name="airbag[]"]').attr('checked',false); }
+            if (name=='drive') { $('input:checkbox[name="drive[]"]').attr('checked',false); }
+            if (name=='sdamage') { $('input:checkbox[name="sdamage[]"]').attr('checked',false); }
+            if (name=='key') { $('input:checkbox[name="key[]"]').attr('checked',false); }
+            if (name=='title') { $('input:checkbox[name="title[]"]').attr('checked',false); }
+            if (name=='fire_damage') { $('input:checkbox[name="fire_damage[]"]').attr('checked',false); }
+
+            if(name=='damage'){
+                $('input:checkbox[name="damage[]"]').attr('checked',false);
+                $('input:checkbox[name="damageimg[]"]').attr('checked',false);
+                $('#step_1_q2_sub_1').hide();
+            }
+        }
+    }
+
+    function fetchCondition(id){
+        
+        $('#condition_report_id').val(id);
+        $.ajax({
+            url: WS_PATH+'get-conditional-reoport-data/'+id,
+            data: {'id':id},
+            type: 'Get',
+            success: function (response) {
+                var data = JSON.parse(response);
+                var data1 = data.data;
+
+                $('#filter_title').val(data1[1]);
+
+                $('#min_price').val(data1[5]);
+                $('#max_price').val(data1[6]);
+
+                $('#min_mileage').val(data1[9]);
+                $('#max_mileage').val(data1[10]);
+
+                $('#mileage_close').hide();
+                if(data1[9]!='' && data1[10]!=''){
+                    $('#mileage_label_txt').text(': '+data1[9]+' to '+data1[10]);
+                    $('#mileage_close').show();
+
+
+                    $("#mileage-range").slider({
+                        values: [data1[9], data1[10]]
+                    });
+                }
+                
+                //new code value added start here country
+                if(data1[49]!=''){
+
+                    var stateData = data1[49];
+                    var stateArr = stateData.split(',');
+                    console.log(stateArr);
+
+                    var stateVal = '';
+                    $('.state-chk').each(function (){
+                        
+                        stateVal = $(this).val();
+                        if ($.inArray(stateVal, stateArr) !== -1) {
+
+                            $(this).prop('checked', true);
+                        }
+                    });
+
+                    $('.country-chk').prop('checked', false);
+                    $('#state-div-hide').show();
+                    updateSelectedLabels();
+                }
+                //new code value added end here country
+                
+                //new code value added start here country
+                if(data1[50]!=''){
+
+                    
+                    $('.country-chk').prop('checked', true);
+                    $('.state-chk').prop('checked', false);
+                    $('#state-div-hide').hide();
+                }
+                //new code value added end here country
+
+                if(data1[5]!='' && data1[6]!=''){
+                    $('#year_label_txt').text(': '+data1[5]+' to '+data1[6]);
+                    $('#year_close').show();
+
+                    $("#slider-range").slider({
+                        values: [data1[5], data1[6]]
+                    });
+                }
+
+                if(data1[33]!='' && data1[33]!=null){
+
+                    var d = data1[33];
+                    var myArray = d.split(',');
+                    myArray.forEach(myArray1 => {
+                        
+                        if(myArray1!=''){
+                            
+                            $("input[name='damage[]'][value='" + myArray1 + "']").attr('checked', false).trigger('click');
+                            if(myArray1=='Yes'){
+                            
+                                var damageImg = JSON.parse(data1[12]);
+                                $(".damage-sub").prop("checked", false);
+                                damageImg.forEach(damageImgs => {
+                                    console.log(damageImgs)
+                                    if(damageImgs=='FR'){
+                                        $("#ckb1_4_1").prop("checked", true)
+                                    }else if(damageImgs=='RR'){
+                                        $("#ckb1_4_3").prop("checked", true)
+                                    }else if(damageImgs=='SD'){
+                                        $("#ckb1_4_4").prop("checked", true)
+                                    }else if(damageImgs=='TP'){
+                                        $("#ckb1_4_5").prop("checked", true)
+                                    }
+                                });
+                                $('#step_1_q2_sub_1').show();
+                            }else{
+
+                                $('#step_1_q2_sub_1').hide();
+                            }
+                        }
+                    });
+                }
+
+                if(data1[34]!='' && data1[34]!=null){
+
+                    var airbag = data1[34];
+                    var airbagArr = airbag.split(',');
+                    airbagArr.forEach(airbagArrData => {
+                        
+                        if(airbagArrData!=''){
+                            
+                            $("input[name='airbag[]'][value='" + airbagArrData + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[35]!='' && data1[35]!=null){
+
+                    var drive = data1[35];
+                    var driveArr = drive.split(',');
+                    driveArr.forEach(driveArrData => {
+                        
+                        if(driveArrData!=''){
+                            
+                            $("input[name='drive[]'][value='" + driveArrData + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[36]!='' && data1[36]!=null){
+                    var sdamage123 = data1[36];
+                    var sdamageArr123 = sdamage123.split(',');
+                    console.log(sdamageArr123+'nig');
+                    sdamageArr123.forEach(sdamageArr123Data => {
+                        
+                        if(sdamageArr123Data!=''){
+
+                            $("input[name='sdamage[]'][value='" + sdamageArr123Data + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[37]!='' && data1[37]!=null){
+
+                    var key1 = data1[37];
+                    var key1Arr = key1.split(',');
+                    key1Arr.forEach(key1ArrData => {
+                        
+                        if(key1ArrData!=''){
+                            
+                            $("input[name='key[]'][value='" + key1ArrData + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[38]!='' && data1[38]!=null){
+
+                    var title1 = data1[38];
+                    var title1Arr = title1.split(',');
+                    title1Arr.forEach(title1ArrData => {
+                        
+                        if(title1ArrData!=''){
+                            
+                            $("input[name='title[]'][value='" + title1ArrData + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[39]!='' && data1[39]!=null){
+
+                    var fire_damage1 = data1[39];
+                    var fire_damage1Arr = fire_damage1.split(',');
+                    fire_damage1Arr.forEach(fire_damage1ArrData => {
+                        
+                        if(fire_damage1ArrData!=''){
+                            
+                            $("input[name='fire_damage[]'][value='" + fire_damage1ArrData + "']").attr('checked', false).trigger('click');
+                        }
+                    });
+                }
+
+                if(data1[25]==''){
+                    $('.zipcode_box').hide();
+                    $('#addzipcode_input').show();    
+                    $('#zip_close').hide();
+                }else{
+                    $('#zip').val(data1[25]);
+                    $('.zipcode_box').show();
+                    $('#addzipcode_input').hide();    
+                    $('#zip_close').show();
+                }
+
+                if(data1[19]=='Proquote Estimate'){
+
+                    $("div.brwrapper").hide();
+                    $("#estimate1").show();
+                    $("#ProquoteEstimate").prop('checked', true);
+                }else{
+
+                    $("div.brwrapper").hide();
+                    $("#estimate2").show();
+                    $("#FixedAmount").prop('checked', true);
+                }
+
+                if(data1[40]=='yes'){
+                    
+                    $("#unable_to_verify").prop('checked', true);
+                    $('#mileage_label_txt1').text('Unable to verify');
+                }else{
+
+                    $("#unable_to_verify").prop('checked', false);
+                    $('#mileage_label_txt1').text('');
+                }
+
+                if(data1[19]=='Proquote Estimate'){
+
+                    $('#not_to_exceed_type_action').val(data1[20]);
+                    $('#not_to_exceed_type').val(data1[21]);
+
+                    $('#not_to_exceed_per').val(data1[22]);
+                    $('#not_to_exceed').val(data1[23]);
+                    var not_to_exceed_type_action_data = '';
+                    if(data1[20]=='minus'){
+
+                        not_to_exceed_type_action_data = '-';
+                    }else if(data1[20]=='plus'){
+                        not_to_exceed_type_action_data = '+';
+                    }
+
+                    var not_to_exceed_type_data = '';
+                    if(data1[21]=='percentage'){
+
+                        not_to_exceed_type_data = '%';
+                    }else if(data1[21]=='amount'){
+                        not_to_exceed_type_data = '$';
+                    }
+
+                    var not_to_exceed_per_data = '';
+                    if(data1[22]!=''){
+
+                        not_to_exceed_per_data = data1[22];
+                    }
+
+                    var not_to_exceed_data = '';
+                    if(data1[23]!=''){
+
+                        not_to_exceed_data = data1[23];
+                    }
+
+                    $('.rule_div').hide();
+                    $('#rule_div1').show();
+                    $('#buyingruletype_label_txt').text(not_to_exceed_type_action_data+' '+' '+not_to_exceed_per_data+not_to_exceed_type_data);
+                    $('#nottoexceed_label_txt').text(not_to_exceed_data);
+                }else{
+
+                    $('#fixed_amt_txt').val(data1[24]);
+                    $('.rule_div').hide();
+                    $('#rule_div2').show();
+                    var fixed_amt_txt_data = '';
+                    if(data1[24]!=''){
+
+                        fixed_amt_txt_data = data1[24];
+                    }
+                    $('#fixed_amt_txt_label_txt').text(fixed_amt_txt_data);
+                }
+
+                if(data1[26]!='' && data1[27]!=''){
+
+                    var a1 = data1[26];
+                    var a2 = data1[27];
+                    
+                    var data = JSON.parse(data1[4]);
+
+                    var str = '';
+                    data.forEach(product => {
+                        
+                        $("#make_"+product['make_id']).trigger("click");
+                        setTimeout(function(){
+                            str += '<p id="make_p_'+product['make_id']+'">'+$('#make_'+product['make_id']).attr("data-id")+' - ';
+                            $('input:checkbox[name="model['+product['make_id']+']"]').attr('checked',false);
+                            product['model_id'].forEach(product1 => {
+                                $('#ckb'+product['make_id']+'_'+product1).prop("checked", true);
+                                str += $('#ckb'+product['make_id']+'_'+product1).attr("data-id")+', ';
+                            })
+                            str += '</p>';
+                            $('#make_label_txt').html(removeLastComma(str));
+                        },1500)
+                    })
+                }
+
+                
+                $("#distance-range").slider({
+                    range: "min",
+                    value: data1[30],
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        $("#distance_amt").val(ui.value);
+                    }
+                });
+                $('#distance_amt').val(data1[30]);
+                $('#range_zip').val(data1[31]);
+                $('#zip_close').show();
+                
+                $('#zip_label_txt').text(': ' +data1[30]+' miles from '+data1[31]);
+                
+                if(data1[42]!='' && data1[42]!=null){
+                    $("#distance-range1").show();
+                    $("#range1").show();
+                    $('#zip1_div').show();
+                    $('#zip_label_txt1').show();
+                    $('#zip_label_txt1').text(': ' +data1[41]+' miles from '+data1[42]);
+                    $('#zip_close1').show();
+                    
+                    var distance_counter = $('#distance_counter').val();
+                    distance_counter = parseInt(distance_counter) + 1;
+                    $('#distance_counter').val(distance_counter);
+                }
+                $("#distance-range1").slider({
+                    range: "min",
+                    value: data1[41],
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        $("#distance_amt1").val(ui.value);
+                    }
+                });
+                $('#distance_amt1').val(data1[41]);
+                $('#range_zip1').val(data1[42]);
+                
+                
+                
+                if(data1[44]!='' && data1[44]!=null){
+                    $("#distance-range2").show();
+                    $("#range2").show();
+                    $('#zip2_div').show();
+                    $('#zip_label_txt2').show();
+                    $('#zip_label_txt2').text(': ' +data1[43]+' miles from '+data1[44]);
+                    $('#zip_close2').show();
+                    var distance_counter = $('#distance_counter').val();
+                    distance_counter = parseInt(distance_counter) + 1;
+                    $('#distance_counter').val(distance_counter);
+                }
+                $("#distance-range2").slider({
+                    range: "min",
+                    value: data1[43],
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        $("#distance_amt2").val(ui.value);
+                    }
+                });
+                $('#distance_amt2').val(data1[43]);
+                $('#range_zip2').val(data1[44]);
+                
+                
+                
+                
+                if((data1[42]!='' && data1[42]!=null) && (data1[44]!='' && data1[44]!=null) ){
+                    $('#addzipcode_input').hide();
+                }else{
+                    $('#addzipcode_input').show();
+                }
+
+                $('#flipFlop').modal('show');
+            },
+            error: function (error) {
+                $('#loading-cal-gif').hide();
+                console.log(error);
+            }
+        });
+    }
+
+    function removeLastComma(str) {
+      const lastIndex = str.lastIndexOf(',');
+
+      if (lastIndex !== -1) {
+        return str.slice(0, lastIndex) + str.slice(lastIndex + 1);
+      }
+
+      return str;
+    }
+
+    $(document).ready(function(){
+        
+        $("input:checkbox[name='damage[]']").on('change', function(){
+            
+            if($(this).is(':checked')){
+                
+                if($(this).val()=='Yes'){
+                    $('#step_1_q2_sub_1').show();
+                    $(".damage-sub").prop("checked", true);
+                }else{
+                }
+                $('#damage_close').show();
+            }else{
+                if($(this).val()=='Yes'){
+                    $('#damage_close').hide();
+                    $('#step_1_q2_sub_1').hide();
+                    $(".damage-sub").prop("checked", false);
+                }
+            }
+        });
+        
+        
+        $("#slider-range").slider({
+                range: true,
+                orientation: "horizontal",
+                min: 1990,
+                max: 2024,
+                values: [1990, 2024],
+                step: 1,
+
+                slide: function(event, ui) {
+                    if (ui.values[0] == ui.values[1]) {
+                        return false;
+                    }
+                    $("#min_price").val(ui.values[0]);
+                    $("#max_price").val(ui.values[1]);
+
+                    $('#year_label_txt').text(': '+ui.values[0]+' to '+ui.values[1]);
+                    $('#year_close').show();
+                    
+                }
+            });
+
+            $("#min_price").val($("#slider-range").slider("values", 0));
+            $("#max_price").val($("#slider-range").slider("values", 1));
+
+            $("#min_price,#max_price").on('change', function (){
+
+                var min_price = parseInt($("#min_price").val());
+                var max_price = parseInt($("#max_price").val());
+
+                $('#year_label_txt').text(': '+min_price+' to '+max_price);
+                $('#year_close').show();
+
+                if (min_price > max_price) {
+                    $('#max_price').val(min_price);
+                }
+
+                $("#slider-range").slider({
+                    values: [min_price, max_price]
+                });
+            });
+
+
+
+            $("#mileage-range").slider({
+                range: true,
+                orientation: "horizontal",
+                min: 0,
+                max: 999999,
+                values: [0, 999999],
+                step: 100,
+
+                slide: function(event, ui) {
+                    if (ui.values[0] == ui.values[1]) {
+                        return false;
+                    }
+                    
+                    if(ui.values[1]=='999900'){
+
+                        abc = '999999';
+                    }else{
+                        abc = ui.values[1];
+                    }
+
+                    $("#min_mileage").val(ui.values[0]);
+                    $("#max_mileage").val(abc);
+                    $('#mileage_label_txt').text(': '+ui.values[0]+' to '+abc);
+                    $('#mileage_close').show();
+                    
+                }
+            });
+
+            $("#min_mileage").val($("#mileage-range").slider("values", 0));
+            //$("#max_mileage").val($("#mileage-range").slider("values", 1));
+
+            $("#min_mileage,#max_mileage").on('change', function (){
+
+                var min_mileage = parseInt($("#min_mileage").val());
+                var max_mileage = parseInt($("#max_mileage").val());
+                
+                if(max_mileage=='999900'){
+                    max_mileage = '999999';
+                }
+
+                $('#mileage_label_txt').text(': '+min_mileage+' to '+max_mileage);
+                $('#mileage_close').show();
+
+                if (min_mileage > max_mileage) {
+                    $('#max_mileage').val(min_mileage);
+                }
+
+                $("#mileage-range").slider({
+                    values: [min_mileage, max_mileage]
+                });
+            });
+            
+            $("#distance_amt,#range_zip").on('change', function (){
+
+                var distance_amt = parseInt($("#distance_amt").val());
+                var range_zip = $("#range_zip").val();
+                var a1 = distance_amt;
+                if(isNaN(a1)){
+                    a1 = 1;
+                }
+
+                $('#zip_label_txt').text(': '+a1+' miles from '+range_zip);
+                $('#zip_close').show();
+            });
+            
+            $("#distance_amt1,#range_zip1").on('change', function (){
+
+                var distance_amt1 = parseInt($("#distance_amt1").val());
+                var range_zip1 = $("#range_zip1").val();
+                
+                var a2 = distance_amt1;
+                if(isNaN(a2)){
+                    a2 = 1;
+                }
+
+                $('#zip_label_txt1').text(': '+a2+' miles from '+range_zip1);
+                $('#zip_close1').show();
+            });
+            
+            $("#distance_amt2,#range_zip2").on('change', function (){
+
+                var distance_amt2 = parseInt($("#distance_amt2").val());
+                var range_zip2 = $("#range_zip2").val();
+                
+                var a3 = distance_amt2;
+                if(isNaN(a3)){
+                    a3 = 1;
+                }
+
+                $('#zip_label_txt2').text(': '+a3+' miles from '+range_zip2);
+                $('#zip_close2').show();
+            });
+
+
+            $("#distance-range").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt").val(ui.value);
+                    var range_zip = $("#range_zip").val();
+                    $('#zip_label_txt').text(': '+ui.value+' miles from '+range_zip);
+                    $('#zip_close').show();
+                }
+            });
+            $("#distance_amt").val($("#distance-range").slider("value"));
+            $("#distance_amt").on('change', function() {
+                var Miles = parseInt($("#distance_amt").val());
+                if(isNaN(Miles)){
+                    Miles = 1;
+                }
+                $('#distance_amt').val(Miles);
+                
+                $("#distance-range").slider({
+                    range: "min",
+                    value: Miles,
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        var a1 = ui.value;
+                        if(isNaN(a1)){
+                            a1 = 1;
+                        }
+                        $("#distance_amt").val(a1);
+                        var range_zip = $("#range_zip").val();
+                        $('#zip_label_txt').text(': '+a1+' miles from '+range_zip);
+                        $('#zip_close').show();
+                    }
+                });
+            });
+            
+            //new range picker
+            $("#distance-range1").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt1").val(ui.value);
+                    var range_zip1 = $("#range_zip1").val();
+                    $('#zip_label_txt1').text(': '+ui.value+' miles from '+range_zip1);
+                    $('#zip_close1').show();
+                }
+            });
+            $("#distance_amt1").val($("#distance-range1").slider("value"));
+            $("#distance_amt1").on('change', function() {
+                var Miles1 = parseInt($("#distance_amt1").val());
+                if(isNaN(Miles1)){
+                    Miles1 = 1;
+                }
+                $('#distance_amt1').val(Miles1);
+                $("#distance-range1").slider({
+                    range: "min",
+                    value: Miles1,
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        var a2 = ui.value;
+                        if(isNaN(a2)){
+                            a2 = 1;
+                        }
+                        $("#distance_amt1").val(a1);
+                        var range_zip1 = $("#range_zip1").val();
+                        $('#zip_label_txt1').text(': '+a2+' miles from '+range_zip1);
+                        $('#zip_close1').show();
+                    }
+                });
+            });
+
+            $("#distance-range2").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt2").val(ui.value);
+                    var range_zip2 = $("#range_zip2").val();
+                    $('#zip_label_txt2').text(': '+ui.value+' miles from '+range_zip2);
+                    $('#zip_close2').show();
+                }
+            });
+            $("#distance_amt2").val($("#distance-range2").slider("value"));
+            $("#distance_amt2").on('change', function() {
+                var Miles2 = parseInt($("#distance_amt2").val());
+                if(isNaN(Miles2)){
+                    Miles2 = 1;
+                }
+                $('#distance_amt2').val(Miles2);
+                $("#distance-range2").slider({
+                    range: "min",
+                    value: Miles2,
+                    min: 1,
+                    max: 2000,
+                    slide: function(event, ui) {
+                        $("#distance_amt2").val(ui.value);
+                        var range_zip2 = $("#range_zip2").val();
+                        $('#zip_label_txt2').text(': '+ui.value+' miles from '+range_zip2);
+                        $('#zip_close2').show();
+                    }
+                });
+            });
+            
+            $(".left-sidebar-menu li a").click(function(e) {
+                var id = $(this).attr("data-tab");
+                $("ul.left-sidebar-menu li a").removeClass("active");
+                $(this).addClass("active");
+                $('#content-tab .listmenu').hide();
+                $('#content_' + id).show();
+            });
+    		$(".left-sidebar .panel-title a").click(function(e){
+    			$(".left-sidebar ul.left-sidebar-menu.nodropdown li a").removeClass("active");
+    		});
+    
+            $('.left-sidebar-menu.nodropdown li a').click(function () {
+                $(".left-sidebar .panel-title a").attr("aria-expanded","false");
+                $(".panel-collapse.collapse").removeClass("in");
+    			$(".left-sidebar .panel-title a").addClass("collapsed");
+            });
+    });
+	
+    // $(document).ready(function() {
+        
+    //     $(function() {
+            
+            
+
+    //     });
+    // });
+
+    // $(document).ready(function() {
+        
+		
+    // });
+
+    function getModelFunc(id){
+        
+        var makeTxt = '';
+        var modelTxt = '';
+
+        $.ajax({
+            type: "Get",
+            url: WS_PATH + "get-conditional-model/" + id,
+            success: function (response) {
+                
+                var text = ''; 
+                var a = 1;
+
+                var data = JSON.parse(response);
+                var data1 = data.data;
+                var i = 1;
+                
+                var str = '';
+                str += '<p id="make_p_'+id+'">'+$('#make_'+id).attr("data-id")+' - ';
+                data1.forEach(product => {
+                    text += '<div class="custom-control custom-checkbox mb-10">';
+                    text += '<input type="checkbox" class="custom-control-input common_model_'+id+'" id="ckb'+id+'_'+product[1]+'" name="model['+id+']" value="'+product[1]+'" data-id="'+product[0]+'" checked onchange="checkUncheckModel('+id+')">';
+                    text += '<label class="custom-control-label" for="ckb'+id+'_'+product[1]+'">'+product[0]+'</label>';
+                    text += '</div>';
+
+                    str += $('#ckb'+id+'_'+product[1]).attr("data-id")+', ';
+                })
+                
+                document.getElementById("make_trigger_"+id).innerHTML = text;
+
+                str += '</p>';
+                if($('#make_'+id).is(':checked')){
+                    checkUncheckModel(id);  
+                }
+
+                if($("input[name='make[]']").is(':checked')){
+                    $('#make_model_close').show();
+                }else{
+                    $('#make_model_close').hide();
+                }
+            }
+        });
+
+        if(!$('#make_'+id).is(':checked')){
+
+            $('#make_p_'+id).remove();
+        }
+    }
+
+    function checkUncheckModel(id){
+        $('#make_p_'+id).remove();
+        var str = '';
+        var a1 = '';
+        str += '<p id="make_p_'+id+'">'+$('#make_'+id).attr("data-id")+' - ';
+        $('.common_model_'+id).each(function (index, obj) {
+            if (this.checked === true) {
+                a1 += $('#ckb'+id+'_'+obj.value).attr("data-id")+', ';
+
+            }
+        });
+        var a123 = a1.replace(/,\s*$/, "");
+        console.log(a123);
+        str += a123;
+        str += '</p>';
+        $('#make_label_txt').append(str);
+    }
+
+    function getConidtionList(){
+        $('#loadingdieditvvehicle').show(); 
+        $.ajax({
+            type: "Get",
+            url: WS_PATH + "get-conditional-list",
+            success: function (response) {
+                 $('#loadingdieditvvehicle').hide(); 
+               
+                var data = JSON.parse(response);
+                var data1 = data.data;
+                var i = 1;
+                var text='';
+
+                if(data1!=''){
+                    data1.forEach(product => {
+                        text += '<tr>';
+                            text += '<td>';
+                                text += '<div class="row">';
+                                    text += '<div class="col-md-12">'+product[1]+'</div>';
+                                text += '</div>';
+                            text += '</td>';
+                            text += '<td>'
+                                text += '<div class="row">';
+                                    var make1 = product[26];
+                                    var model1 = product[27];
+                                    if(make1){
+                                    text += '<div class="col-md-12"><label>Make:</label> '+make1.replace(/,*$/, '')+' </div>';
+                                    }else{
+                                    text += '<div class="col-md-12"><label>Make: All</label></div>';    
+                                    }
+                                    if(model1){
+                                    text += '<div class="col-md-12"><div class="webkit-line-clamp"><label>Model:</label> <span>'+model1.replace(/,*$/, '')+'</span> </div></div>';
+                                    }else{
+                                    text += '<div class="col-md-12"><label>Model: All</label></div>';    
+                                    }
+                                    if(product[5]!=''){
+                                        text += '<div class="col-md-12"><label>Year:</label> '+product[5]+' to '+product[6]+'</div>';
+                                    }else{
+                                        text += '<div class="col-md-12"><label>Year:</label> </div>';
+                                    }
+                                    
+                                    if(product[39]=='yes'){
+                                        var uu1 = ' ,Unable to verify';
+                                    }else{
+                                        var uu1 = '';
+                                    }
+
+                                    if(product[9]!=''){
+                                        text += '<div class="col-md-12"><label>Mileage:</label> '+product[9]+' to '+product[10]+' '+uu1+'</div>';
+                                    }else{
+                                        text += '<div class="col-md-12"><label>Mileage:</label> </div>';
+                                    }
+                                    
+                                    //new code value added start here country
+                                    if(product[31]!='' && product[31]!=null){
+                                        text += '<div class="col-md-12"><label>ZIP: </label> '+product[30]+' miles from '+product[31]+'</div>';
+                                    }else{
+                                        text += '<div class="col-md-12"><label>ZIP: </label></div>';
+                                    }
+                                    //new code value added start here country
+                                    
+                                    if(product[41]!='' && product[41]!=null){
+                                        text += '<div class="col-md-12"><label>ZIP: </label> '+product[40]+' miles from '+product[41]+'</div>';
+                                    }
+                                    if(product[43]!='' && product[43]!=null){
+                                        text += '<div class="col-md-12"><label>ZIP: </label> '+product[42]+' miles from '+product[43]+'</div>';
+                                    }
+                                text += '</div>';
+                            text += '</td>'
+                            text += '<td>'
+                                text += '<div class="row">';
+
+                                    var d = product[32];
+                                    var bdamage = '';
+                                    if(product[32]!='' && product[32]!=null){
+                                        var myArray = d.split(',');
+                                        myArray.forEach(myArray1 => {
+                                            if(myArray1!=''){
+                                                if(myArray1=='Yes'){
+                                                    bdamage = bdamage + ' Yes, my vehicle has some damage or rust';
+                                                }else{
+                                                    bdamage = bdamage + ' No, my vehicle is in good shape!';
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    text += '<div class="col-md-12"><label>Body damage:</label> '+bdamage+' </div>';
+
+                                    var airbagData = product[33];
+                                    var airbag = '';
+                                    if(product[33]!='' && product[33]!=null){
+                                        var airbagDataArr = airbagData.split(',');
+                                        airbagDataArr.forEach(airbagDataArr1 => {
+                                            if(airbagDataArr1!=''){
+                                                if(airbagDataArr1=='N'){
+                                                    airbag = airbag + ' No, the airbags are not deployed';
+                                                }else{
+                                                    airbag = airbag + ' Yes, the airbags are deployeds';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Air bags:</label> '+airbag+'</div>';
+                                    if(product[14]=='D'){
+                                        var drive = 'Yes, it starts and drives';
+                                    }else if(product[14]=='S'){
+                                        var drive = 'No, it starts but does not drive';
+                                    }else if(product[14]=='N'){
+                                        var drive = 'No, it does not start';
+                                    }else{
+                                        var drive = '';
+                                    }
+
+                                    var driveData = product[34];
+                                    var drive = '';
+                                    if(product[34]!='' && product[34]!=null){
+                                        var driveDataArr = driveData.split(',');
+                                        driveDataArr.forEach(driveDataArr1 => {
+                                            if(driveDataArr1!=''){
+                                                if(driveDataArr1=='D'){
+                                                    drive = drive + ' Yes, it starts and drives';
+                                                }else if(driveDataArr1=='S'){
+                                                    drive = drive + ' No, it starts but does not drive';
+                                                }else{
+                                                    drive = drive + ' No, it does not start';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Starts and drives:</label> '+drive+'</div>';
+
+                                    var mechanicalData = product[35];
+                                    var mechanical = '';
+                                    if(product[35]!='' && product[35]!=null){
+                                        var mechanicalDataArr = mechanicalData.split(',');
+                                        mechanicalDataArr.forEach(mechanicalDataArr1 => {
+                                            if(mechanicalDataArr1!=''){
+                                                if(mechanicalDataArr1=='No my vehicle is in good shape!'){
+                                                    mechanical = mechanical + ' No, my vehicle is in good shape!';
+                                                }else if(mechanicalDataArr1=='Yes major engine issues'){
+                                                    mechanical = mechanical + ' Yes, major engine issues';
+                                                }else if(mechanicalDataArr1=='Yes major transmission issues'){
+                                                    mechanical = mechanical + ' Yes, major transmission issues';
+                                                }else if(mechanicalDataArr1=='Yes major frame issues'){
+                                                    mechanical = mechanical + ' Yes, major frame issues';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Mechanical issues:</label> '+mechanical+'</div>';
+
+                                    var keyData = product[36];
+                                    var key1 = '';
+                                    if(product[36]!='' && product[36]!=null){
+                                        var keyDataArr = keyData.split(',');
+                                        keyDataArr.forEach(keyDataArr1 => {
+                                            if(keyDataArr1!=''){
+                                                if(keyDataArr1=='N'){
+                                                    key1 = key1 + ' No, I do not have a key';
+                                                }else{
+                                                    key1 = key1 + ' Yes, I have the key';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Keys:</label> '+key1+'</div>';
+
+                                    var titleData = product[37];
+                                    var title_type = '';
+                                    if(product[37]!='' && product[37]!=null){
+                                        var titleDataArr = titleData.split(',');
+                                        titleDataArr.forEach(titleDataArr1 => {
+                                            if(titleDataArr1!=''){
+                                                if(titleDataArr1=='clean title'){
+                                                    title_type = title_type + ' Yes, I have a clean title';
+                                                }else if(titleDataArr1=='Salvage Rebuilt'){
+                                                    title_type = title_type + ' No, my title is branded (Salvage, rebuilt, lemon law, etc.)';
+                                                }else if(titleDataArr1=='Unknown'){
+                                                    title_type = title_type + ' No, I don’t have a title';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Title Type:</label>'+title_type+'</div>';
+
+                                    var fireDamageData = product[38];
+                                    var fire_damage = '';
+                                    if(product[38]!='' && product[38]!=null){
+                                        var fireDamageDataArr = fireDamageData.split(',');
+                                        fireDamageDataArr.forEach(fireDamageDataArr1 => {
+                                            if(fireDamageDataArr1!=''){
+                                                if(fireDamageDataArr1=='no'){
+                                                    fire_damage = fire_damage + ' No, it has never had any fire or water damage';
+                                                }else if(fireDamageDataArr1=='W'){
+                                                    fire_damage = fire_damage + ' Yes, it had fire or water damage';
+                                                }
+                                            }
+                                        });
+                                    }
+                                    text += '<div class="col-md-12"><label>Water or fire damage:</label> '+fire_damage+'</div>';
+                                text += '</div>';
+                            text += '</td>';
+                            text += '<td>';
+                                if(product[19]=='Proquote Estimate'){
+                                    text += '<p>Buying Rules: Proquote Estimate</p>'
+                                    if (product[20]=='minus'){
+                                        var p1 = '-' ; 
+                                    }else{
+                                      
+                                      var p1 = '+';
+                                    }
+                                     
+    
+                                    if (product[21]=='percentage'){
+                                        var p2 = '%';
+                                    }else{
+                                      
+                                      var p2 = '$';
+                                      
+                                    }
+                                    
+                                    text += '<p>Proquote Estimate:'+p1 +' '+product[22]+ p2+'</p>'
+                                    text += '<p>Not To Exceed: $'+product[23]+'</p>';
+                                }else{
+                                    text += '<label>Fixed Amount: </label> $'+product[24];
+                                }
+                            text += '</td>';
+                            text += '<td>';
+                                text += '<button type="button" class="btn btn-sm btn-primary" data-toggle="modal" onclick="fetchCondition('+product[0]+');">Edit</button>';
+                                text += ' <a class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="deleteConditionalReport('+product[0]+')">Delete</a>';
+                                text += ' <a class="btn btn-sm btn-primary" href="/dev-carcash/conditional-report-detail/'+product[0]+'">View</a>';
+                            text += '</td>';
+                        text += '</tr>';
+                    })
+                }else{
+                    text += '<tr><td colspan="5">No records found.</td></tr>';
+                }
+                
+                $("#conditional_filter_tbl").html(text)
+              
+                
+            }
+        });
+    }
+
+    function deleteConditionalReport(ids1){
+        var result = confirm("Are you sure you want to delete this condition filter record?");
+        if (result) {
+            //$('#loadingdieditvvehicle').show();
+            $.ajax({
+                url: WS_PATH+'deleteconditionalreport',
+                data: {id:ids1},
+                type: 'POST',
+                success: function(response){
+
+                    var data = JSON.parse(response);
+                    var data1 = data.model;
+                    getConidtionList();
+                    if(data1){
+                        $('#inquiry_msg').show();
+                        $( "#inquiry_msg" ).html('Condition filter record deleted successfully!');
+                        setTimeout(function(){ 
+                            //$('#loadingdieditvvehicle').hide(); 
+                            $( "#inquiry_msg" ).html(''); $('#inquiry_msg').hide();
+                        }, 3000);
+                        
+                    }
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }
+    }
+
+    
+
+    $('#flipFlop').on('hidden.bs.modal', function () {
+
+        //var result = confirm("Are sure want to delete this inquiry?");
+
+        //if(result){
+            $('#conditionalBtn').prop('disabled', false);
+            getConidtionList();
+            $("#conditionFilterFrm")[0].reset();
+            $('#step_1_q2_sub_1').hide();
+            $("div.brwrapper").hide();
+            $("#estimate1").show();
+            $('.checkbox-submenu').hide();
+            $('#filter_error').hide();
+            $('#filter_error1').hide();
+            
+            $('#range1').hide();
+            $('#distance-range1').hide();
+            $('#range2').hide();
+            $('#distance-range2').hide();
+            $('#distance_counter').val('1');
+            $('#distance_amt1').val('1');
+            $('#range_zip1').val('');
+            
+            $('#zip1_div').hide();
+            $('#zip2_div').hide();
+            $('#zip_close1').hide();
+            $('#zip_close2').hide();
+            
+            $('#not_to_exceed_per_err').hide();
+            $('#not_to_exceed_err').hide();
+            $('#fixed_amt_txt_err').hide();
+            
+            $("ul.left-sidebar-menu li a").removeClass("active");
+            $('#content_step_0_0').addClass("active");
+            $('#content-tab .listmenu').hide();
+            $('#content_step_0_0').show();
+            $('#make_label_txt').html('');
+            $('#year_label_txt').html('');
+            $('#mileage_label_txt').html('');
+            $('#zip_label_txt').html('1 miles from 55330');
+            $('#zip_label_txt1').html('');
+            //$('#zip_label_txt1').hide();
+            $('#zip_label_txt2').html('');
+            //$('#zip_label_txt2').hide();
+            $('#bodydamage_label_txt').html('');
+            $('#airbag_label_txt').html('');
+            $('#drive_label_txt').html('');
+            $('#mechanical_label_txt').html('');
+            $('#key_label_txt').html('');
+            $('#titletype_label_txt').html('');
+            $('#firedamage_label_txt').html('');
+            $('.rule_div').hide();
+            $('#rule_div1').show();
+            $('#condition_report_id').val('');
+
+
+            $("input[type=radio][name=damage]").prop('checked', false);
+            $("input[type=radio][name=airbag]").prop('checked', false);
+            $("input[type=radio][name=drive]").prop('checked', false);
+            $("input[type=radio][name=sdamage]").prop('checked', false);
+            $("input[type=radio][name=key]").prop('checked', false);
+            $("input[type=radio][name=title]").prop('checked', false);
+            $("input[type=radio][name=fire_damage]").prop('checked', false);
+            
+            $('#filter_error1').text('');
+            $('#filter_error111').text('');
+
+            $('.zipcode_box').hide();
+
+            $('#addzipcode_input').show();
+
+            //$('#not_to_exceed1_label_txt').text('');
+            $('#fixed_amt_txt_label_txt').text('');
+
+            $('#buyingruletype_label_txt').text('');
+            $('#nottoexceed_label_txt').text('');
+
+            $('#min_price').val('1990');
+            $('#max_price').val('2024');
+            $('#distance_amt').val('1');
+
+            $('#min_mileage').val('0');
+            $('#max_mileage').val('999999');
+
+            $('#make_model_close').hide();
+            $('#year_close').hide();
+            $('#zip_close').hide();
+            $('#mileage_close').hide();
+            $('#damage_close').hide();
+            $('#airbag_close').hide();
+            $('#drive_close').hide();
+            $('#sdamage_close').hide();
+            $('#key_close').hide();
+            $('#title_close').hide();
+            $('#fire_damage_close').hide();
+
+            $("#unable_to_verify").prop('checked', false);
+            $('#mileage_label_txt1').text('');
+
+            $("#mileage-range").slider({
+                values: [0, 999999]
+            });
+
+            $("#slider-range").slider({
+                values: [1990, 2024]
+            });
+
+            $("#distance-range").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt").val(ui.value);
+                    var range_zip = $("#range_zip").val();
+                    $('#zip_label_txt').text(': '+ui.value+' miles from '+range_zip);
+                    $('#zip_close').show();
+                }
+            });
+            
+            $("#distance-range1").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt1").val(ui.value);
+                    var range_zip1 = $("#range_zip1").val();
+                    $('#zip_label_txt1').text(': '+ui.value+' miles from '+range_zip1);
+                    $('#zip_close1').show();
+                }
+            });
+            $('#distance_amt2').val('1');
+            $('#range_zip2').val('');
+            $("#distance-range2").slider({
+                range: "min",
+                value: 0,
+                min: 1,
+                max: 2000,
+                slide: function(event, ui) {
+                    $("#distance_amt2").val(ui.value);
+                    var range_zip2 = $("#range_zip2").val();
+                    $('#zip_label_txt2').text(': '+ui.value+' miles from '+range_zip2);
+                    $('#zip_close2').show();
+                }
+            });
+            //$('#buyingrule_label_txt').html('');
+        //}
+        $('.country-chk').prop('checked', false);
+        $('.state-chk').prop('checked', false);
+        $('#state-div-hide').show();
+        updateSelectedLabels();
+    })
+
+    function conditionSubmit(){
+        $('#loadingdiv').show(); 
+        $('#filter_error').hide();
+        $('#filter_error1').hide();
+        $('#not_to_exceed_per_err').hide();
+        $('#not_to_exceed_err').hide();
+        $('#fixed_amt_txt_err').hide();
+        $.ajax({
+            url: WS_PATH+'condition-filter-submit',
+            data: $('#conditionFilterFrm').serialize(),
+            type: 'POST',
+            success: function (response) {
+                var data = JSON.parse(response);
+                var data1 = data.result;
+                $('#condition_report_id').val(data1);
+                $('#success_error').show();
+                
+                setTimeout(function(){
+                    $('#success_error').hide();
+                    $("#conditionFilterFrm")[0].reset() 
+                    $('#flipFlop').modal('hide');
+                    $('#conditionalBtn').prop('disabled', false);
+                    $('#loadingdiv').hide(); 
+                    
+
+
+                },2000);
+                    
+            },
+            error: function (error) {
+                $('#loading-cal-gif').hide();
+                console.log(error);
+                $('#conditionalBtn').prop('disabled', false);
+                $('#loadingdieditvvehicle').hide(); 
+                $('#loadingdiv').hide(); 
+            }
+        });
+    }
+
+    function formSubmit(){
+
+        $('#conditionalBtn').prop('disabled', true);
+        var title = $('#filter_title').val();
+        var estimate = $("input[name='Estimate']:checked").val();
+
+        var makeTxt = '';
+        var modelTxt = '';
+        $("input[name='make[]']:checked").each(function() {
+        id1 = $(this).val();
+            makeTxt = makeTxt + $('#make_'+id1).attr('data-id') + ',';
+
+            $("input[name='model["+id1+"]']:checked").each(function() {
+                id3 = $(this).val();
+                modelTxt = modelTxt + $('#ckb'+id1+'_'+id3).attr('data-id') + ',';
+            });
+        });
+
+        $('#make_name').val(makeTxt);
+        $('#model_name').val(modelTxt);
+        
+        var regexPattern = /^([1-9]\d*)$/;
+        if(title.trim()==''){
+            
+            $('#filter_error').show();
+            $('#conditionalBtn').prop('disabled', false);
+            return false;
+        }else if(estimate=='1'){
+            
+            var not_to_exceed = $('#not_to_exceed').val();
+            var not_to_exceed_per = $('#not_to_exceed_per').val();
+            if(not_to_exceed.trim()=='' || not_to_exceed_per.trim()==''){
+            
+                $('#filter_error').show();
+                $('#not_to_exceed_per_err').hide();
+                $('#not_to_exceed_err').hide();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else if(not_to_exceed_per>100){
+                $('#filter_error1').show();
+                $('#not_to_exceed_per_err').hide();
+                $('#not_to_exceed_err').hide();
+                $('#filter_error').hide();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else if(!regexPattern.test(not_to_exceed_per)){
+                $('#not_to_exceed_per_err').show();
+                $('#not_to_exceed_err').hide();
+                $('#filter_error1').hide();
+                $('#filter_error').hide();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else if(!regexPattern.test(not_to_exceed)){
+                $('#not_to_exceed_per_err').hide();
+                $('#not_to_exceed_err').show();
+                $('#filter_error1').hide();
+                $('#filter_error').hide();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else{
+                if($('input[name="damage[]"]').is(':checked')){
+
+                    var damage = $("input[name='damage[]']:checked").val();
+                    if(damage=='Yes'){
+                        if(!$('input[name="damageimg[]"]').is(':checked')){
+                            alert('Please make sure to provide more details about body damage condition.');
+                            $('#conditionalBtn').prop('disabled', false);
+                        }else{
+                            conditionSubmit();
+                        }
+                    }else{
+                        conditionSubmit();
+                    }
+                }else{
+                    conditionSubmit();
+                }
+            }
+        }else if(estimate=='2'){
+
+            var fixed_amt_txt = $('#fixed_amt_txt').val();
+            //var not_to_exceed1 = $('#not_to_exceed1').val();
+            var regexPattern = /^([1-9]\d*)$/;
+            if(fixed_amt_txt.trim()==''){
+            
+                $('#filter_error').show();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else if(!regexPattern.test(fixed_amt_txt)){
+                $('#filter_error').hide();
+                $('#fixed_amt_txt_err').show();
+                $('#conditionalBtn').prop('disabled', false);
+                return false;
+            }else{
+                if($('input[name="damage"]').is(':checked')){
+
+                    var damage = $("input[name='damage']:checked").val();
+                    if(damage=='Yes'){
+                        if(!$('input[name="damageimg[]"]').is(':checked')){
+                            alert('Please select atleast one damage or rust');
+                            $('#conditionalBtn').prop('disabled', false);
+                        }else{
+                            conditionSubmit();
+                        }
+                    }else{
+                        conditionSubmit();
+                    }
+                }else{
+                    conditionSubmit();
+                }
+            }
+        }else{
+            $('#conditionalBtn').prop('disabled', false);
+        }
+    }
+    
+    function onlyNumberKey(evt) {
+          // Only ASCII character in that range allowed
+          var ASCIICode = (evt.which) ? evt.which : evt.keyCode
+          if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57))
+            return false;
+          return true;
+        }
+
+</script>

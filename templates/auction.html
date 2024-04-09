@@ -1,0 +1,616 @@
+{% include "header.html" %}
+
+<div class="content-wrapper aev_buying_page">
+    <div class="container_full">
+        <!--<div class="page-title-box">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4 class="page-title">AEV Buying API</h4>
+                </div>
+            </div>
+        </div>-->
+        
+        <div class="row d-flex align-items-end">
+            <div class="col-md-4">
+                <input type="hidden" id="status" value="active">
+                <ul id="tab_nav_top" class="nav nav-tabs">
+                    <li class="active" data-status="active">
+                        <a href="auction">Active</a>
+                    </li>
+                    <li data-status="upcoming">
+                        <a href="upcoming-auction">Upcoming</a>
+                    </li>
+                    <li data-status="missed">
+                        <a href="missed-auction">Missed</a>
+                    </li>
+                    <li data-status="lost">
+                        <a href="lost-auction">Lost</a>
+                    </li>
+                    <li data-status="won">
+                        <a href="won-auction">Won</a>
+                    </li>
+
+                    <!-- <li class="active" {% if status == None :  %} active {% endif %}>
+                        <a href="auction">Active</a>
+                    </li>
+                    <li {% if status == upcoming :  %} active {% endif %}  >
+                        <a href="upcoming-auction">Upcoming</a>
+                    </li>
+                    <li {% if status == missed :  %} active {% endif %}>
+                        <a href="missed-auction">Missed</a>
+                    </li>
+                    <li {% if status == lost :  %} active {% endif %}>
+                        <a href="lost-auction">Lost</a>
+                    </li>
+                    <li {% if status == won :  %} active {% endif %}>
+                        <a href="won-auction">Won</a>
+                    </li> -->
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <div class="search_filter">
+                    <input type="input" plasholder="search" id="searchauction"  class="form-control input-sm" placeholder="Search by VIN, Auction ID,  Year, Make, Model" aria-controls="dataphone">
+                </div>
+                
+            </div>
+            <div>
+
+            </div>
+            <div class="col-md-4">
+                User:{{ user_name }}
+            </div>
+
+        </div>
+        
+        
+        <div class="tab-content">
+            <div id="conditional-tab" class="tab-pane fade in active">
+                <div class="box brnone">
+                    <div class="box-body">
+                        <div class="filter_box-body">
+                           
+                            <div class="row condition-filter">
+                                <div class="col-lg-3">
+                                    <input type="hidden" id="condition_filter" value="">
+                                    <div class="filter_box_select">
+                                        <select id="select_condition_rules" class="form-control">
+                                            <option value="">All</option>
+                                            {% for report in condition_flter %}
+                                                <option value="{{ report[0] }}">{{ report[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-9">
+                                    <div id="all_condition_rules" class="custom-footer" style="display:none;">
+                                        <div class="footerbox">
+                                            <h5>Condition Include</h5>
+                                            <div class="bootstrap-tagsinput">
+                                                <span class="tag label-info"><b>Make &amp; Model</b>: <span id="make_label_txt"><span id="make_p_43"></span></span> <a href="javascript:void(0)" onclick="resetLabel('make','make_label_txt','make')" id="make_model_close" style=""><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Year</b><span id="year_label_txt">:<span></span> </span> <a href="javascript:void(0)" onclick="resetLabel('year','year_label_txt','year')" id="year_close" style=""><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Mileage</b><span id="mileage_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
+
+                                                <span class="tag label-info"><span id="zip_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('zip','zip_label_txt','zip')" id="zip_close" style=""><i class="ti-close"></i></a></span>
+
+                                            </div>
+                                        </div>
+                                        <div class="footerbox">
+                                            <h5>Condition Exclusions </h5>
+                                            <div class="bootstrap-tagsinput">
+                                                <span class="tag label-info">
+                                                    <b>Body damage:</b>
+                                                    <span id="bodydamage_label_txt"></span>
+                                                    </span>
+                                                <span class="tag label-info"><b>Air bags:</b><span id="airbag_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('airbag','airbag_label_txt','airbag')" id="airbag_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Starts and drives:</b><span id="drive_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('drive','drive_label_txt','drive')" id="drive_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Mechanical issues:</b><span id="mechanical_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('sdamage','mechanical_label_txt','sdamage')" id="sdamage_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Keys:</b><span id="key_label_txt"></span><a href="javascript:void(0)" onclick="resetLabel('key','key_label_txt','key')" id="key_close" style="display:none;"> <i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Title Type:</b><span id="titletype_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('title','titletype_label_txt','title')" id="title_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Water or fire damage:</b><span id="firedamage_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('fire_damage','firedamage_label_txt','fire_damage')" id="fire_damage_close" style="display:none;"><i class="ti-close"></i></a></span>
+                                            </div>
+                                        </div>
+                                        <div class="footerbox">
+                                            <div class="rule_div" id="rule_div1" style="display: block;">
+                                                <h5>Bidding Rules: <span id="buyingrule_label_txt">ACV</span></h5>
+                                                <div class="bootstrap-tagsinput">
+                                                <span class="tag label-info"><b>Copart Estimate:</b> <span id="buyingruletype_label_txt">+ % </span></span>
+                                                <span class="tag label-info"><b>Not To Exceed: </b><span id="nottoexceed_label_txt"></span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="past-tab" class="tab-pane">
+                past
+            </div>
+        </div>
+
+        <!-- won auction -->
+        <ul class="nav nav-tabs auction-won-show" style="display: none;">
+            <li class="active "><a href="#">Won</a></li>
+        </ul>
+        <section class="content auction-won-show" style="display: none;">
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab2" class="tab-pane fade in active">
+                        
+                            <table id="dataConditionalwon" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="120">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="80">Mileage </th>
+                                        <th width="120">Location</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="100">Our Max Bid</th>
+                                        <th width="80">Proqoute Amount</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="130">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- lost auction -->
+        <ul class="nav nav-tabs auction-lost-show" style="display: none;">
+            <li class="active "><a href="#">Lost</a></li>
+        </ul>
+        <section class="content auction-lost-show" style="display: none;">
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab2" class="tab-pane fade in active">
+                        
+                            <table id="dataConditionallost" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="120">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="80">Mileage </th>
+                                        <th width="120">Location</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="100">Our Max Bid</th>
+                                        <th width="80">Proqoute Amount</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="130">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- missed auction -->
+        <ul class="nav nav-tabs auction-missed-show" style="display: none;">
+            <li class="active "><a href="#">Missed</a></li>
+        </ul>
+        <section class="content auction-missed-show" style="display: none;">
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab2" class="tab-pane fade in active">
+                        
+                            <table id="dataConditionalmissed" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="200">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="60">Mileage </th>
+                                        <th width="100">Location</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="80">Proqoute Amount</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="130">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- upcoming auction -->
+        <div class="alert alert-success" role="alert" class="inquiry_bid_msg" style="display:none;"></div>
+        <ul class="nav nav-tabs auction-upcoming-show" style="display: none;">
+            <li class="active "><a href="#">Upcomig</a></li>
+        </ul>
+        <section class="content auction-upcoming-show" style="display: none;">
+            <div class="alert alert-error" role="alert" id="msg_error" style="display:none;"></div>
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab2" class="tab-pane fade in active">
+                        
+                            <table id="dataConditionalupcoming" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="200">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="60">Mileage </th>
+                                        <th width="100">Location</th>
+                                        <th width="60">Our Max Bid</th>
+                                        <th width="60">Our Next Bid</th>
+                                        <th width="60">Proqoute Amount</th>
+                                        <th width="120">Start Time Left in Auction</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="120">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- active auction -->
+        <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
+        <div class="alert alert-success" role="alert" id="inquiry_msg_proxy" style="display:none;"></div>
+        <ul class="nav nav-tabs auction-show">
+            <li class="active "><a href="#">Active</a></li>
+        </ul>
+        <section class="content auction-show">
+            <div class="alert alert-error" role="alert" id="inquiry_msg_error" style="display:none;"></div>
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab1" class="tab-pane fade in active">
+                       
+                            <table id="dataConditional" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="200">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="60">Mileage </th>
+                                        <th width="100">Location</th>
+                                        <th width="60">Current Bid</th>
+                                        <th width="60">Our Max Bid</th>
+                                        <th width="60">Our Next Bid</th>
+                                        <th width="60">Proqoute Amount</th>
+                                        <th width="120">Time Left in Auction</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="100">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+</div>
+<div class="bootstrap5-modal modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel">Condition Report Details</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div id="content-tab" class="content-tab">
+                        <div id="content_step_0_0" class="listmenu">
+							<div class="auction-condition" id="auction-condition">
+							</div>
+                        </div>
+                        <div>
+                            <ul class="acv-list-item">
+                                <li onclick="full_condition_report()"> Exterior</li>
+                                <li onclick="frame_full_condition_report()">Frame & Unibody</li>
+                                <li onclick="mechnical_condition_report()"> Mechanicals </li>
+                                <li onclick="driveability_condition_report()">Driveability </li>
+                                <li onclick="lights_condition_report()">Warning Lights</li>
+                                <li onclick="interior_condition_report()">Interior </li>
+                                <li onclick = "tires_condition_report()">Wheels & Tires</li>
+                                <li onclick="title_condition_report()">Title & History</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bootstrap5-modal modal fade full-con-report" id="exterior" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" >Exterior</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" id="exteriormodalLabel" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">>
+                </div>
+                <div class="model-wrapper">
+                    <div  class="content-tab">
+                        <div id="exterior_content_step_0_0" class="listmenu">
+							<div id="exterior_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="frame" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="framemodalLabel">Frame & Unibody</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div  class="col-lg-12">
+                        <div id="frame_content_step_0_0" class="listmenu">
+							<div id="frame_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="mechnical" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="mechnicalmodalLabel">Mechanicals</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div class="content-tab">
+                        <div id="mechnical_content_step_0_0" class="listmenu">
+							<div id="mechnical_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="driveability" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="driveabilitymodalLabel">Driveability</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div class="content-tab">
+                        <div id="driveability_content_step_0_0" class="listmenu">
+							<div id="driveability_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="lights" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="lightsmodalLabel">Warning Lights</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div class="content-tab">
+                        <div id="lights_content_step_0_0" class="listmenu">
+							<div id="lights_report" class="auction-condition">
+							</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="tires" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="tiresmodalLabel">Wheels & Tires</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div class="content-tab">
+                        <div id="tires_content_step_0_0" class="listmenu">
+							<div id="tires_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="interior" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="interiormodalLabel">Interior</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div id="content-tab" class="content-tab">
+                        <div id="interior_content_step_0_0" class="listmenu">
+							<div id="interior_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bootstrap5-modal modal fade full-con-report" id="title" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodalLabel">Title & History</h4>
+                <div class="modal-title_btn">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: none;" class="text-center loader" >
+                    <img src="{{ url_for('static', filename='images/Spinner.gif')}}" alt="Loading..."  width="100">
+                </div>
+                <div class="model-wrapper">
+                    <div id="content-tab" class="content-tab">
+                        <div id="title_content_step_0_0" class="listmenu">
+							<div id="title_report" class="auction-condition">
+
+							</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="proxy_bid" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="justify-content: space-between; align-items: center;">
+                <h4 class="modal-title" >Add Proxy Bid</h4>
+                    <button type="button" class="close" id="close-popup" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+            </div>
+            <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col">
+                            <input type="text" class="form-control" id="bid_amount" placeholder="Enter Bid" name="bid_amount" autofocus="">
+                            <span id="bid_amount_span"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col">
+                            <button type="button" id="place_bid_btn" class="btn btn-primary">Place Bid</button>
+                            <!-- <input type="button" class="btn btn-primary" id="place_bid_btn" value="Save" onclick="savebtn();"> -->
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include "footer.html" %}
+<script src="{{ url_for('static', filename='js/auction-info.js') }}"></script>

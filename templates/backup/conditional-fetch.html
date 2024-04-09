@@ -1,0 +1,289 @@
+{% include "header.html" %}
+<style type="text/css">
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+</style>
+<div class="content-wrapper">
+      <div class="content-wrapper">
+          <div class="container">
+			  <div class="page-title-box">
+  				<div class="row dflex align-center">
+  					<div class="col-lg-6">
+  						<h4 class="page-title">Conditional Report Detail</h4>
+  					</div>
+  					<div class="col-lg-6 text-right">
+              <a class="btn btn-lg btn-primary" href="{{ url_for('conditionfilter') }}">Back To List</a>
+  					</div>
+  				</div>
+			  </div>
+              <section class="content">
+                  <div class="box">
+                        {% for row in data %}
+                        <div class="box-body detail-info-section lg-form">
+                            <h4 class="text-center">Title: {{row[1]}}</h4>
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Vehicle Information</h3>
+                                <tr>
+                                  <td>Make:</td>
+                                  <td>{{row[26]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Model:</td>
+                                  <td>{{row[27]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Year:</td>
+                                  {% if row[5]!=''  %}
+                                    <td>{{row[5]}} to {{row[6]}}</td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                
+                                <!--<tr>-->
+                                <!--  <td>Mile:</td>-->
+                                <!--  <td>{{row[30]}}</td>-->
+                                <!--</tr>-->
+                                <!--<tr>-->
+                                <!--  <td>From:</td>-->
+                                <!--  <td>{{row[31]}}</td>-->
+                                <!--</tr>-->
+                                <tr>
+                                  <td>Zip:</td>
+                                  <td>{{row[30]}} miles from {{row[31]}}</td>
+                                </tr>
+                                {% if row[42]!='' and row[42]!=null and row[42]!=None %}
+                                    <tr>
+                                      <td>Zip:</td>
+                                      <td>{{row[41]}} miles from {{row[42]}}</td>
+                                    </tr>
+                                {% endif %}
+                                
+                                {% if row[44]!='' and row[44]!=null and row[44]!=None %}
+                                    <tr>
+                                      <td>Zip:</td>
+                                      <td>{{row[43]}} miles from {{row[44]}}</td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                  <td>Mileage:</td>
+                                    {% if row[9]!=''  %}
+                                      <td>{{row[9]}} to {{row[10]}} {% if row[40]=='yes'  %} , Unable to verify {% endif %}</td>
+                                    {% else %}
+                                      <td>{% if row[40]=='yes'  %} ,Unable to verify {% endif %}</td>
+                                    {% endif %}
+                                </tr>
+                                <!-- new code value added start here country -->
+                                <tr>
+                                  <td>State:</td>
+                                  <td>{{stateComma}}</td>
+                                </tr>
+
+                                <tr>
+                                  <td>Country:</td>
+                                  <td>{{row[50]}}</td>
+                                </tr>
+                                <!-- new code value added end here country -->
+                            </table>
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Condition Information</h3>
+                                <tr>
+                                  <td>Body damage:</td>
+                                  {% if row[33] != '' and row[33] != None %}
+                                      {% set damageComma = row[33] %}
+                                      {% set damageCommaArr = damageComma.split(',') %}
+                                      <td>
+                                      {% for damageCommaArr1 in damageCommaArr %}
+                                          {% if damageCommaArr1 == 'Yes' %}
+                                            Yes, my vehicle has some damage or rust
+                                          {% elif damageCommaArr1 == 'MN' %}
+                                            No, my vehicle is in good shape!
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Airbag:</td>
+                                  {% if row[34] != '' and row[34] != None %}
+                                      {% set airbagComma = row[34] %}
+                                      {% set airbagCommaArr = airbagComma.split(',') %}
+                                      <td>
+                                      {% for airbagCommaArr1 in airbagCommaArr %}
+                                          {% if airbagCommaArr1 == 'N' %}
+                                            No, the airbags are not deployed
+                                          {% elif airbagCommaArr1 == 'Y' %}
+                                            Yes, the airbags are deployeds
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+
+                                </tr>
+                                <tr>
+                                  <td>Starts and drives:</td>
+
+                                  {% if row[35] != '' and row[35] != None %}
+                                      {% set driveComma = row[35] %}
+                                      {% set driveCommaArr = driveComma.split(',') %}
+                                      <td>
+                                      {% for driveCommaArr1 in driveCommaArr %}
+                                          {% if driveCommaArr1 == 'D' %}
+                                            Yes, it starts and drives
+                                          {% elif driveCommaArr1 == 'S' %}
+                                            No, it starts but does not drive
+                                          {% elif driveCommaArr1 == 'N' %}
+                                            No, it does not start
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+
+                                <tr>
+                                  <td>Mechanical issues:</td>
+                                  {% if row[36] != '' and row[36] != None %}
+                                      {% set mechanicalComma = row[36] %}
+                                      {% set mechanicalCommaArr = mechanicalComma.split(',') %}
+                                      <td>
+                                      {% for mechanicalCommaArr1 in mechanicalCommaArr %}
+                                          {% if mechanicalCommaArr1 == 'No my vehicle is in good shape!' %}
+                                            No, my vehicle is in good shape!
+                                          {% elif mechanicalCommaArr1 == 'Yes major engine issues' %}
+                                            Yes, major engine issues
+                                          {% elif mechanicalCommaArr1 == 'Yes major transmission issues' %}
+                                            Yes, major transmission issues
+                                          {% elif mechanicalCommaArr1 == 'Yes major frame issues' %}
+                                            Yes, major frame issues
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Keys:</td>
+                                  {% if row[37] != '' and row[37] != None %}
+                                      {% set keyComma = row[37] %}
+                                      {% set keyCommaArr = keyComma.split(',') %}
+                                      <td>
+                                      {% for keyCommaArr1 in keyCommaArr %}
+                                          {% if keyCommaArr1 == 'N' %}
+                                            No, I do not have a key
+                                          {% elif keyCommaArr1 == 'Y' %}
+                                            Yes, I have the key
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Title Type:</td>
+                                  {% if row[38] != '' and row[38] != None %}
+                                      {% set titleComma = row[38] %}
+                                      {% set titleCommaArr = titleComma.split(',') %}
+                                      <td>
+                                      {% for titleCommaArr1 in titleCommaArr %}
+                                          {% if titleCommaArr1 == 'clean title' %}
+                                            Yes, I have a clean title
+                                          {% elif titleCommaArr1 == 'Salvage Rebuilt' %}
+                                            No, my title is branded (Salvage, rebuilt, lemon law, etc.)
+                                          {% elif titleCommaArr1 == 'Unknown' %}
+                                            No, I don’t have a title
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Water or fire damage:</td>
+                                  {% if row[39] != '' and row[39] != None %}
+                                      {% set fireDamageComma = row[39] %}
+                                      {% set fireDamageCommaArr = fireDamageComma.split(',') %}
+                                      <td>
+                                      {% for fireDamageCommaArr11 in fireDamageCommaArr %}
+                                          {% if fireDamageCommaArr11 == 'no' %}
+                                            No, it has never had any fire or water damage
+                                          {% elif fireDamageCommaArr11 == 'W' %}
+                                            Yes, it had fire or water damage
+                                          {% endif %}
+                                      {% endfor %}
+                                    </td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                            </table>
+
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Buying Rules</h3>
+                                {% if row[19]=='Proquote Estimate'  %}
+                                <tr>
+                                  <td>Buying Rules:</td>
+                                  <td>{{row[19]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Proquote Estimate:</td>
+                                  {% if row[20]=='minus'  %}
+                                    {% set p1 = '-'  %}
+                                  {% else %}
+                                    {% set p1 = '+'  %}
+                                  {% endif %}
+
+                                  {% if row[21]=='percentage'  %}
+                                    {% set p2 = '%'  %}
+                                  {% else %}
+                                    {% set p2 = '$'  %}
+                                  {% endif %}
+                                  <td>{{p1}} {{row[22]}}{{p2}} </td>
+                                </tr>
+                                <tr>
+                                  <td>Not To Exceed:</td>
+                                  <td>{{row[23]}}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                  <td>Buying Rules:</td>
+                                  <td>{{row[19]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Fixed Amount:</td>
+                                  <td>{{row[24]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Not To Exceed:</td>
+                                  <td>{{row[28]}}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        {% endfor %}
+                     </div>
+              </section>
+          </div>
+      </div>
+</div>
+
+{% include "footer.html" %}
+

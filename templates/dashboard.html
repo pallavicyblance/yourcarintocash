@@ -1,0 +1,148 @@
+{% include "header.html" %}
+<div class="content-wrapper">  
+	<div class="container">
+		<div class="page-title-box">
+			<div class="row">
+				<div class="col-lg-12">
+					<h4 class="page-title">Price Management</h4>
+				</div>
+			</div>
+		</div>
+		<section class="content">
+			<div class="box ">
+				<form class="" method="POST" action="{{ url_for('settingupdate') }}">
+					{% for row in data %}
+						<div class="box-body lg-form">
+							<div class="row">
+								<div class="col-lg-7">
+								<h4 class="mb-20">Set up percentages for revised price</h4>
+									<div class="form-group">
+										{% for message in get_flashed_messages()%}
+											<div class="alert alert-success alert-dismissible">
+												<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+													{{ message }}
+											</div>
+											{% endfor%}
+									</div>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										
+										<div class="form-group w-48">
+											<label class="control-label">Min amount</label>
+											<input name="p1_min" value="{{ row[2] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										<div class="form-group w-2 text-center">
+											to
+										</div>
+										<div class="form-group w-48">
+											<label class="control-label">Max amount</label>
+											<input name="p1_max" value="{{ row[3] }}" type="text" class="form-control input-lg" autocomplete="off" required></label>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p1" value="{{ row[1] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount 0 to 2499" autocomplete="off" required>
+									</div>
+									<hr>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										
+										<div class="form-group w-48">
+											<label class="control-label">Min amount</label>
+											<input name="p2_min" value="{{ row[5] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										<div class="form-group w-2 text-center">
+											to
+										</div>
+										<div class="form-group w-48">
+												<label class="control-label">Max amount</label>
+											<input name="p2_max" value="{{ row[6] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p2" value="{{ row[4] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount 2500 to 4999" autocomplete="off" required>
+									</div>
+									<hr>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										
+										<div class="form-group w-48">
+											<label class="control-label">Min amount</label>
+											<input name="p3_min" value="{{ row[8] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										<div class="form-group w-2 text-center">
+											to
+										</div>
+										<div class="form-group w-48">
+											<label class="control-label">Max amount</label>
+											<input name="p3_max" value="{{ row[9] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p3" value="{{ row[7] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount 5000 to 7499" autocomplete="off" required>
+									</div>
+									<hr>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										<div class="form-group w-48">
+											<label class="control-label">Min amount</label>
+											<input name="p4_min" value="{{ row[11] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										<div class="form-group w-2 text-center">
+											to
+										</div>
+										<div class="form-group w-48">
+											<label class="control-label">Max amount</label>
+											<input name="p4_max" value="{{ row[12] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p4" value="{{ row[10] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount more than 7500" autocomplete="off" required>
+									</div>
+									<hr>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										<div class="form-group w-48">
+											<label class="control-label">Min amount</label>
+											<input name="p5_min" value="{{ row[14] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										<div class="form-group w-2 text-center">
+											to
+										</div>
+										<div class="form-group  w-48">
+											<label class="control-label">Max amount</label>
+											<input name="p5_max" value="{{ row[15] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p5" value="{{ row[13] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount more than 7500" autocomplete="off" required>
+									</div>
+									<hr>
+									<div class="form-inline mb-2 form-flex" style="margin-bottom: 15px;">
+										
+										<div class="form-group w-48">
+												<label class="control-label">Min amount</label>
+											<input name="p6_max" value="{{ row[17] }}" type="text" class="form-control input-lg" autocomplete="off" required>
+										</div>
+										
+										<div class="form-group w-48">
+											<label class="control-label and-label">And Above</label>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Discount Percentage</label>
+										<input name="p6" value="{{ row[16] }}" type="text" class="form-control input-lg" placeholder="Set Percentage for amount more than 7500" autocomplete="off" required>
+									</div>
+									<div class="form-group">
+										<input name="setting" type="submit" class="btn btn-lg btn-primary " value="Update">
+										<a href="/" class="btn btn-lg btn-default ml-2">Cancel</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</form>
+			</div>
+		</section>
+	</div>
+</div>
+{% include "footer.html" %}

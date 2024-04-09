@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+<title>Look at this offer I just received on my car!</title>
+<link rel="icon" href="{{ url_for('static', filename='images/favicon.png')}}" />
+
+<!--<meta property="og:url"content="http://www.nytimes.com/2015/02/19/arts/international/when-great-minds-dont-think-alike.html" />-->
+
+<meta property="og:title" content="Look at this offer I just received on my car!" />
+<meta name="og:description"
+content="Ready to convert your old car into cash in Minnesota? Our hassle-free process allows you to turn your junk car into instant cash. Get a quote now.">
+<!--<meta property="og:description" content="How much does culture influence creative thinking?" />-->
+
+<meta property="og:image" content="{{ url_for('static', filename='images/share.jpg')}}">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="website">
+
+<!--<meta property="og:url" content="https://yourcarintocash.com/dev-carcash/">
+<meta property="og:site_name" content="Your car into cash">
+<meta property="og:updated_time" content="2023-10-26T23:27:12-05:00">-->
+
+<meta name="twitter:title" content="Look at this offer I just received on my car!">
+<meta name="twitter:description"
+content="Ready to convert your old car into cash in Minnesota? Our hassle-free process allows you to turn your junk car into instant cash. Get a quote now.">
+
+<meta name="twitter:image" content="{{ url_for('static', filename='images/share.jpg')}}">
+<!--<meta name="twitter:label1" content="Written by">
+<meta name="twitter:data1" content="Your car into cash">-->
+
+<link
+href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600&amp;display=swap"
+rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+<style type="text/css">
+  .img-preview {
+  max-width: 100px;
+  /* Set the maximum width for the image preview */
+  max-height: 100px;
+  /* Set the maximum height for the image preview */
+  }
+
+  #locationNameinput {
+  box-sizing: border-box !important;
+  }
+
+  .loadingdiv {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  background: rgb(255 255 255 / 65%);
+  }
+
+  .error {
+  color: red;
+  }
+</style>
+
+<script>
+var WS_PATH = "{{ url_for('index') }}";
+
+$(function () {
+jQuery('body').addClass('offer_amount_step ');
+})
+</script>
+	<style>
+		.offer_amount_text,
+		.offer-summary-table{
+			display: table;
+		}
+		.offer_amount_text h1{
+			font-size: 70px;
+		}
+		.offer_amount_text {
+			text-align: center;
+			background: #f8f8f8;
+			padding: 25px 40px 40px 40px;
+			border-top-left-radius: 20px;
+		}
+		.offer-summary-table {
+			padding: 25px 25px 40px 25px;
+		}
+		.offer_amount_text, .offer-summary-table {
+			display: table;
+		}
+		.offer_amount_wrapper {
+			display: table-cell;
+			vertical-align: middle;
+		}
+		.offer_amount_step .form_section{
+			padding: 0px;
+		}
+		@media (max-width: 767px){
+			body.offer-summary-page .form_section{
+				min-height: calc(100vh - 80px);
+				max-height: calc(100vh - 80px);
+			}
+			body.offer-summary-page .btn_instantly{
+				font-size: 16px;
+				padding: 14px 30px;
+				letter-spacing: 1px;
+			}
+			body.offer-summary-page .form_section .form-horizontal{
+			    overflow: unset;
+			}
+			body.offer-summary-page .offer-summary-table .table-bordered>:not(caption)>*>* {
+				display: inline-block;
+				width: 100%;
+				padding: 5px 15px 5px;
+			}
+			body.offer-summary-page .offer-summary-table .table-bordered tr td{
+				border-bottom: 1px solid #dee2e6;
+			}
+			body.offer-summary-page .offer-summary-table .table-bordered tr td:last-child{
+				border-bottom:0px;
+			}
+			body.offer-summary-page .offer_amount_text a.elementor-button-link{
+				font-size: 14px;
+			}
+			ul.list li{
+				width: calc(100% - 0px);
+			}
+			.offer-summary-page .box-body{
+				display: inline-block!important;
+			}
+			.offer_amount_text, .offer-summary-table {
+				display: inline-block;
+				width: 100%;
+				padding: 25px;
+				border-top-left-radius: 10px;
+				border-top-right-radius: 10px;
+			}
+		}
+		body.offer-summary-page .offer_amount_text a.elementor-button-link{
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body class="hold-transition skin-blue layout-top-nav offer_amount_step offer-summary-page">
+
+<div class="wrapper">
+  <header class="main-header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='images/car-logo.png')}}" alt="logo" width="69" height="51">
+    </div>
+    <div class="navbar-header">
+      <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+          <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="navbar-collapse collapse" id="navbarColor03" style="">
+            <ul class="navbar-nav  mb-2 mb-lg-0 gap-4">
+              <li class="nav-item">
+                <a class="nav-link text-light" href="https://yourcarintocash.com/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-light" href="https://yourcarintocash.com/how-it-works/">How it Works</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-light" href="https://yourcarintocash.com/faqs/">Faqs</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-light" href="https://yourcarintocash.com/about-us/">About Us</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-light" href="https://yourcarintocash.com/contact-us/">Contact Us</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <a href="https://yourcarintocash.com/Offer/" class="elementor-button-link elementor-button elementor-size-md" role="button">
+        <span class="elementor-button-text">Get an Instant Offer on your car now</span>
+        <svg xmlns="http://www.w3.org/2000/svg" height="1em"
+        viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path
+        d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z" />
+        </svg>
+      </a>
+    </div>
+  </header>
+</div>
+<div class="custom-wrapper">
+<div class="content-wrapper">
+
+<div class="container_form" style="width: 100%;">
+  <section class="form_section">
+    <form class="form-horizontal" id="formproquotes" method="POST" action="/addphone" >
+      <div class="all_steps">
+        <div style="display: none;">
+          <img src="{{ url_for('static', filename='images/share.jpg')}}">
+        </div>
+        <div id="loading-cal-gif" class="loadingd-cal-gif" style="display: none;">
+        </div>
+       <div id="steps_error_16" class=""></div>
+       <div class="box-body d-flex">
+          <div class="offer_amount_text col-lg-6">
+			  <div class="offer_amount_wrapper">
+            <h5 style="text-align: left;" class="comman_get_offer_id"></h5>
+            <h2> Look at this instant offer I received just now on my vehicle!
+            </h2>
+              <h1><sup>$</sup><span id="proQuotespanoffer">{{ data[0][40] }}</span></h1>
+			    <div class="mt-4">
+					<a href="https://yourcarintocash.com/dev-carcash" class="btn btn-next btn-primary btn_instantly" role="button">
+						<span class="elementor-button-text">Get an Instant Offer on your car now</span>
+					 </a>
+                </div>
+			   <div class="mt-4">
+					 <a href="https://yourcarintocash.com/dev-carcash/?amt={{ sharing_amt }}" class="elementor-button-link elementor-button elementor-size-md"  >
+						Get Identical Offer <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"></path></svg>
+					  </a>
+				</div>
+               
+			  </div>
+          </div>
+		  <div class="offer-summary-table col-lg-6">
+			  
+			 <div class="offer_amount_wrapper">
+			  	<h2>Offer Summary</h2>
+				 <ul class="list">
+				 	<li><b>Year Make Model:</b><br>{{ data[0][1] }} {{ data[0][4] }} {{ data[0][5] }}</li>
+					<li><b>Mileage:</b><br>
+						
+						{% if data[0][13] == none %}
+								Unable to verify
+						{% elif data[0][13] == '' %}
+								Unable to verify
+            {% else %}
+            <td> {{ data[0][13] }}</td>
+            {% endif %}
+					</li>
+					{% if data[0][45] == 'MN' : %}
+						{% set bdamage = '' %}
+					{% elif data[0][45] == 'AO' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'BN' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'FR' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'RE' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'SD' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'TP' : %}
+						{% set bdamage = 'red-icon' %}
+					{% elif data[0][45] == 'RR' : %}
+						{% set bdamage = 'red-icon' %}
+					{% else %}
+						{% set bdamage = '' %}
+					{% endif %}
+					<li class="{{bdamage}}"><b>Body Damage:</b><br>
+						{% if data[0][45] == 'MN' : %}
+						No, my vehicle is in good shape!
+						{% elif data[0][45] == 'AO' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'BN' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'FR' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'RE' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'SD' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'TP' : %}
+						Yes, my vehicle has some damage or rust
+						{% elif data[0][45] == 'RR' : %}
+						Yes, my vehicle has some damage or rust
+						{% else %}
+						Option Not Selected
+						  {% endif %}</li>
+
+						{% if data[0][12] == 'D' :  %}
+                        	{% set sdrive = '' %}
+                      	{% elif data[0][12] == none :  %}
+                      		{% set sdrive = '' %}
+                      	{% elif data[0][12] == 'S' :  %}
+                        	{% set sdrive = 'red-icon' %}
+                      	{% elif data[0][12] == 'N' :  %}
+                        	{% set sdrive = 'red-icon' %}
+                      	{% endif %}
+
+					 <li class="{{sdrive}}"><b>Start and Drive:</b><br>
+					  {% if data[0][12] == 'D' : %}
+							Yes, it starts and drives
+						{% elif data[0][12] == none : %}
+							Option Not Selected
+						{% elif data[0][12] == 'S' : %}
+							No, it starts but does not drive
+						{% elif data[0][12] == 'N' : %}
+							No, it does not start
+						{% endif %}
+					</li>
+
+						{% if data[0][15] == 'no' :  %}
+                        	{% set fdamage = '' %}
+                        {% elif data[0][15] == 'yes' : %}
+                            {% set fdamage = 'red-icon' %}
+                        {% elif data[0][15] == 'W' : %}
+                            {% set fdamage = 'red-icon' %}
+                        {% elif data[0][15] == none : %}
+                        	{% set fdamage = '' %}
+                        {% endif %}
+					 <li class="{{fdamage}}"><b>Water or Fire Damage:</b><br>
+					  {% if data[0][15] == 'no' : %}
+					  	No, it has never had any fire or water damage 
+					  {% elif data[0][15] == 'W' : %}
+					  	Yes, it had fire or water damage 
+					  {% elif data[0][15] == none : %}
+					  	Option Not Selected
+					  {% endif %}
+					</li>
+
+					  {% if data[0][41] == 'Vehicle is in good shape!' :  %}
+                        	{% set mechanical = '' %}
+                        {% elif data[0][41] == 'No, my vehicle is in good shape!' %}
+                        	{% set mechanical = '' %}
+                        {% elif data[0][41] == none %}
+                        	{% set mechanical = '' %}
+                        {% else %}
+                          {% set mechanical = 'red-icon' %}
+                        {% if data[0][41] != None :  %}
+                          {% if data[0][41] != 'No, my vehicle is in good shape!' :  %}
+                          	{% set mechanical = 'red-icon' %}
+                          {% endif %}
+                        {% endif %}
+                      {% endif %}
+
+					 <li class="{{mechanical}}"><b>Mechanical Issues:</b><br>
+					  
+					  {% if data[0][41] == none %}
+					  Option Not Selected
+					  {% elif data[0][41] == None : %}
+					  	Option Not Selected
+					  {% else %}
+					  	{{ data[0][41] }}
+					  {% endif %}
+					</li>
+					 <li><b>Zip:</b><br>{{ data[0][8] }}</li>
+
+					{% if data[0][10] == 'clean title' :  %}
+                      {% set title = '' %}
+                    {% elif data[0][10] == none %}
+                    	{% set title = '' %}
+                    {% else %}
+                      {% set title = 'red-icon' %}
+                    {% endif %}
+
+					 <li class="{{title}}"><b>Title Type:</b><br>
+					  {% if data[0][10] == 'clean title' : %}
+					  	Yes, I have a clean title
+					  {% elif data[0][10] == none %}
+					  	Option Not Selected
+					  {% elif data[0][10] == 'Salvage Rebuilt' %}
+					  	No, my title is branded (Salvage, rebuilt, lemon law, etc.)
+					  {% elif data[0][10] == 'Unknown' %}
+					  	No, I don’t have a title
+					  {% else %}
+					  	Option Not Selected
+					  {% endif %}
+					</li>
+						{% if data[0][11] == 'Y' :  %}
+                          {% set key = '' %}
+                        {% elif data[0][11] == none %}
+                        {% set key = '' %}
+                        {% else %}
+                          {% set key = 'red-icon' %}
+                        {% endif %}
+					 <li class="{{key}}"><b>Car Key:</b><br>
+					  {% if data[0][11] == 'Y' : %}
+					  	Yes, I have the key
+					  {% elif data[0][11] == none %}
+					  	Option Not Selected
+					  {% else %}
+					  	No, I do not have a key
+					  {% endif %}</li>
+
+					  {% if data[0][14] == 'Y' :  %}
+		                  {% set airbag = 'red-icon' %}
+		                {% elif data[0][14] == none %}
+		                	{% set airbag = '' %}
+		                {% else %}
+		                  {% set airbag = '' %}
+		                {% endif %}
+					 <li class="{{airbag}}"><b>Air bags:</b><br>
+					  {% if data[0][14] == 'Y' : %}
+					  	Yes, the airbags are deployed 
+					  {% elif data[0][14] == none %}
+					  	Option Not Selected
+					  {% else %}
+					  	No, the airbags are not deployed 
+					  {% endif %}</li>
+				 </ul>
+			  </div>
+		  </div>
+		</div>
+		</div>
+	  </form>
+	</section>
+
+<!-- Modal -->
+<!-- darshan changes added js 28/-08-2023 -->
+
+<!-- darshan changes added js 28/-08-2023  close-->
+<script src="{{ url_for('static', filename='js/jquery-2.2.3.min.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
+integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ url_for('static', filename='js/signUp.js')}}"></script>
+</body>
+
+</html>
+<script src="{{ url_for('static' , filename ='js/admin.js')}}"></script>

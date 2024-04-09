@@ -1,0 +1,212 @@
+{% include "header.html" %}
+<style type="text/css">
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+</style>
+<div class="content-wrapper">
+      <div class="content-wrapper">
+          <div class="container">
+			  <div class="page-title-box">
+  				<div class="row dflex align-center">
+  					<div class="col-lg-6">
+  						<h4 class="page-title">Conditional Report Detail</h4>
+  					</div>
+  					<div class="col-lg-6 text-right">
+              <a class="btn btn-lg btn-primary" href="{{ url_for('conditionfilter') }}">Back To List</a>
+  					</div>
+  				</div>
+			  </div>
+              <section class="content">
+                  <div class="box">
+                        {% for row in data %}
+                        <div class="box-body detail-info-section lg-form">
+                            <h4 class="text-center">Title: {{row[1]}}</h4>
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Vehicle Information</h3>
+                                <tr>
+                                  <td>Make:</td>
+                                  <td>{{row[26]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Model:</td>
+                                  <td>{{row[27]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Year:</td>
+                                  {% if row[5]!=''  %}
+                                    <td>{{row[5]}} to {{row[6]}}</td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Zip:</td>
+                                  <td>{{row[25]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Mileage:</td>
+                                  {% if row[9]!=''  %}
+                                    <td>{{row[9]}} to {{row[10]}}</td>
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                            </table>
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Condition Information</h3>
+                                <tr>
+                                  <td>Body damage:</td>
+                                  {% if row[11]!=''  %}
+                                    {% if row[11]=='Yes'  %}
+                                      <td>Yes, my vehicle has some damage or rust</td>
+                                    {% else %}
+                                      <td>No, my vehicle is in good shape!</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Airbag:</td>
+                                  {% if row[13]!=''  %}
+                                    {% if row[13]=='N'  %}
+                                      <td>No, the airbags are not deployed</td>
+                                    {% else %}
+                                      <td>Yes, the airbags are deployed</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Starts and drives:</td>
+                                  {% if row[14]!=''  %}
+                                    {% if row[14]=='D'  %}
+                                      <td>Yes, it starts and drives</td>
+                                    {% elif row[14]=='S'  %}
+                                      <td>No, it starts but does not drive</td>
+                                    {% else %}
+                                      <td>No, it does not start</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+
+                                <tr>
+                                  <td>Mechanical issues:</td>
+                                  {% if row[15]!=''  %}
+                                    {% if row[15]=='No, my vehicle is in good shape!'  %}
+                                      <td>No, my vehicle is in good shape!</td>
+                                    {% elif row[15]=='Yes, major engine issues'  %}
+                                      <td>Yes, major engine issues</td>
+                                    {% elif row[15]=='Yes, major transmission issues'  %}
+                                      <td>Yes, major transmission issues</td>
+                                    {% else %}
+                                      <td>Yes, major frame issues</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Keys:</td>
+                                  {% if row[16]!=''  %}
+                                    {% if row[16]=='Y'  %}
+                                      <td>Yes, I have the key</td>
+                                    {% else %}
+                                      <td>No, I do not have a key</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Title Type:</td>
+                                  {% if row[17]!=''  %}
+                                    {% if row[17]=='clean title'  %}
+                                      <td>Yes, I have a clean title</td>
+                                    {% elif row[17]=='Salvage Rebuilt'  %}
+                                      <td>No, my title is branded (Salvage, rebuilt, lemon law, etc.)</td>
+                                    {% else %}
+                                      <td>No, I don’t have a title</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                                <tr>
+                                  <td>Water or fire damage:</td>
+                                  {% if row[18]!=''  %}
+                                    {% if row[18]=='no'  %}
+                                      <td>No, it has never had any fire or water damage</td>
+                                    {% else %}
+                                      <td>Yes, it had fire or water damage</td>
+                                    {% endif %}
+                                  {% else %}
+                                    <td></td>
+                                  {% endif %}
+                                </tr>
+                            </table>
+
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Buying Rules</h3>
+                                {% if row[19]=='Proquote Estimate'  %}
+                                <tr>
+                                  <td>Buying Rules:</td>
+                                  <td>{{row[19]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Proquote Estimate:</td>
+                                  {% if row[20]=='minus'  %}
+                                    {% set p1 = '-'  %}
+                                  {% else %}
+                                    {% set p1 = '+'  %}
+                                  {% endif %}
+
+                                  {% if row[21]=='percentage'  %}
+                                    {% set p2 = '%'  %}
+                                  {% else %}
+                                    {% set p2 = '$'  %}
+                                  {% endif %}
+                                  <td>{{p1}} {{row[22]}}{{p2}} </td>
+                                </tr>
+                                <tr>
+                                  <td>Not To Exceed:</td>
+                                  <td>{{row[23]}}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                  <td>Buying Rules:</td>
+                                  <td>{{row[19]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Fixed Amount:</td>
+                                  <td>{{row[24]}}</td>
+                                </tr>
+                                <tr>
+                                  <td>Not To Exceed:</td>
+                                  <td>{{row[28]}}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        {% endfor %}
+                     </div>
+              </section>
+          </div>
+      </div>
+</div>
+
+{% include "footer.html" %}
+

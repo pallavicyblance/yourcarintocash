@@ -1,0 +1,365 @@
+{% include "header.html" %}
+<style type="text/css">
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+</style>
+<div class="content-wrapper">
+      <div class="content-wrapper">
+          <div class="container">
+			  <div class="page-title-box">
+				<div class="row dflex align-center">
+					<div class="col-lg-6">
+						<h4 class="page-title">Inquiry Detail</h4>
+					</div>
+					<div class="col-lg-6 text-right">
+						{% for row in data %}
+                            {% if row[38] == 'Decline' %}
+                                <a class="btn btn-lg btn-primary" href="{{ url_for('declinelist') }}">Back To List</a>
+                            {% else %}
+                                <a class="btn btn-lg btn-primary" href="{{ url_for('inquirylist') }}">Back To List</a>
+                            {% endif %}
+                        {% endfor%}
+						{% for row in data %}
+						    {% if row[38] == 'accept' %}
+						        {% if row[42] == 'yes' %}
+							    <span class="dispatch-btn2">Dispatched to Copart</span>
+							    {% else %}
+							    <a class="btn btn-lg btn-primary dispatch-btn1" href="javascript:void(0)" onclick="dispatchCopart({{ row[0]}})">Dispatch to Copart</a>
+							    {% endif%}
+							{% endif%}
+						{% endfor%}
+					</div>
+				</div>
+				<div class="" style="color:green" role="alert" id="inquiry_msg" style="display:none;"></div>
+				<div id="loadingdiv" class="loadingdiv" style="display: none;" ><img src="{{ url_for('static', filename='images/imgpsh_fullsize_anim.gif')}}" ></div>
+			  </div>
+              <section class="content">
+                  <div class="box">
+                          {% for message in get_flashed_messages()%}
+                <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ message }}
+                </div>
+                {% endfor%}
+                        <form class="form-horizontal" method="POST" action="{{ url_for('updateprofile') }}">
+                        {% for row in data %}
+
+                        <div class="box-body detail-info-section lg-form">
+                            <h4 class="text-center">Payee Amount:
+                              {% if row[40] == "NaN" %}
+                              {% elif row[40] == none %}
+                              {% else %}
+                                    ${{ row[40] }}
+                              {% endif %}
+                            </h4>
+                            <h4 class="text-center">Payee Name: {% if row[28] !=none %} {{ row[28] }} {% endif %}</h4>
+                            <table class="table client-info-table">
+                                <h3>Client Information
+                                  {% if row[40] == "NaN" %}
+                                  {% elif row[40] == none %}
+                                  {% else %}
+                                      (Offer ID - {{ row[44] }})
+                                  {% endif %}
+                                </h3>
+                                <tr>
+                                    <th width="117">Full Name:</th>
+                                    <td width="117">{% if row[22] !=none %} {{ row[22] }} {% endif %}</td>
+                                    <th width="107">Phone:</th>
+                                    <td width="165">{% if row[24] !=none %} {{ row[24] }} {% endif %}</td>
+                                    <th width="125">Alternate Phone:</th>
+                                    <td>{% if row[25] !=none %} {{ row[25] }} {% endif %}</td>
+                                    <th width="80"></th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>Location Name:</th>
+                                    <td>{% if row[17] !=none %} {{ row[17] }} {% endif %}</td>
+                                    <th>Address Type:</th>
+                                     <td>{% if row[16] == 'R' :  %}
+                                        {% if row[20] != none %}
+                                        {% if row[20] != '' %}
+                                        Residence
+                                        {% endif %}
+                                        {% endif %}
+                                      {% elif row[16] == 'B' : %}
+                                        Business
+                                      {% elif row[16] == none %}
+                                      {% else %}
+                                        {% if row[20] !=none %}
+                                        {{ row[16]}}
+                                        {% endif %}
+                                      {% endif %}
+                                     </td>
+                                    <th>Address1:</th>
+                                    <td>{% if row[18] !=none %} {{ row[18] }} {% endif %}</td>
+                                    <th>Address2:</th>
+                                    <td>{% if row[19] !=none %} {{ row[19] }} {% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <th>City:</th>
+                                    <td>{% if row[20] !=none %} {{ row[20] }} {% endif %}</td>
+                                    <th>State: </th>
+                                    <td>{{state_n}}</td>
+                                    <th>Zip:</th>
+                                    <td>{% if row[8] !=none %} {{ row[8] }} {% endif %}</td>
+                                    <th></th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>IP Address:</th>
+                                    <td>{{ row[31] }}</td>
+                                    <th>Host Name:</th>
+                                    <td style="word-break: break-word;">{{ row[32] }}</td>
+                                    <th>IP Location:</th>
+                                    <td colspan="4">
+                                      {% if row[35] !=none %} {{ row[35] }}, {% endif %}
+                                      {% if row[36] !=none %} {{ row[36] }}, {% endif %}
+                                      {% if row[37] !=none %} {{ row[37] }} {% endif %}</td>
+                                </tr>
+                            </table>
+
+                            <table class="table my-3 vehicle-info-table">
+                                <h3>Vehicle Information</h3>
+                                <tr>
+                                    <td width="20%">{{ row[1] }} {{ row[4] }} {{ row[5] }}</td>
+                                    <th width="20%">Vin:</th>
+
+                                    <td>{{ row[6] }}</td>
+
+                                    <th>Mileage:</th>
+                                    {% if row[13] == none %}
+                                    <td>Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px"></td>
+                                    {% else %}
+                                    <td> {{ row[13] }}</td>
+                                    {% endif %}
+
+                                </tr>
+                                <tr>
+                                    <th>Primary Damage:</th>
+                                    <td>
+                                      {% if row[45] == 'MN' :  %}
+                                        Minor dent/Scratches  <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'AO' :  %}
+                                        All Over  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'BN' :  %}
+                                        Burn   <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'FR' :  %}
+                                        Front End  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'RE' :  %}
+                                        Rear End  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'SD' :  %}
+                                        Side Damage  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'TP' :  %}
+                                        Top/Roof  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% elif row[45] == 'RR' :  %}
+                                        Rear End  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% else %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                      {% endif %}
+                                    </td>
+                                    <th>Secondary Damage</th>
+                                    <td>
+                                      {% if row[41] == 'Vehicle is in good shape!' :  %}
+                                        {{row[41]}} <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[41] == 'No, my vehicle is in good shape!' %}
+                                        {{row[41]}} <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[41] == none %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                        {% else %}
+                                          {{ row[41] }}
+                                        {% if row[41] != None :  %}
+                                          {% if row[41] != 'No, my vehicle is in good shape!' :  %}
+                                          <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                          {% endif %}
+                                        {% endif %}
+                                      {% endif %}
+                                    </td>
+                                    <th>Drive Status:</th>
+                                    <td>
+                                      {% if row[12] == 'D' :  %}
+                                        It starts and drives <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                      {% elif row[12] == none :  %}
+                                      Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                      {% elif row[12] == 'S' :  %}
+                                        It starts but does not drive.<img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+
+                                      {% elif row[12] == 'N' :  %}
+                                        It doesn't start. <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                      {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Fire/flood status:</th>
+                                    <td>
+                                        {% if row[15] == 'no' :  %}
+                                              It has no flood or fire damage <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[15] == 'yes' : %}
+                                            It has flood or fire damage  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                        {% elif row[15] == 'W' : %}
+                                            It has flood or fire damage  <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                        {% elif row[15] == none : %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                        {% endif %}
+                                    </td>
+
+                                    <th>Mechanical status:</th>
+                                    <td>
+                                      {% if row[41] == 'Vehicle is in good shape!' :  %}
+                                        Vehicle is in good shape! <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[41] == 'No, my vehicle is in good shape!' %}
+                                        {{row[41]}} <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[41] == none %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                        {% else %}
+                                          {{ row[41] }}
+                                        {% if row[41] != None :  %}
+                                          {% if row[41] != 'No, my vehicle is in good shape!' :  %}
+                                          <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                          {% endif %}
+                                        {% endif %}
+                                      {% endif %}
+                                    </td>
+                                  </tr>
+                                <tr>
+                                    <th>Title:</th>
+                                    <td>{% if row[10] == 'clean title' :  %}
+                                      clean title <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                    {% elif row[10] == none %}
+                                    Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                    {% else %}
+                                      {{ row[10] }}<img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                    {% endif %}
+                                    </td>
+                                    <th>Car Key:</th>
+                                    <td>
+
+                                        {% if row[11] == 'Y' :  %}
+                                          Yes <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% elif row[11] == none %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                        {% else %}
+                                          No <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                        {% endif %}
+                                    </td>
+                                    <th>Airbag:</th>
+                                    <td>
+                                        {% if row[14] == 'Y' :  %}
+                                          The air bags are deployed <img src="{{url_for('static' , filename = 'images/false-red.png')}}" alt="" width="20px">
+                                        {% elif row[14] == none %}
+                                        Option Not Selected <img src="{{url_for('static' , filename = 'images/round-warning-32.png')}}" alt="" width="20px">
+                                        {% else %}
+                                          Air bags aren't deployed <img src="{{url_for('static' , filename = 'images/true-green.png')}}" alt="" width="20px">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                            {% if row[38] == 'Decline' %}
+                            <table class="table inquiry-log-table">
+                               <h3>Declined Offer Details</h3>
+                               <tr>
+                                  <td><b>Name: </b> {{row[46]}}</td>
+                                  <td><b>Email: </b> {{row[47]}}</td>
+								  <td class="2"><b>Phone: </b> {{row[48]}} </td>
+                               </tr>
+                                <tr>
+                                  <td colspan="4"><b>Why did you declined this offer?: </b> {{row[52]}} </td>
+                                </tr>
+                                <tr>
+                                  <td> <b>4 corner outside pictures: </b><br>
+                                    {% set variable1 = row[49] %}
+                                    {% set list1 = variable1.split(',') %}
+                                    {% for item in list1 %}
+
+                                       <a href="/dev-carcash/static/images/{{item}}" rel="prettyPhoto[gallery1]"><img src="/dev-carcash/static/images/{{item}}"  alt="4 corner outside pictures" width="100px" class="img-preview"></a>
+                                    {% endfor %}
+                                  </td>
+									<td> <b>Interior Photo:</b><br> <a href="/dev-carcash/static/images/{{row[50]}}" rel="prettyPhoto[gallery1]"> <img src="/dev-carcash/static/images/{{row[50]}}"  alt="Interior Photo" width="100px" class="img-preview">  </a> </td>
+									<td colspan="2"> <b>VIN Photo: </b><br> <a href="/dev-carcash/static/images/{{row[51]}}" rel="prettyPhoto[gallery1]">  <img src="/dev-carcash/static/images/{{row[51]}}"  alt="VIN Photo" width="100px" class="img-preview"> </a></td>
+									 <td colspan="2"> <b>Mileage Photo: </b><br> <a href="/dev-carcash/static/images/{{row[53]}}" rel="prettyPhoto[gallery1]"><img src="/dev-carcash/static/images/{{row[53]}}"  alt="Mileage Photo" width="100px" class="img-preview">   </a></td>
+                                </tr>
+                                <tr>
+                                 
+                                </tr>
+                            </table>
+                            {% endif %}
+
+
+                            <table class="table inquiry-log-table">
+                               <h3>Inquiry Log</h3>
+                                <tr>
+                                    <th>User Tracked From:</th>
+                                    <td>
+
+                                        {% if row[43] == 'https://t.co/' :  %}
+								            https://www.twitter.com/
+								        {% else:  %}
+								            {{ row[43] }}
+								        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% endfor %}
+                        </form>
+                     </div>
+              </section>
+          </div>
+      </div>
+</div>
+
+<script>
+	function dispatchCopart(id){
+	var result = confirm("Are sure want to dispatch this inquiry to copart?");
+	$('.loadingdiv').show();
+	if (result) {
+
+		$.ajax({
+			url: WS_PATH+'get-offer',
+			data: {id:id},
+			type: 'POST',
+			success: function (response) {
+
+				$('#inquiry_msg').show();
+					$( "#inquiry_msg" ).html('Inquiry dispatched to the copart successfully!');
+
+				setTimeout(function(){ window.location.reload(); }, 2000);
+				$('.loadingdiv').hide();
+			},
+			error: function (error) {
+				console.log('response1')
+				console.log(error);
+				$('.loadingdiv').hide();
+			}
+		});
+
+	}else{
+		$('.loadingdiv').hide();
+	}
+}
+
+</script>
+
+
+{% include "footer.html" %}
+<script>
+	jQuery(document).ready(function(){
+		
+		jQuery("a[rel^='prettyPhoto']").prettyPhoto({ overlay_gallery: false, social_tools: '', deeplinking: false });
+		
+	 });
+	jQuery(window).on('load', function () {
+	
+			jQuery("a[rel^='prettyPhoto']").prettyPhoto({ overlay_gallery: false, social_tools: '', deeplinking: false });
+	
+	});
+</script>

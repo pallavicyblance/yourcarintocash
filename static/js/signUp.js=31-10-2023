@@ -1,0 +1,1418 @@
+function windowResizefn(){
+	var Wi = jQuery(window).height();
+	var HeaderHi = jQuery('.wrapper').innerHeight();
+	var BtnHi = jQuery('.bottom-btn-wrapper').innerHeight();
+	var innerHi1 = Wi - HeaderHi;
+	var innerHi2 = innerHi1 - BtnHi;
+	var innerHi3 = innerHi2 - 66;
+	jQuery('.form_section').css('height', innerHi3 + 'px');
+	console.log('innerHi3', innerHi3);
+	
+	setTimeout(function(){
+		var Wi = jQuery(window).height();
+		var HeaderHi = jQuery('.wrapper').innerHeight();
+		var BtnHi = jQuery('.bottom-btn-wrapper').innerHeight();
+		var innerHi1 = Wi - HeaderHi;
+		var innerHi2 = innerHi1 - BtnHi;
+		var innerHi3 = innerHi2 - 66;
+		jQuery('.form_section').css('height', innerHi3 + 'px');
+		console.log('innerHi3', innerHi3);
+	},2000);
+}
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+$(function(){
+
+	$("#year_drop").change(function () {
+	    
+	    var no_load= $('#no_load').val();
+
+		if(no_load!='yes'){
+		    //$("#loadingdiv").show();
+		}
+		$('#make_drop').val('').trigger('change');
+		$('#model_drop').val('').trigger('change');
+		var year = this.value;
+		if (year) {
+			get_model(1,year);			
+		}
+	});
+	windowResizefn();
+	
+	$(window).resize(function () {
+		windowResizefn();
+	});
+	$("#make_drop").change(function () {
+		var make = this.value;
+		var no_load= $('#no_load').val();
+		if (make) {
+			var year = $("#year_drop").val();
+			var make = $(this).find(':selected').data("id");
+			var make_code = $(this).find(':selected').data("code");
+			console.log('make_code', make_code);
+			$("#make_id").val(make);
+			$("#make_code").val(make_code);
+			if(no_load!='yes'){
+			//$("#loadingdiv").show();
+			}
+			get_make(1,year, make)
+			
+		}
+	});
+
+
+	$("#model_drop").change(function () {
+		var model = this.value;
+		if (model) {
+			var model = $(this).find(':selected').data("id");
+			$("#model_id").val(model);
+			//setTimeout(function(){
+			var aaa = $('#currenttab').val();
+			if(aaa=='1'){
+				$('#next').trigger('click');
+                $('body').removeClass('offer_amount_step');
+                windowResizefn();
+                $('#newvinset').html('');
+			}
+			//},1000);
+		}
+	});
+	
+	$("#prev").click(function(){
+		var id = $("#currenttab").val();
+		prevsteps(id);
+	});
+
+	$("#next").click(function(){
+		var tabid = $("#currenttab").val();
+		var paramValue = getParameterByName('lang');
+		//alert(tabid);
+		if($("#currenttab").val() == 1){			
+				if($("#year_drop").val() == '' || $("#make_drop").val() == '' || $("#model_drop").val() == ''){
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_1").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_1").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_1").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_1").addClass("alert alert-danger");
+				}else{	
+					$("#prev").removeAttr("disabled");
+					$(".circletab_2").addClass("active");
+					jQuery(".steps").hide();				  
+					jQuery("#steps_2").show();
+					$("#currenttab").val(2)	;
+					$("#steps_error_1").text("");
+					$("#steps_error_1").removeClass("alert alert-danger");
+	                    $(".circletab_1").addClass("complete");
+	                    var make_name = $("#make_drop").find(":selected").text();
+	                    var model_name = $("#model_drop").find(":selected").text();
+	                    var my_year = $("#year_drop").find(":selected").text();
+						
+	                    $('.make_name').html(make_name);
+	                    $('.my_model').html(model_name);
+	                    $('.my_year').html(my_year);
+	                    $('.model_name').html(model_name);
+						var title =  $(".circletab_2").html();
+						$("#progressive-text").html(title);
+						
+	                    autoinquirybid(1);
+					}
+		}else if ($("#currenttab").val() == 2) {
+			var l = $("#v_zip_code").val();
+			if($("#v_zip_code").val() == ''){
+					console.log('1122');			
+					//$("#steps_error_2").text("Please enter a valid input");
+					var ab = $('#no_load').val();
+					if(ab!='yes'){
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_2").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_2").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_2").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_2").addClass("alert alert-danger");
+					}
+				}else{	
+					if(l.length!=5){
+						if(paramValue !== null){
+							if(paramValue == 'es'){
+								$("#steps_error_2").text("Ingrese un código postal válido de 5 dígitos.");
+							}else{
+								$("#steps_error_2").text("Please enter a valid 5-digit zip code.");
+							}
+						}else{
+							$("#steps_error_2").text("Please enter a valid 5-digit zip code.");
+						}
+						$("#steps_error_2").addClass("alert alert-danger");
+					}else{
+						//$('.car-tires-areas').hide();
+						$('#pdamagediv').show();
+						$('#d_title').show();
+	          			$('#d_title1').hide();
+
+	          			$('#d_subtitle').show();
+	          			$('#d_subtitle1').hide();
+						nextsteps(tabid);	
+					}
+				}
+		}else if ($("#currenttab").val() == 3) {
+			console.log('1122');
+			 if ($('input[name="utv"]:checked').length == 0 && $("#mileage").val()=='' ) {
+					console.log('in');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_3").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_3").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_3").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_3").addClass("alert alert-danger");
+				}else{
+					nextsteps(tabid);
+				}
+		}else if ($("#currenttab").val() == 4) {
+		 	if ($('input[name="damage"]:checked').length == 0) {
+				console.log('1122');			
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_4").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_4").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_4").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_4").addClass("alert alert-danger");
+			}else{				
+				var radioValue = $("input[name='damage']:checked").val();
+				console.log(radioValue);
+				if(radioValue=='Yes'){	
+					nextsteps(4,'Yes')
+				}else{
+					nextsteps(4,'no')
+				}
+			}
+		}else if ($("#currenttab").val() == 5) {
+
+			var radioValue = $("input[name='damage']:checked").val();
+			//alert(radioValue)
+			if(radioValue=='Yes'){
+			 	if ($('input[name="damageimg[]"]:checked').length == 0) {
+					console.log('1122');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_5").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_5").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_5").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_5").addClass("alert alert-danger");
+				}else{	
+
+					nextsteps(tabid);
+				}
+			}else{
+				nextsteps(tabid+1);
+			}
+		}else if ($("#currenttab").val() == 6) {
+				
+			if ($('input[name="airbag"]:checked').length == 0 ) {
+				console.log('in');			
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_6").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_6").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_6").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_6").addClass("alert alert-danger");
+			}else{	
+				console.log('form_signin_add');	
+				nextsteps(tabid); 
+			}
+		}else if ($("#currenttab").val() == 7) {
+			console.log('1122');
+			 if ($('input[name="drive"]:checked').length == 0) {
+					console.log('in');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_7").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_7").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_7").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_7").addClass("alert alert-danger");
+				}else{
+					nextsteps(tabid);
+				}
+		}else if ($("#currenttab").val() == 8) {
+			 if ($('input[name="sdamage"]:checked').length == 0) {
+					console.log('1122');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_8").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_8").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_8").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_8").addClass("alert alert-danger");
+				}else{	
+					nextsteps(tabid);
+				}
+		}else if ($("#currenttab").val() == 9) {
+			 if ($('input[name="key"]:checked').length == 0) {
+					console.log('1122');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_9").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_9").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_9").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_9").addClass("alert alert-danger");
+				}else{
+					nextsteps(tabid);
+				}
+		}else if ($("#currenttab").val() == 10) {
+			 if ($('input[name="title"]:checked').length == 0) {
+					console.log('1122');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_10").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_10").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_10").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_10").addClass("alert alert-danger");
+				}else{
+					nextsteps(tabid);
+					
+				}
+		}else if ($("#currenttab").val() == 11) {
+			console.log('1122');
+			 if ($('input[name="fire_damage"]:checked').length == 0 ) {
+					console.log('in');			
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							$("#steps_error_11").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+						}else{
+							$("#steps_error_11").text("The field cannot be left blank. Please enter the required information.");
+						}
+					}else{
+						$("#steps_error_11").text("The field cannot be left blank. Please enter the required information.");
+					}
+					$("#steps_error_11").addClass("alert alert-danger");
+				}else{
+					nextsteps(tabid);
+					autoinquirybid(2);         
+					windowResizefn();
+					get_offer_id();
+				}
+		}else if ($("#currenttab").val() == 12) {
+			console.log('form_signin_add 1212');		
+			nextsteps(tabid);
+
+		} else if ($("#currenttab").val() == 13) {
+			if ($("#address1input").val() == ''  || $("#cityinput").val() == '' || $("#states_drop").val() == '') {
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_13").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_13").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_13").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_13").addClass("alert alert-danger");
+			} else {
+				nextsteps(tabid);
+				autoinquirybid(2);
+				windowResizefn();
+			}
+		} else if ($("#currenttab").val() == 14) {
+			var numbers = /^[0-9]+$/;
+			var p = $("#phoneinput").val();
+			var p1 = $("#alternatePhoneinput").val();
+			if ($("#fnameinput").val() == '' || $("#phoneinput").val() == '') {
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_14").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_14").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_14").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_14").addClass("alert alert-danger");
+			}else if(!p.match(numbers)){
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_14").text("Por favor ingrese únicamente el valor numérico.");
+					}else{
+						$("#steps_error_14").text("Please input numeric value only.");
+					}
+				}else{
+					$("#steps_error_14").text("Please input numeric value only.");
+				}
+				$("#steps_error_14").addClass("alert alert-danger");
+			} else {
+				nextsteps(tabid);
+				autoinquirybid(2);
+			}
+		} else if ($("#currenttab").val() == 15) {
+			if ($("#ownerFnameinput").val() == '') {
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_15").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_15").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_15").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_15").addClass("alert alert-danger");
+			} else {
+				$('#svg_t').hide();
+				var paramValue = getParameterByName('lang');
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$('#d_next_btn').text('Entregar');
+					}else{
+						$('#d_next_btn').text('Submit');
+					}
+				}else{
+					$('#d_next_btn').text('Submit');
+				}
+				nextsteps(tabid);
+				//autoinquirybid(2);
+
+			}
+		} else if ($("#currenttab").val() == 16) {
+			if ($("#payeeFnameinput").val() == '' ) {
+				if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_16").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+					}else{
+						$("#steps_error_16").text("The field cannot be left blank. Please enter the required information.");
+					}
+				}else{
+					$("#steps_error_16").text("The field cannot be left blank. Please enter the required information.");
+				}
+				$("#steps_error_16").addClass("alert alert-danger");
+			} else {
+				$("#next").attr("disabled", true);
+				$("body").addClass('offer_amount_step');
+				nextsteps(tabid);
+				get_offer_id();
+				autoinquirybid(111);
+			}
+		}
+	});
+});
+
+function hideShow(){
+
+	$('#sdamage_div').show();
+}
+
+$("#vip_input").keyup(function() {
+  	 var vip = $("#vip_input").val();
+     if(vip.length === 17){
+     	$('#vin_back_btn').attr("disabled",true);
+     	getvipinfo();
+     }else{
+     	$("#autofill_id").attr("disabled",true);
+     	$("body").addClass('offer_amount_step');
+     }
+
+    if(vip !="" ){
+    	$('#vin_back_btn').attr("disabled",true);
+    }
+});
+
+	function get_make(id,year, make){
+		var model_id ='';
+		if(id == 2){
+			var model_id = $("#model_id").val();
+		}
+		var myKeyVals = { year: year, make: make, models: 'models' }
+		console.log(myKeyVals);
+		$.ajax({
+				url: WS_PATH+'getmodel',
+				//url: '/getmodel',
+				data: myKeyVals,
+				type: 'POST',
+				success: function (response) {
+					var data = JSON.parse(response);
+					var data1 = data.model;
+					console.log(data1);
+					var str = '';
+					var paramValue = getParameterByName('lang');
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							str += '<option value="" >Modelo</option>';
+						}else{
+							str += '<option value="" >Model</option>';
+						}
+					}else{
+						str += '<option value="" >Model</option>';
+					}
+					data1.forEach(product => {
+						if(model_id == product[3]){
+							str += '<option  data-id="'+ product[3] +'" value="' + product[2] + '" selected > ' + product[2] + '</option>';
+						}else{
+							str += '<option  data-id="'+ product[3] +'" value="' + product[2] + '">' + product[2] + '</option>';
+						}
+						
+					})
+					$('#model_drop').html(str);
+					var aaa = $('#no_load').val();
+					if(aaa=='no'){
+					    $("#model_drop").select2( "open" );
+					}
+					$("#loadingdiv").hide();
+
+
+				},
+				error: function (error) {
+					console.log(error);
+				}
+			});
+	}
+
+	function get_model(id,year){
+		var myKeyVals = { year: year, makes: 'makes' }
+		var make_id ='';
+		if(id == 2){
+			var make_id =$("#make_id").val();
+		}
+		$.ajax({
+				url: WS_PATH+'getmakes',
+				// url: '/getmakes',
+				data: myKeyVals,
+				type: 'POST',
+				success: function (response) {
+					var data = JSON.parse(response);
+					var data1 = data.makes;
+					var str = '';
+					var paramValue = getParameterByName('lang');
+
+					if(paramValue !== null){
+						if(paramValue == 'es'){
+							str += '<option value="" >Hacer</option>';
+						}else{
+							str += '<option value="" >Make</option>';
+						}
+					}else{
+						str += '<option value="" >Make</option>';
+					}
+					data1.forEach(product => {
+						if(make_id == product[0]){
+							str += '<option data-id="'+ product[0] +'" data-code="'+ product[2] +'" value="' + product[1] + '" selected >' + product[1] + '</option>';
+						}else{
+							str += '<option data-id="'+ product[0] +'" data-code="'+ product[2] +'" value="' + product[1] + '">' + product[1] + '</option>';
+						}	
+						
+					})
+					$('#make_drop').html(str);
+					var aaa = $('#no_load').val();
+					
+					if(aaa=='no'){
+					$("#make_drop").select2( "open" );
+					}
+					$("#loadingdiv").hide();
+				},
+				error: function (error) {
+					console.log(error);
+				}
+			});
+	} 
+
+function getvipinfo(){
+	$('#vin_back_btn').attr("disabled",true);
+	var vip = $("#vip_input").val();
+	var settings = {
+	  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/"+vip+"?format=json",
+	  "method": "GET",
+	  "timeout": 0, 
+	  "Content-Type": 'application/json',	
+	};
+	$.ajax(settings).done(function (response) {
+	    if(response.Results){
+    	    //console.log(response.Results[0]+' nigam1');
+    	   	const {Make, Model, ModelYear} = response.Results[0]
+    	   	$('#no_load').val('yes');
+    	   	if(Make !="" && Model !="" && ModelYear !=""){
+    	   		$("#vinmake").html(convert(Make));
+    	   		$("#vinmodel").html(convert(Model));
+    	   		$("#vinyear").html(ModelYear);
+    	   		$("#autofill_id").attr("disabled",false);
+    	   		
+    	        //$('#newvinset').html(ModelYear+' '+Make+' '+Model);
+    	   		$('#year_drop').val(ModelYear).trigger('change');
+    	   		
+    	   //		setTimeout(function(){
+    	   //		    selectMake(Make)
+    	            
+    	   //         setTimeout(function(){
+    		  // 		     setTimeout( selectModel(Model), 1500);
+    		  // 		 },1100);
+    	   //		 },1000);
+    	   //$('#loadingdiv').show();
+    	   $.ajax({
+    				url: WS_PATH+'vehicleinfocheck',
+    				data: { make : Make, model: Model, modelyear: ModelYear, vehicle: 'vehicleinfo'  },
+    				type: 'POST',
+    				success: function(responses){
+    					//$("#loadingdivaddvehicle").hide();
+    					$("#vinmake").html(convert(Make));
+    	   		        $("#vinmodel").html(convert(Model));
+    			   		$("#vinyear").html(ModelYear);	
+    			        //$('#newvinset').html(ModelYear+' '+Make+' '+Model);
+    			   		$('#year_drop').val(ModelYear).trigger('change');
+    
+    			   		 setTimeout(function(){
+    			   		    selectMake(Make)
+    			            
+    			            setTimeout(function(){
+    				   		     setTimeout( selectModel(Model), 1500);
+    				   		     $('#loadingdiv').hide();
+    				   		     $("#autofill_id").attr("disabled",true);
+    				   		     $('#vin_back_btn').attr("disabled",false);
+    				   		 },1100);
+    			   		 },1000);
+    				},
+    				error: function(error){
+    					console.log(error);
+    				}
+    			});
+    	   		//selectMakeModel(Make,Model);
+    	   		$("#carInfo").show();
+    	   		$("#steps_error_01").text("");
+    			$("#steps_error_01").removeClass("alert alert-danger");
+    			console.log('nigam111');
+    	   	}else{
+    	   	    console.log('nigam11');
+    	   		var paramValue = getParameterByName('lang');
+    	   		if(paramValue !== null){
+					if(paramValue == 'es'){
+						$("#steps_error_01").text("Por favor ingrese un VIN válido");
+					}else{
+						$("#steps_error_01").text("Please enter a valid VIN");
+					}
+				}else{
+					$("#steps_error_01").text("Please enter a valid VIN");
+				}
+    			$("#steps_error_01").addClass("alert alert-danger");
+    			$("#autofill_id").attr("disabled",true);
+    			$('#vin_back_btn').attr("disabled",false);
+    			$("body").addClass('offer_amount_step');
+    	   	}
+	    }else{
+	        console.log('nigam1');
+	        var paramValue = getParameterByName('lang');
+	        if(paramValue !== null){
+				if(paramValue == 'es'){
+					$("#steps_error_01").text("Por favor ingrese un VIN válido");
+				}else{
+					$("#steps_error_01").text("Please enter a valid VIN");
+				}
+			}else{
+				$("#steps_error_01").text("Please enter a valid VIN");
+			}
+    		$("#steps_error_01").addClass("alert alert-danger");
+    		$("#autofill_id").attr("disabled",true);
+    		$('#vin_back_btn').attr("disabled",false);
+    		$("body").addClass('offer_amount_step');
+	    }
+	});
+}
+
+function convert(str)
+{
+    // Create a char array of given String
+    let ch = str.split("");
+    for (let i = 0; i < str.length; i++) {
+
+        // If first character of a word is found
+        if (i == 0 && ch[i] != ' ' ||
+            ch[i] != ' ' && ch[i - 1] == ' ') {
+
+            // If it is in lower-case
+            if (ch[i] >= 'a' && ch[i] <= 'z') {
+
+                // Convert into Upper-case
+                ch[i] = String.fromCharCode(ch[i].charCodeAt(0) - 'a'.charCodeAt(0) + 'A'.charCodeAt(0));
+            }
+        }
+
+        // If apart from first character
+        // Any one is in Upper-case
+        else if (ch[i] >= 'A' && ch[i] <= 'Z')
+
+            // Convert into Lower-Case
+            ch[i] = String.fromCharCode(ch[i].charCodeAt(0) + 'a'.charCodeAt(0) - 'A'.charCodeAt(0));          
+    }
+
+    // Convert the char array to equivalent String
+    let st = (ch).join("");
+    return st;
+}
+
+function selectMake(Make){
+    
+    $.ajax({
+		url: WS_PATH+'setvinmake',
+		//url: '/setvinmake',
+		data: {Make:Make},
+		type: 'POST',
+		success: function (response) {
+			
+			var data = JSON.parse(response);
+			var data1 = data.data;
+			$('#make_drop').val(data1[1]).trigger('change')
+		}
+    });
+}
+
+function selectModel(Model){
+    
+    $.ajax({
+		url: WS_PATH+'setvinmodel',
+		//url: '/setvinmodel',
+		data: {Model:Model},
+		type: 'POST',
+		success: function (response) {
+			
+			var data = JSON.parse(response);
+			var data1 = data.data;
+			$('#model_drop').val(data1[1]).trigger('change')
+		}
+    });
+}
+
+
+function selectMakeModel(Make,Model){
+    
+//     $.ajax({
+// 		url: '/Offer/setvinmake',
+// 		//url: '/getqoute',
+// 		data: {Make:Make,Model:Model},
+// 		type: 'POST',
+// 		success: function (response) {
+		    
+// 		}
+//     });
+}
+
+
+function keyDisable(result){
+    
+    var radioValue = result
+    if(radioValue=='N'){
+        //$("#drive1,#drive2").attr("disabled",true);
+    }else{
+        //$("#drive1,#drive2").attr("disabled",false);
+    }
+}
+
+function nextsteps(id,s=null) {
+	var nextTabid = id;
+
+	$('body').removeClass('finish-step');
+	//alert(id);
+	
+	console.log('next tabid', nextTabid);
+	windowResizefn();
+	
+	if(id==3){
+		if ($('input[name="utv"]:checked').length == 0 && $("#mileage").val()=='' ) {
+			console.log('in');	
+			var paramValue = getParameterByName('lang');
+			if(paramValue !== null){
+				if(paramValue == 'es'){
+					$("#steps_error_3").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
+				}else{
+					$("#steps_error_3").text("The field cannot be left blank. Please enter the required information.");
+				}
+			}else{
+				$("#steps_error_3").text("The field cannot be left blank. Please enter the required information.");
+			}			
+			//$("#steps_error_3").text("The field cannot be left blank. Please enter the required information.");
+			$("#steps_error_3").addClass("alert alert-danger");
+		return false;
+		}
+	}
+	
+	if(id == 11 ){
+	    $('#loading-cal-gif').show();
+		get_offer_id();
+		$.ajax({
+			url: WS_PATH+'getqoute',
+			//url: '/getqoute',
+			data: $('#formproquotes').serialize(),
+			type: 'POST',
+			success: function (response) {
+				var data = JSON.parse(response);
+				var data1 = data.data;
+				var data2 = data.proquotesget1;
+				//console.log(data2[0][1])
+				const {claimNumber, quoteId, highQuote, lowQuote, proQuote} = data1							
+				console.log("proQuote ",proQuote);
+				var proQuoteo = proQuote;
+				$("body").addClass('offer_amount_step');
+                $("body").addClass('offer_amount_step_1');
+		         if(proQuote <= data2[0][3]){
+		         	var p1 = data2[0][1];
+		            proqoute = parseFloat((proQuote*p1)/100)
+		        }else if(proQuote >= data2[0][5] && proQuote <= data2[0][6]){
+		        	var p2 = data2[0][4];
+		            proqoute = parseFloat((proQuote*p2)/100)
+		        }else if(proQuote >= data2[0][8] && proQuote <= data2[0][9]){
+		        	var p3 = data2[0][7];
+		            proqoute = parseFloat((proQuote*p3)/100)
+		        }else if(proQuote >= data2[0][11] && proQuote <= data2[0][12]){
+		        	var p3 = data2[0][10];
+		            proqoute = parseFloat((proQuote*p3)/100)
+		        }else if(proQuote >= data2[0][14] && proQuote <= data2[0][15]){
+		        	var p3 = data2[0][13];
+		            proqoute = parseFloat((proQuote*p3)/100)
+		        }else{
+		        	var p4 = data2[0][16];
+		            proqoute = parseFloat((proQuote*p4)/100)
+		        }
+		        
+		        $.ajax({
+					url: WS_PATH+'getqoute-conditional',
+					data: $('#formproquotes').serialize(),
+					type: 'POST',
+					success: function (response) {	
+
+						var data5 = JSON.parse(response);
+						var data3 = data5.conditionalLogic;
+						console.log(data3+'111111111111111')
+						if(data3!=undefined){
+						    
+						    console.log('nigs1');
+				        	if(data3[19]=="Fixed Amount"){
+                                console.log('nigs1dffdf'+data3[24]);
+				        		//if(proqoute>data3[24]){
+				        			proqoute = parseFloat(data3[24]);
+				        		//}
+				        	}else{
+				        	    console.log('nigs1dffdf11111'+data3[20]);
+				        		if(data3[20]=='minus'){
+                                    console.log('nigs2');
+				        			if(data3[21]=='percentage'){
+
+				        				var per1 = parseFloat((proqoute*data3[22])/100);
+				        				var total1 = proqoute - per1;
+
+				        				if(data3[23]>total1){
+				        					proqoute = total1;
+				        				}else{
+				        					proqoute = parseFloat(data3[23]);
+				        				}
+				        			}else{
+                                        console.log('nigam123')
+				        			 var per1 = parseFloat(proqoute- data3[22]);
+				        				var total1 = proqoute - per1;
+				        				if(data3[23]>total1){
+				        					proqoute = total1;
+				        				}else{
+				        					proqoute = parseFloat(data3[23]);
+				        				}
+				        			}
+				        		}else{
+
+				        			if(data3[21]=='percentage'){
+
+				        				var per1 = parseFloat((proqoute*data3[22])/100);
+				        				var total1 = proqoute + per1;
+
+				        				if(data3[23]>total1){
+				        					proqoute = total1;
+				        				}else{
+				        					proqoute = parseFloat(data3[23]);
+				        				}
+				        			}else{
+				        				
+				        				var per1 = parseFloat(proqoute-data3[22]);
+				        				var total1 = proqoute + per1;
+
+				        				if(data3[23]>total1){
+				        					proqoute = total1;
+				        				}else{
+				        					proqoute = parseFloat(data3[23]);
+				        				}
+				        			}
+				        		}
+				        	}
+						}else{
+						    console.log('innnnnnnnnnnnnnnnnnnn')
+						}
+
+						jQuery("#proQuote_span_offer_original").hide();
+						jQuery("#proQuote_span_offer").html( proqoute.toFixed(2));
+						jQuery("#proQuote_span_offer_original").html("Original price $" + proQuoteo);
+						
+						jQuery("#original_price").val(proQuoteo);
+						jQuery("#revised_price").val(proqoute.toFixed(2));
+						
+						jQuery("#proQuotespanoffer").html( proqoute.toFixed(2));
+						var nid = parseInt(id) + 1;
+						$("#steps_error_" + id).text("");
+						$("#steps_error_" + id).removeClass("alert alert-danger");
+						$(".circletab_" + id).addClass("active");
+						jQuery(".steps").hide();
+						jQuery("#steps_" + nid).show();
+						$("#currenttab").val(nid)
+
+						var title =  $(".circletab_"+id).html();
+						$("#progressive-text").html(title);
+
+						var id1 = parseInt(id) - 1;
+						$(".circletab_"+ id1).addClass("complete");
+						autoinquirybid(2);
+						$('#loading-cal-gif').hide();
+						
+					},
+					error: function (error) {
+					    $('#loading-cal-gif').hide();
+						console.log(error);
+					}
+				}); 
+			},
+			error: function (error) {
+			    $('#loading-cal-gif').hide();
+				console.log(error);
+			}
+		});
+	}else{
+	    if(id == 17){
+			autoinquirybid(2);
+			console.log('hiihiihiihiihihi');
+		}
+
+		if(id==4){
+			//alert(id);
+			var radioValue = $("input[name='damage']:checked").val();
+			if(s=='Yes'){
+				$("input[type=radio][name=airbag]").prop('checked', false);
+				$('.circletab_5').show();
+				var nid = parseInt(id) + 1;
+				var nid1 = parseInt(id) - 2;
+				var id1 = parseInt(id)-1;
+			}else{
+				var nid = parseInt(id) + 2;
+				var nid1 = parseInt(id) + 2;
+				var id1 = id;
+				id = parseInt(id) + 1;
+				nid = nid + 1;
+				$("input[name=airbag][value='N']").prop("checked",true);
+				$('#steps_6').hide();
+				$('.circletab_5').hide();
+				var title =  $(".circletab_"+nid1).html();
+				$("#progressive-text").html(title);
+			}
+			$("#steps_error_" + id).text("");
+			$("#steps_error_" + id).removeClass("alert alert-danger");
+			$(".circletab_" + nid1).addClass("active");
+
+
+			
+
+			jQuery(".steps").hide();
+			jQuery("#steps_" + nid).show();
+			$("#currenttab").val(nid)
+			$(".circletab_"+ id1).addClass("complete");
+			if(id == 12 ){
+				$("body").removeClass('offer_amount_step');	
+	            $("body").removeClass('offer_amount_step_1');	
+				$(".progress_part_2").show();
+				$(".progress_part_1").hide();
+				console.log('fffffff');
+			}
+		}else{
+			
+
+			if(id>=5){
+				var radioValue = $("input[name='damage']:checked").val();
+				if(radioValue=='Yes'){
+					var nid1 = id;
+					var id1 = parseInt(id) - 1;
+				}else{
+					var nid1 = id;
+					var id1 = parseInt(id) - 1;
+				}
+				
+			}else{
+				var nid1 = parseInt(id) + 1;
+				var id1 = id;
+			}
+
+			var drive = $("input[name='drive']:checked").val();
+			if(id==7){
+				if(drive=='D'){
+					$("input[type=radio][name=sdamage]").prop('checked', false);
+					var nid = parseInt(id) + 1;	
+					$('.circletab_'+id).show();
+					$('.circletab_'+nid).hide();
+				}else{
+
+					if(drive=='S'){
+						var nid = parseInt(id) + 3;	
+						nid1 = parseInt(id) + 2;
+						var aa1 = parseInt(id) + 1;
+						$('.circletab_'+nid1).show();
+						$('.circletab_'+id).hide();
+						$('.circletab_'+aa1).hide();
+						$("input[name=key][value='Y']").prop("checked",true);
+						$("input[name=sdamage][value='Yes, major engine issues']").prop("checked",true);
+					}else{
+						var nid = parseInt(id) + 2;	
+						nid1 = parseInt(id) + 1;
+						$('.circletab_'+nid1).show();
+						$('.circletab_'+id).hide();
+						$("input[name=sdamage][value='Yes, major engine issues']").prop("checked",true);
+						$("input[type=radio][name=key]").prop('checked', false);
+					}
+				}
+			}else{
+
+				if(id==8){
+					var drive = $("input[name='drive']:checked").val();
+					if(drive=='D'){
+						var nid = parseInt(id) + 2;	
+						$('.circletab_'+id).hide();	
+						var nid1 = parseInt(id) + 1;
+						$("input[name=key][value='Y']").prop("checked",true);
+					}else{
+						$("input[type=key][name=sdamage]").prop('checked', false);
+						$("input[type=radio][name=key]").prop('checked', false);
+						$('.circletab_'+id).show();
+						var nid = parseInt(id) + 1;			
+					}
+				}else{
+					$('.circletab_'+id).show();
+					var nid = parseInt(id) + 1;		
+				}
+			}
+			$("#steps_error_" + id).text("");
+			$("#steps_error_" + id).removeClass("alert alert-danger");
+			$(".circletab_" + nid1).addClass("active");
+
+
+			var title =  $(".circletab_"+nid1).html();
+			$("#progressive-text").html(title);
+
+			jQuery(".steps").hide();
+
+			//alert(id);
+			if(id==16){
+				var title =  "Completed";
+				$("#progressive-text").html(title);
+				jQuery("#steps_18").show();
+				jQuery("#next-prev-id").hide();
+			}else{
+				jQuery("#steps_" + nid).show();	
+			}
+			
+			$("#currenttab").val(nid)
+			$(".circletab_"+ id1).addClass("complete");
+			if(id == 12 ){
+				$("body").removeClass('offer_amount_step');	
+	            $("body").removeClass('offer_amount_step_1');	
+				$(".progress_part_2").show();
+				$(".progress_part_1").hide();
+				console.log('fffffff');
+			}
+		}
+	}
+}
+
+function prevsteps(id) {
+	
+	$('body').removeClass('finish-step');
+	//alert(id);
+	$('#svg_t').show();
+	var paramValue = getParameterByName('lang');
+	if(paramValue !== null){
+		if(paramValue == 'es'){
+			$('#d_next_btn').text('Próxima');
+		}else{
+			$('#d_next_btn').text('Next');
+		}
+	}else{
+		$('#d_next_btn').text('Next');
+	}
+	var prevTabid = id;
+	console.log('prev tabid', prevTabid);
+	//var title =  $(".circletab_"+prevTabid).prev('.circle').html();
+	//$("#progressive-text").html(title);
+	
+	windowResizefn();
+	
+	
+	
+	if (id == 1 ) {
+		$("#prev").attr("disabled", true);
+		//$(".circletab_1").removeClass("active");
+		jQuery(".steps").hide();
+		jQuery("#steps_1").show();
+		$("#currenttab").val(1);
+		$("#steps_error_1").text("");
+		$("#steps_error_1").removeClass("alert alert-danger");		
+		$("body").removeClass('offer_amount_step');
+        $("body").removeClass('offer_amount_step_1');
+		for (let i = 1; i < 11; i++) {
+ 			$(".circletab_"+i).removeClass("complete");
+ 			$(".circletab_"+i).removeClass("active");
+		}
+		$(".circletab_1").addClass("active");
+		var title =  $(".circletab_"+1).html();
+		$("#progressive-text").html(title);
+	}else if(id == 6){
+
+		var radioValue = $("input[name='damage']:checked").val();
+
+		if(radioValue=='Yes'){
+
+			var id1 = parseInt(id) - 1;
+			$(".circletab_" + id1).removeClass("active");
+			var pid = id - 1;
+			var pid1 = id - 2;
+			
+			jQuery(".steps").hide();
+			jQuery("#steps_" + pid).show();
+			$("#currenttab").val(pid);
+			$("#steps_error_" + id).text("");
+			$("#steps_error_" + id).removeClass("alert alert-danger");
+			$(".circletab_"+ pid1).removeClass("complete");
+		}else{
+			var id1 = parseInt(id) - 1;
+			$(".circletab_" + id1).removeClass("active");
+			var pid = id - 3;
+			
+			jQuery(".steps").hide();
+			jQuery("#steps_" + pid).show();
+			$("#currenttab").val(pid);
+			$("#steps_error_" + id).text("");
+			$("#steps_error_" + id).removeClass("alert alert-danger");
+			$(".circletab_"+ pid).removeClass("complete");
+
+			$('#steps_6').hide();
+			$('.circletab_5').hide();
+		}
+
+		var title =  $(".circletab_"+pid1).html();
+		$("#progressive-text").html(title);
+	} else {
+		if (id == 2 ) {
+			$("#prev").attr("disabled", true);
+		}
+		if (id == 13 ) {
+			$(".progress_part_2").hide();
+			$(".progress_part_1").show();
+			$("body").addClass('offer_amount_step');
+            $("body").addClass('offer_amount_step_1');
+		}
+		if(id == 12 || id == 17){
+			$("#next").removeAttr("disabled");
+			$("body").removeClass('offer_amount_step');
+            $("body").removeClass('offer_amount_step_1');
+		}
+
+
+		if(id>=7){
+			var radioValue = $("input[name='damage']:checked").val();
+			if(radioValue=='Yes'){
+				var id1 = parseInt(id) - 1 ;
+				var pid1 = parseInt(id) - 2;
+			}else{
+				if(id==7){
+					var id1 = parseInt(id) - 1;
+					var pid1 = parseInt(id) - 3;
+
+					id = parseInt(id) - 2;
+					pid = parseInt(id) - 1;
+				}else{
+					var id1 = parseInt(id) - 1;
+					var pid1 = parseInt(id) - 2;
+				}
+			}
+		}else{
+			var id1 = id;
+			var pid1 = parseInt(id) - 1
+		}
+
+
+		$(".circletab_" + id1).removeClass("active");
+
+		if(id==9){
+			var drive = $("input[name='drive']:checked").val();
+			if(drive!='D'){
+				var pid = id - 2;
+				pid1 = parseInt(id) - 3;
+			}else{
+				var pid = id - 1;
+			}
+		}else{
+			var pid = id - 1;
+		}
+
+		if(id==10){
+			var drive = $("input[name='drive']:checked").val();
+			if(drive=='D'){
+				var pid = id - 2;
+				pid1 = parseInt(id) - 3;
+			}else{
+				if(drive=='S'){
+					var pid = id - 3;
+					pid1 = parseInt(id) - 4;
+				}else{
+					var pid = id - 1;	
+				}
+			}
+		}else{
+
+			if(id==9){
+				var pid = id - 2;
+			}else{
+				var pid = id - 1;
+			}
+		}
+		
+		jQuery(".steps").hide();
+		jQuery("#steps_" + pid).show();
+		$("#currenttab").val(pid);
+		$("#steps_error_" + id).text("");
+		$("#steps_error_" + id).removeClass("alert alert-danger");
+		$(".circletab_"+ pid1).removeClass("complete");
+
+		var title =  $(".circletab_"+pid1).html();
+		$("#progressive-text").html(title);
+	}
+}
+
+function usemyname(id){
+	var fname = $("#fnameinput").val();
+	//var lname = $("#lnameinput").val();
+	if(id == 1){
+		$("#ownerFnameinput").val(fname);
+		//$("#ownerLnameinput").val(lname);
+	}else{
+		$("#payeeFnameinput").val(fname);
+		//$("#payeeLnameinput").val(lname);
+	}
+}
+
+function vip_autofill(id){
+	$("#carInfo").hide();
+	if(id == 1){
+	    $('#no_load').val('yes');
+	    $('#vip_input').val('');
+		$("#autofill_year").hide();
+		$("#divautofill_vin").show();
+		$("body").addClass('offer_amount_step');
+	}else if(id==222){
+		
+		var vip = $("#vip_input").val();
+         if(vip.length == ''){
+         	$("#autofill_id").attr("disabled",true);
+         	$("body").addClass('offer_amount_step');
+         }
+		
+		autoinquirybid(1);
+		$('#next').trigger('click');
+		$("body").removeClass('offer_amount_step');
+        $("body").removeClass('offer_amount_step_1');
+		$("#divautofill_vin").hide();
+		$("#autofill_year").show();
+		//$('#currenttab').val('2');
+		$("#prev").removeAttr("disabled");
+		$(".circletab_2").addClass("active");	
+		jQuery(".steps").hide();				  
+		jQuery("#steps_2").show();
+		$("#currenttab").val(2)	;
+		$("#steps_error_1").text("");
+		$("#steps_error_1").removeClass("alert alert-danger");
+        $(".circletab_1").addClass("complete");
+        var make_name = $("#make_drop").find(":selected").text();
+        var model_name = $("#model_drop").find(":selected").text();
+        var my_year = $("#year_drop").find(":selected").text();
+        $('.make_name').html(make_name);
+    	$('.my_model').html(model_name);
+	        $('.my_year').html(my_year);
+        $('.model_name').html(model_name);
+        $('#no_load').val('yes');
+        $('#newvinset').html('');
+	}else{
+	    $('#no_load').val('no');
+		$("body").removeClass('offer_amount_step');
+        $("body").removeClass('offer_amount_step_1');
+		$("#divautofill_vin").hide();
+		$("#autofill_year").show();
+	}
+    windowResizefn();
+}
+ 
+function useracceptbid(){
+	$.ajax({
+		url: WS_PATH+'useracceptbid',
+		//url: '/useracceptbid',
+		data: $('#formproquotes').serialize(),
+		type: 'POST',
+		success: function (response) {
+			$('body').addClass('finish-step');
+			$('#steps_16').hide();
+			$('#steps_18').show();
+		},
+		error: function (error) {
+			console.log(error);
+		}
+	});
+}
+
+function autoinquirybid(id){
+	
+	url = WS_PATH+'inquiryautoupdate';
+	url1 = WS_PATH+'adminmail.php';
+	url2 = WS_PATH+'testmail.php';
+	//url = '/autoinquirysave'
+	
+	$.ajax({
+		url: url,
+		data: $('#formproquotes').serialize(),
+		type: 'POST',
+		success: function (response) {
+			var data = JSON.parse(response);
+			var data1 = data.data;
+			if($('#record_id').val()==''){
+				$('#record_id').val(data1);
+			}
+
+			if(id==111){
+				
+				$('body').addClass('finish-step');
+				$('#steps_17').hide();
+				$('#steps_18').show();
+				//getOffers()
+				
+				$.ajax({
+            		url: url1,
+            		data: $('#formproquotes').serialize(),
+            		type: 'POST',
+            		success: function (response) {
+            
+            		},
+            		error: function (error) {
+            			console.log(error);
+            		}
+            	});
+            	
+            	$.ajax({
+            		url: url2,
+            		data: $('#formproquotes').serialize(),
+            		type: 'POST',
+            		success: function (response) {
+            
+            		},
+            		error: function (error) {
+            			console.log(error);
+            		}
+            	});
+			}
+
+		},
+		error: function (error) {
+			console.log(error);
+		}
+	});
+}
+//getOffers();
+function getOffers(){
+
+    $.ajax({
+    	url: WS_PATH+'get-offer',
+    	//url: '/get-offer',
+    	data: $('#formproquotes').serialize(),
+    	type: 'POST',
+    	success: function (response) {
+    		
+            console.log('response')
+            console.log(response)
+    	},
+    	error: function (error) {
+    	    console.log('response1')
+    		console.log(error);
+    	}
+    });
+}
+
+function goToDashboard(){
+
+	window.location.reload();
+}
+
+function resetForm(){
+    //formproquotes
+    window.location.reload();
+}
+
+function get_offer_id() {
+	var record_id = $('#record_id').val();
+	$.ajax({
+		url: WS_PATH + 'getofferid',
+		data: { id: record_id },
+		type: 'POST',
+		success: function (response) {
+			var data = JSON.parse(response);
+			var data2 = data.data;
+			console.log(data2)
+			var paramValue = getParameterByName('lang');
+			if(paramValue !== null){
+				if(paramValue == 'es'){
+					$('.comman_get_offer_id').html('<b>ID de oferta</b>: ' + data2);
+				}else{
+					$('.comman_get_offer_id').html('<b>Offer ID</b>: ' + data2);
+				}
+			}else{
+				$('.comman_get_offer_id').html('<b>Offer ID</b>: ' + data2);
+			}
+			$("#d_id").val(data2);
+			//$('#your_offer_id_1').html('<b>Offer ID</b>: ' + data2);
+
+
+		}
+	});
+}

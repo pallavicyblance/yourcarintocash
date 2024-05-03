@@ -256,11 +256,11 @@
                                         
                                     <thead align="center">
 
-                                        <tr>
+                                        <tr >
 
                                             {% if role == (('Super Admin',),) %}
 
-                                                <th>
+                                                <th width="5px">
 
                                                     <input type="checkbox" name="allArrSelect1" id="allArrSelect1"
 
@@ -278,15 +278,13 @@
 
                                             <th width="150px">User Tracked From</th>
 
-                                            <th width="100px">Original Price</th>
+                                            <th width="37px">Revised Price</th>
 
-                                            <th>Revised Price</th>
+                                            <th width="80px">Offer</th>
 
-                                            <th width="100px">Offer</th>
+                                            <th width="85px">Created Date</th>
 
-                                            <th width="100px">Created Date</th>
-
-                                            <th class="nosort" width="100px">Action</th>
+                                            <th class="nosort" width="80px">Action</th>
 
                                         </tr>
 
@@ -843,10 +841,9 @@
 
     function getResetData(){
 		var currentDate = new Date();
-		var firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-		var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-		var startDate = formatDate(firstDayOfMonth);
-		var endDate = formatDate(lastDayOfMonth);
+        var date60DaysAgo = new Date(currentDate.getTime() - (60 * 24 * 60 * 60 * 1000));
+		var startDate = formatDate(date60DaysAgo);
+		var endDate = formatDate(currentDate);
 		
 		$('#start_date_value').val(startDate);
 		$('#end_date_value').val(endDate);
@@ -860,7 +857,7 @@
         $(document).ready(function() {
             $('#dataphone4').DataTable().destroy();
             $('#dataphone4').DataTable({
-                order: [[8, 'desc']],
+                order: [[7, 'desc']],
                 "processing": true,
                 "pageLength": 50, 
                 "language": {
@@ -887,7 +884,7 @@
                     { "data": "offerif" },
                     { "data":"location"},
                     { "data": "form" },
-                    { "data": "orignalprice" },
+                    // { "data": "orignalprice" },
                     { "data": "revisedprice" },
                     { "data": "offer" },
                     { "data": "date" },
@@ -904,10 +901,10 @@
                         "className": "dt-word-break" 
                     },
                     {
-                        "targets": 9, 
+                        "targets": 8, 
                         "className": "dt-align-center" 
                     },
-                    { "orderable": false, "targets": [0,1,3,4,9] }
+                    { "orderable": false, "targets": [0,1,3,4,8] }
                 ],
                 "initComplete": function(settings, json) {
                     $('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" 	style="margin-left:15px;">');

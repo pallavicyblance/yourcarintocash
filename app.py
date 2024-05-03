@@ -1081,11 +1081,11 @@ def inquirylist():
         param1 = request.args.get('dispatch')
         id = session['admin_logged_id']
         role = admin.role(id)
-        today = date.today()
-        first_day_of_month = today.replace(day=1)
-        last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
-        start_date = first_day_of_month.strftime("%Y-%m-%d")
-        end_date = last_day_of_month.strftime("%Y-%m-%d")
+        current_date = datetime.now()
+        date_60_days_ago = current_date - timedelta(days=60)
+
+        end_date = current_date.strftime("%Y-%m-%d")
+        start_date = date_60_days_ago.strftime("%Y-%m-%d")
         if param1:
             return render_template('inquiry-dispatch.html',role=role, start_date = start_date, end_date = end_date )
         else :
@@ -1136,14 +1136,7 @@ def getInquiryData():
 
             location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
 
-            if data[5] == "NaN":
-                originalprice = 'Not Finished'
-            elif data[5] == None:
-                originalprice = 'Not Finished'
-            elif data[5] != "":
-                originalprice = '$' + str(data[5])
-            else:
-                originalprice = '$0.00'
+
 
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
@@ -1166,7 +1159,7 @@ def getInquiryData():
 
             btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
-                btn += '<a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
                             
             if data[6] == 'accept':
                 if data[12] == 'yes':
@@ -1181,7 +1174,7 @@ def getInquiryData():
             else:
                 tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
         response = {
             "draw": int(draw),
@@ -1238,14 +1231,14 @@ def getDispatchData():
 
             location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
 
-            if data[5] == "NaN":
-                originalprice = 'Not Finished'
-            elif data[5] == None:
-                originalprice = 'Not Finished'
-            elif data[5] != "":
-                originalprice = '$' + str(data[5])
-            else:
-                originalprice = '$0.00'
+            # if data[5] == "NaN":
+            #     originalprice = 'Not Finished'
+            # elif data[5] == None:
+            #     originalprice = 'Not Finished'
+            # elif data[5] != "":
+            #     originalprice = '$' + str(data[5])
+            # else:
+            #     originalprice = '$0.00'
 
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
@@ -1268,7 +1261,7 @@ def getDispatchData():
 
             btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
-                btn += '<a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
                             
             if data[6] == 'accept':
                 if data[12] == 'yes':
@@ -1283,7 +1276,7 @@ def getDispatchData():
             else:
                 tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
 
         response = {
@@ -1814,11 +1807,18 @@ def declinelist():
     else:
         id = session['admin_logged_id']
         role = admin.role(id)
-        today = date.today()
-        first_day_of_month = today.replace(day=1)
-        last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
-        start_date = first_day_of_month.strftime("%Y-%m-%d")
-        end_date = last_day_of_month.strftime("%Y-%m-%d")
+
+        current_date = datetime.now()
+        date_60_days_ago = current_date - timedelta(days=60)
+
+        end_date = current_date.strftime("%Y-%m-%d")
+        start_date = date_60_days_ago.strftime("%Y-%m-%d")
+
+        # today = date.today()
+        # first_day_of_month = today.replace(day=1)
+        # last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
+        # start_date = first_day_of_month.strftime("%Y-%m-%d")
+        # end_date = last_day_of_month.strftime("%Y-%m-%d")
         return render_template('decline-inquiry.html', role=role, start_date= start_date, end_date= end_date)
 
 @app.route('/get-decline-data' , methods = ['POST'])
@@ -1858,14 +1858,14 @@ def get_decline_data():
 
             location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
 
-            if data[5] == "NaN":
-                originalprice = 'Not Finished'
-            elif data[5] == None:
-                originalprice = 'Not Finished'
-            elif data[5] != "":
-                originalprice = str(data[5])
-            else:
-                originalprice = '$0.00'
+            # if data[5] == "NaN":
+            #     originalprice = 'Not Finished'
+            # elif data[5] == None:
+            #     originalprice = 'Not Finished'
+            # elif data[5] != "":
+            #     originalprice = str(data[5])
+            # else:
+            #     originalprice = '$0.00'
 
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
@@ -1897,7 +1897,7 @@ def get_decline_data():
             else:
                 tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
 
             data_list.append(data_dict)
         response = {

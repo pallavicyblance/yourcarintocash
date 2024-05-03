@@ -3,6 +3,9 @@
 	.dt-word-break {
 		word-break: break-word;
 	}
+	.align-center {
+    	text-align: center;
+	}
 	input[type=checkbox] {
 		border-color: #ccc;
 		outline: none!important;
@@ -135,7 +138,7 @@
 						<tr>
 						   
 						   	{% if role == (('Super Admin',),) %}
-						   	<th>
+						   	<th width="5%">
 						   		<input type="checkbox" name="allArrSelect" id="allArrSelect" onchange="selectAllChk()">
 						   	</th>
 						   {% endif %}
@@ -143,13 +146,12 @@
 						  <th width="10%">Car</th>
 						  <!--<th>Name</th>-->
 						  <th width="10%">Offer ID</th>
-						  <th width="12%">User's Geolocation</th>
-						  <th width="18%">User Tracked From</th>
-						  <th>Original Price</th>
-						  <th>Revised Price</th>
-						  <th>Status</th>
-						  <th>Created Date</th>
-						  <th class="nosort" width="8%">Action</th>
+						  <th width="10%">User's Geolocation</th>
+						  <th width="16%">User Tracked From</th>
+						  <th width="8%">Price</th>
+						  <th width="8%">Status</th>
+						  <th width="10%">Created Date</th>
+						  <th class="nosort" width="13%">Action</th>
 						</tr>
 					  </thead>
 
@@ -413,10 +415,9 @@
 
     function getResetData(){
 		var currentDate = new Date();
-		var firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-		var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-		var startDate = formatDate(firstDayOfMonth);
-		var endDate = formatDate(lastDayOfMonth);
+		var date60DaysAgo = new Date(currentDate.getTime() - (60 * 24 * 60 * 60 * 1000));
+		var startDate = formatDate(date60DaysAgo);
+		var endDate = formatDate(currentDate);
 		
 		$('#start_date_value').val(startDate);
 		$('#end_date_value').val(endDate);
@@ -458,7 +459,7 @@
 					{ "data": "offerif" },
 					{ "data":"location"},
 					{ "data": "form" },
-					{ "data": "orignalprice" },
+					// { "data": "orignalprice" },
 					{ "data": "revisedprice" },
 					{ "data": "offer" },
 					{ "data": "date" },
@@ -471,10 +472,14 @@
 				],
 				"columnDefs": [
 					{
-						"targets": "_all", 
+						"targets": 4, 
 						"className": "dt-word-break" 
 					},
-					{ "orderable": false, "targets": [0,1,3,4,9] }
+					{ "orderable": false, "targets": [0,1,3,4,8] },
+					{
+						"targets": 8,
+						"className": "align-center"
+					}
 				],
 				"initComplete": function(settings, json) {
 					$('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" 	style="margin-left:15px;">');

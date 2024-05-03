@@ -1,4 +1,60 @@
 {% include "header.html" %}
+<style type="text/css">
+.R-st {
+    top: 17px;
+    left: auto;
+    right: -19px;
+    margin-left: 0px;
+}
+.tool span {
+    opacity: 0;
+    color: #fff;
+    max-width: 185px;
+    padding: 9px 11px;
+    background: #141414;
+    text-align: left;
+    position: absolute;
+    border-radius: 6px;
+    transition: opacity 1s;
+    font-size: 12px;
+    line-height: 1.2;
+}
+.tool span:after {
+    content: '';
+    border-width: 5px;
+    position: absolute;
+    border-style: solid;
+    border-width: 7px;
+    top: -14px;
+    right: 13px;
+    border-color: transparent transparent #141414 transparent;
+}
+.tool{ position: relative;
+    text-align: left;
+    z-index: 9;
+}
+.tool:hover span {
+    opacity: 1;
+}
+.tool i{
+    background: #b9b9b9;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    TEXT-ALIGN: CENTER;
+    line-height: 20px;
+    position: absolute;
+    top: -11px;
+    right: -9px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 12px;
+	transition: all 0.2s;
+}
+.tool i:hover {
+    background: #404040;
+}
+</style>
 <div class="content-wrapper">  
 	<div class="container_full">
 		<div class="page-title-box">
@@ -64,36 +120,124 @@
                 <div class="row dashboard_box2">
                     <div class="col-lg-2">
 						<div class="dashboard_counter_col">
-							<div class="semi-donut-model-2" style="--percentage : {{ count[9] }}; --fill: #ef6e6e;" id="Canceled_percentage">{{ count[9] }}%</div>
+							<div class="tool"><i class="fa fa-info"></i><span class="R-st" id="tooltip_1">
+								{{ count[4] }} offers were canceled compared to the total  {{ count[0] }}  offers that were accepted.
+							</span></div>
+							<div class="semi-donut-model-2  " style="--percentage : {{ count[9] }}; --fill: #ef6e6e;" id="Canceled_percentage">{{ count[9] }}%</div>
 							<h4>Canceled vs Offers Accepted</h4>
 						</div>
                     </div>
                     <div class="col-lg-2">
                         <div class="dashboard_counter_col">
+							<div class="tool"><i class="fa fa-info"></i><span class="R-st" id="tooltip_2">
+								{{ count[3] }} items currently available at auction out of  {{ count[0] }}  offers that have been accepted.  
+							</span></div>
                             <div class="semi-donut-model-2" style="--percentage : {{ count[6] }}; --fill: #1c7fe0;" id="offer_given_percentage">{{ count[6] }}%</div>
                             <h4>At Auction vs Offers Accepted</h4>
                         </div>
                     </div>
                     <div class="col-lg-2">
                         <div class="dashboard_counter_col">
+							<div class="tool"><i class="fa fa-info"></i><span class="R-st" id="tooltip_3">
+								{{ count[3] }} items currently available at auction out of {{ count[1] }} offers  that have been given. 
+							</span></div>
                             <div class="semi-donut-model-2" style="--percentage : {{ count[8] }}; --fill: #22c6ab;" id="at_auction_percetage">{{ count[8] }}%</div>
                             <h4>At Auction vs Offers Given</h4>
                         </div>
                     </div>
                     <div class="col-lg-2">
                         <div class="dashboard_counter_col">
+							<div class="tool"><i class="fa fa-info"></i><span class="R-st" id="tooltip_4">
+								{{ count[2] }} items pending pick up out of {{ count[0] }} offers that have been accepted.  
+							</span></div>
                             <div class="semi-donut-model-2" style="--percentage : {{ count[7] }}; --fill: #ffbc34;" id="pending_percentage">{{ count[7] }}%</div>
                             <h4>Pending Pick Up vs Offers Accepted</h4>
                         </div>
                     </div>
                     <div class="col-lg-2">
                         <div class="dashboard_counter_col">
+							<div class="tool"><i class="fa fa-info"></i><span class="R-st" id="tooltip_5">
+								{{ count[0] }} offers that have been accepted out of {{ count[1] }} offers that have been given.
+							</span></div>
                           	<div class="semi-donut-model-2" style="--percentage : {{ count[5] }}; --fill: #7460ee;" id="offer_percetage">{{ count[5] }}%</div>
                             <h4>Offers Accepted vs Offers Given</h4>
                         </div>
                     </div>
                 </div>
             </div>
+
+			<!-- <div class="box dashbord-view">
+				<div class="box-body lg-form p-0">
+					<div class="row">
+						<div class="col-lg-3">
+							<a class="counter-col" id="offer_accepted_link" href="/inquiry-list?status=accept&startdate={{ start_date }}&enddate={{ end_date }}">
+								<h1 id="offer_accepted"><p>{{ count[0] }}</p></h1>
+								<h4>Offers Accepted</h4> 
+							</a>
+						</div>
+						<div class="col-lg-3">
+							<a class="counter-col" id="offer_given_link" href="/inquiry-list?status=notaccepted&startdate={{ start_date }}&enddate={{ end_date }}">
+								<h1 id="offer_given"><p>{{ count[1] }}</p></h1>
+								<h4>Offers Given</h4> 
+							</a>
+						</div>
+						<div class="col-lg-3">
+							<a class="counter-col" id="vehicle_pending_link" href="/inquiry-list?status=pending&startdate={{ start_date }}&enddate={{ end_date }}">
+								<h1 id="vehicle_pending"><p>{{ count[2] }}</p></h1>
+								<h4>Pending Pick Up</h4>
+							</a>
+						</div>
+						<div class="col-lg-3">
+							<a class="counter-col" id="vehicle_at_auction_link" href="/inquiry-list?status=atauction&startdate={{ start_date }}&enddate={{ end_date }}">
+								<h1 id="vehicle_at_auction"><p>{{ count[3] }}</p></h1>
+								<h4>At Auction</h4> 
+							</a>
+						</div>
+						<div class="col-lg-3">
+							<a class="counter-col" id="canceled_vehicle_auction_link" href="/inquiry-list?status=canceled&startdate={{ start_date }}&enddate={{ end_date }}">
+								<h1 id="Canceled_vehicle"><p>{{ count[4] }}</p></h1>
+								<h4>Canceled</h4> 
+							</a>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="counter-col">
+								<h1 id="Canceled_percentage"><p>{{ count[9] }}%</p></h1>
+								<h4>Canceled vs Offers Accepted</h4> 
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="counter-col" >
+								<h1 id="offer_given_percentage"><p>{{ count[6] }}%</p></h1>
+								<h4>At Auction vs Offers Accepted</h4> 
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="counter-col" >
+								<h1 id="at_auction_percetage"><p>{{ count[8] }}%</p></h1>
+                                <h4>At Auction vs Offers Given</h4> 
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="counter-col">
+								<h1 id="pending_percentage"><p>{{ count[7] }}%</p></h1>
+								<h4>Pending Pick Up vs Offers Accepted</h4> 
+							</div>
+						</div>
+
+                        <div class="col-lg-3">
+							<div class="counter-col">
+								<h1 id="offer_percetage"><p>{{ count[5] }}%</p></h1>
+								<h4>Offers Accepted vs Offers Given</h4> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div> -->
+
 		</section>
 	</div>
 </div>
@@ -143,7 +287,6 @@
 		format: 'yyyy-mm-dd', 
 		defaultDate: new Date(), 
 	});
-	
 
     function getDashboardData(){
        start_date = $('#start_date_value').val();
@@ -164,6 +307,13 @@
             $('#pending_percentage').text(response[7] + '%');  
             $('#at_auction_percetage').text(response[8] + '%');  
             $('#Canceled_percentage').text(response[9] + '%');  
+
+			$('#tooltip_1').text(response[4] + ' offers were canceled compared to the total ' + response[0] + ' offers that were accepted.');
+			$('#tooltip_2').text(response[3] + ' items currently available at auction out of ' + response[0] + ' offers that have been accepted.');
+			$('#tooltip_3').text(response[3] + ' items currently available at auction out of ' + response[1] + ' offers that have been given.');
+			$('#tooltip_4').text(response[2] + ' items pending pick up out of ' + response[0] + ' offers that have been accepted.');
+			$('#tooltip_5').text(response[0] + ' offers that have been accepted out of ' + response[1] + ' offers that have been given.');
+
             
             $('#Canceled_percentage').css({
 				'--percentage': response[9],
@@ -196,7 +346,6 @@
 		var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 		var start_date = formatDate(firstDayOfMonth);
 		var end_date = formatDate(lastDayOfMonth);
-		
 
        	$.ajax({
         url: WS_PATH + '/dashboard/',
@@ -215,6 +364,12 @@
             $('#pending_percentage').text(response[7] + '%');  
             $('#at_auction_percetage').text(response[8] + '%');  
             $('#Canceled_percentage').text(response[9] + '%'); 
+
+			$('#tooltip_1').text(response[4] + ' offers were canceled compared to the total ' + response[0] + ' offers that were accepted.');
+			$('#tooltip_2').text(response[3] + ' items currently available at auction out of ' + response[0] + ' offers that have been accepted.');
+			$('#tooltip_3').text(response[3] + ' items currently available at auction out of ' + response[1] + ' offers that have been given.');
+			$('#tooltip_4').text(response[2] + ' items pending pick up out of ' + response[0] + ' offers that have been accepted.');
+			$('#tooltip_5').text(response[0] + ' offers that have been accepted out of ' + response[1] + ' offers that have been given.');
 
             $('#Canceled_percentage').css({
 				'--percentage': response[9],
@@ -244,10 +399,6 @@
 	function updateUrl() {
         var startDate = $('#start_date_value').val();
         var endDate = $('#end_date_value').val();
-
-        console.log(startDate,'reset case');
-		console.log(startDate);
-
         var url = "/inquiry-list?status=accept&startdate=" + startDate + "&enddate=" + endDate;
         $('#offer_accepted_link').attr('href', url);
 		
@@ -277,4 +428,25 @@
 		var day = date.getDate().toString().padStart(2, '0');
 		return year + '-' + month + '-' + day;
 	}
+
+	jQuery(function () {
+			jQuery.ajax({
+			url: WS_PATH+'getnotificationcounter',
+			type: 'POST',				
+			success: function(response){
+				
+				var data = JSON.parse(response);
+				var data1 = data.model;
+				if(data1 && data1!=0){
+					$('.notification').html(data1);
+					$('.notification').show();
+				}else{
+					$('.notification').hide();
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
 </script>

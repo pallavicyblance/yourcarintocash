@@ -103,45 +103,42 @@ $(document).ready(function(){
         console.log('User is searching. Intervals not started initially.');
     }
     
-    $(document).on('click', '.place_bid', function(e) {
-        var result = confirm("Are you sure you want to Place Bid?");
-        if (result) {
-            var auctionId = $(this).attr('data-auction-id'); 
-            var bidAmount = $(this).attr('data-bid-amount');
-            
-            url = WS_PATH + '/place-bid/';    
-            params = {'auctionId':auctionId,'bidamount': bidAmount};
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: JSON.stringify(params),
-                contentType: 'application/json',
-                success: function(response) {
-                    if (response.error){
-                        var errorResponse = JSON.parse(response.error);
-                        var errorMessage = errorResponse.error;
-                        if (errorResponse.errorDescription) {
-                            errorMessage = errorResponse.errorDescription;
-                        }
-                        $('#inquiry_msg_error').show(); 
-                        $('#inquiry_msg_error').html(errorMessage); 
-                        setTimeout(function() { 
-                            $('#inquiry_msg_error').hide(); 
-                        }, 3000);
-                    }else{ 
-                        fetchData('');
-                        $('#inquiry_msg').show();
-                        $('#inquiry_msg').html('placed bid');
-                        setTimeout(function() { 
-                            $('#inquiry_msg').hide(); 
-                        }, 3000);
-                        
-                    }  
-                },
-            });
-        }else{
-            return false;
-        }
+    $(document).on('click', '#add_bid', function(e) {
+        var auctionId = $('#auction_id').val();
+        var bidAmount = $('#place_bid_amount').text();
+        console.log(auctionId,bidAmount);
+        url = WS_PATH + '/place-bid/';    
+        params = {'auctionId':auctionId,'bidamount': bidAmount};
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify(params),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.error){
+                    var errorResponse = JSON.parse(response.error);
+                    var errorMessage = errorResponse.error;
+                    if (errorResponse.errorDescription) {
+                        errorMessage = errorResponse.errorDescription;
+                    }
+                    $('#inquiry_msg_error').show(); 
+                    $('#inquiry_msg_error').html(errorMessage); 
+                    setTimeout(function() { 
+                        $('#inquiry_msg_error').hide(); 
+                    }, 3000);
+                }else{ 
+                    fetchData('');
+                    
+                    $('#inquiry_msg').show();
+                    $('#inquiry_msg').html('placed bid');
+                    setTimeout(function() { 
+                        $('#inquiry_msg').hide(); 
+                    }, 3000);
+                    
+                } 
+            },
+        });
+        $('#place_bid').modal('hide'); 
     });
 
     $('#tab_nav_top a').click(upcomingMissedAuction);
@@ -187,26 +184,24 @@ $(document).ready(function(){
                             str += '<tr>';
                         }
                         
-                        str += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
-
-                        str += '<td>' + auction[11] + '</td>';
+                        str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                        str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
                         str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
 
-                         str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
-                        
-                         str += '<td>' + number_formatchanger(auction[9]) + '<button class="btn btn-xs btn-primary ml-2 place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '">Bid + $100</button></td>';
+                        str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
+
+                        str += '<td>' + number_formatchanger(auction[9]) + '<button class="btn btn-xs btn-primary ml-2 place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
 
                         str += '<td>' + number_formatchanger(auction[35]) + '</td>';
 
-                        if(status == 'active'){
-                            str += '<td class="dblclick_td">';
+                        str += '<td class="dblclick_td">';
 
-                            str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
+                        str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
 
-                            str += '</td>';
-                        }
-
+                        str += '</td>';
+                
                         str += '<td>' + auction[38] + '</td>';
 
                         time_left(auction[37],auction[0])
@@ -227,11 +222,6 @@ $(document).ready(function(){
                             htmlString += '</div></td>';
                             str += htmlString;
                         }
-                        
-                        // if(status == 'active' || status == 'upcoming'){
-                        //     time_left(auction[7],auction[0])
-                        //     str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
-                        // }
                         
                         str += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
                         str += '</tr>';
@@ -293,7 +283,7 @@ $(document).ready(function(){
                 var str = '';
                 if (data.length == 0) {
                     str += '<tr>';
-                        str += '<td colspan="9" align="center">No data found</td>';
+                        str += '<td colspan="11" align="center">No data found</td>';
                     str += '</tr>';
                 }else{
                     data.forEach(auction => {
@@ -304,16 +294,16 @@ $(document).ready(function(){
                         }else if(auction[27] == 0){
                             str += '<tr class="cell_red">';
                         }
-                        
-                        str += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
 
-                        str += '<td>' + auction[11] + '</td>';
+                        str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                        str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
                         str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
 
                         str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
-                        
-                        str += '<td>' + number_formatchanger(auction[9]) + '<button class="btn btn-xs btn-primary ml-2 place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '">Bid + $100</button></td>';
+
+                        str += '<td>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
 
                         str += '<td>' + number_formatchanger(auction[35]) + '</td>';
 
@@ -355,23 +345,31 @@ $(document).ready(function(){
                 var str1 = '';
                 if (won_auction.length == 0) {
                     str1 += '<tr>';
-                        str1 += '<td colspan="9" align="center">No data found</td>';
+                        str1 += '<td colspan="11" align="center">No data found</td>';
                     str1 += '</tr>';
                 }else{
                     won_auction.forEach(auction => {
                         str1 += '<tr>';
 
-                        str1 += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
+                        str1 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                        str1 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
-                        str1 += '<td>' + auction[11] + '</td>';
                         str1 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
                         str1 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
                         
-                        str1 += '<td id="currunt_bid_'+auction[4]+'">' + number_formatchanger(auction[9]) + '</td>';
+                        str1 += '<td>' + number_formatchanger(auction[9]) + '</td>';
 
-                        str1 += '<td id="currunt_bid_'+auction[4]+'">' + number_formatchanger(auction[35]) + '</td>';
+                        str1 += '<td>' + number_formatchanger(auction[35]) + '</td>';
 
+                        str1 += '<td>' + number_formatchanger(auction[36]) + '</td>';
+                                                
                         str1 += '<td>' + auction[38] + '</td>';
+
+                        time_left(auction[7],auction[0])
+                        
+                        str1 += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -397,23 +395,32 @@ $(document).ready(function(){
                 var str2 = '';
                 if (lost_auction.length == 0) {
                     str2 += '<tr>';
-                        str2 += '<td colspan="9" align="center">No data found</td>';
+                        str2 += '<td colspan="11" align="center">No data found</td>';
                     str2 += '</tr>';
                 }else{
                     lost_auction.forEach(auction => {
                         str2 += '<tr>';
 
-                        str2 += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
+                        str2 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                        str2 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
-                        str2 += '<td>' + auction[11] + '</td>';
                         str2 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
                         str2 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
                         
-                        str2 += '<td id="currunt_bid_'+auction[4]+'">' + number_formatchanger(auction[9]) + '</td>';
+                        str2 += '<td>' + number_formatchanger(auction[9]) + '</td>';
 
-                        str2 += '<td id="currunt_bid_'+auction[4]+'">' + number_formatchanger(auction[35]) + '</td>';
+                        str2 += '<td>' + number_formatchanger(auction[35]) + '</td>';
 
+                        str2 += '<td>' + number_formatchanger(auction[36]) + '</td>';
+                                                
                         str2 += '<td>' + auction[38] + '</td>';
+
+                        time_left(auction[7],auction[0])
+                        
+                        str2 += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
                             var htmlString = '<td><div class="lights-btn">';
@@ -538,6 +545,7 @@ $(document).ready(function(){
                 $('#key_label_txt').html(key_value);
                 $('#titletype_label_txt').html(title_type);
                 $('#firedamage_label_txt').html(water_and_fire_value);
+                $('.notification_pubnub').html(response.count);
 
                 if(reports[20] == "plus"){
                     var buyingruletype = "+";
@@ -577,8 +585,7 @@ $(document).ready(function(){
             
         }else if(status == 'missed'){
             missedauction();
-        }
-        else if(status == 'lost'){
+        }else if(status == 'lost'){
             $('.auction-lost-show').show();
         }else if(status == 'won'){
             $('.auction-won-show').show();
@@ -601,26 +608,31 @@ $(document).ready(function(){
                 var str = '';
                     if (data.length == 0) {
                         str += '<tr>';
-                            str += '<td colspan="10" align="center">No data found</td>';
+                            str += '<td colspan="11" align="center">No data found</td>';
                         str += '</tr>';
                     }else{
                         data.forEach(auction => {
                             str += '<tr>';
 
-                            str += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
-
-                            str += '<td>' + auction[11] + '</td>';
+                            str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                            str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
                             str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
 
                             str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
                            
-                            str += '<td>' + number_formatchanger(auction[35]) + '</td>';
+                            str += '<td>' + number_formatchanger(auction[9]) + '</td>';
 
+							str += '<td>' + number_formatchanger(auction[35]) + '</td>';
+							
+							str += '<td class="dblclick_td">';
 
-                            str += '<td class="bid_proxy_'+auction[4]+'">' + number_formatchanger(auction[36]) + '<button class="btn btn-xs btn-primary ml-2" id="place_proxy_bid">Place Proxy Bid</button></td>';
+							str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
 
-                            str += '<td>' + auction[38] + '</td>';
+							str += '</td>';
+							
+							str += '<td>' + auction[38] + '</td>';
 
                             time_left(auction[37],auction[0])
                             str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
@@ -673,21 +685,31 @@ $(document).ready(function(){
                 var str = '';
                 if (data.length == 0) {
                     str += '<tr>';
-                        str += '<td colspan="7" align="center">No data found</td>';
+                        str += '<td colspan="11" align="center">No data found</td>';
                     str += '</tr>';
                 }else{
                     data.forEach(auction => {
                         str += '<tr>';
 
-                        str += '<td>' + auction[23] + '<a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'" style="width:75px;height:75px" class="img-preview"></a></td>';
+                        str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+                        
+                        str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
 
-                        str += '<td>' + auction[11] + '</td>';
                         str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
                         str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
                         
                         str += '<td>' + number_formatchanger(auction[9]) + '</td>';
 
+                        str += '<td>' + number_formatchanger(auction[35]) + '</td>';
+
+                        str += '<td>' + number_formatchanger(auction[36]) + '</td>';
+                                                
                         str += '<td>' + auction[38] + '</td>';
+
+                        time_left(auction[7],auction[0])
+                        
+                        str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -732,6 +754,7 @@ function time_left(date,id){
         var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
         if (timeDifference <= 0) {
             clearInterval(timerInterval);
+            $(".hours_"+id).html('Auction Ended');  
         } else {
             var days = Math.floor(timeDifference / (24 * 60 * 60));
             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
@@ -748,26 +771,31 @@ function time_left(date,id){
 
 
 function number_formatchanger(inputValue, id){
-    inputValues = inputValue.toString();
-    if(id == 1){
-        inputValue = inputValues.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return inputValue;
-    }else{
-        inputValue = '$'+inputValues.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        if (inputValue.indexOf(".") >= 0) {
-          myArray = inputValue.split(".");
-          if(myArray[1].length == 0){
-            inputValue = inputValue+"00"
-          }else if(myArray[1].length == 1){
-            inputValue = inputValue+0
-          }else{
-            inputValue = inputValue
-          }
+    if (inputValue !== null && inputValue !== undefined) {
+        var inputValues = inputValue.toString();
+        if(id == 1){
+            inputValue = inputValues.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return inputValue;
         }else{
-          inputValue += ".00";
+            inputValue = '$'+inputValues.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            if (inputValue.indexOf(".") >= 0) {
+              myArray = inputValue.split(".");
+              if(myArray[1].length == 0){
+                inputValue = inputValue+"00"
+              }else if(myArray[1].length == 1){
+                inputValue = inputValue+0
+              }else{
+                inputValue = inputValue
+              }
+            }else{
+              inputValue += ".00";
+            }
+            return  inputValue;
         }
-        return  inputValue;
+    }else {
+        console.error("Input value is null or undefined.");
     }
+    
 }
 
 function condition_popup_open(id){
@@ -867,7 +895,6 @@ function condition_popup_open(id){
                 var mobility = JSON.parse(conditionresponse[86]);
                 var transferrable_registration = JSON.parse(conditionresponse[87]);
                 var sold_on_bill_of_sale = JSON.parse(conditionresponse[88]);
-               
                 var aftermarket_sunroof = JSON.parse(conditionresponse[89]);
                 var backup_camera = JSON.parse(conditionresponse[90]);
                 var charging_cable = JSON.parse(conditionresponse[91]);
@@ -881,70 +908,70 @@ function condition_popup_open(id){
                 if (check_engine_light['selected'] == true){
                     var checkEngineLightHtml = '<div class="col-lg-6"><div> <b>' + check_engine_light['questionTitle'] + ': </b>'+ check_engine_light['answer'][0]['value']+ '</div></div>';
 
-                    $('#lights_report').empty().append('<div class="col-lg-6"><div> <b>' + check_engine_light['questionTitle'] + ' </b> ' + check_engine_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').empty().append('<div class="col-lg-6"><div> <b>' + check_engine_light['questionTitle'] + ': </b> ' + check_engine_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
 
-                    $('#lights_report').empty().append('<div class="col-lg-6"><div> <b>' + check_engine_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').empty().append('<div class="col-lg-6"><div> <b>' + check_engine_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (airbag_light['selected'] == true){
                     var airbagLightHtml = '<div class="col-lg-6"><div> <b>' + airbag_light['questionTitle'] + ': </b>'+ airbag_light['answer'][0]['value']+ '</div></div>';
                 
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + airbag_light['questionTitle'] + ' </b> ' + airbag_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + airbag_light['questionTitle'] + ': </b> ' + airbag_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + airbag_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + airbag_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (brake_light['selected'] == true){
                     var brakeLightHtml = '<div class="col-lg-6"><div> <b>' + brake_light['questionTitle'] + ': </b>'+ brake_light['answer'][0]['value']+ '</div></div>';
                    
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + brake_light['questionTitle'] + ' </b> ' + brake_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + brake_light['questionTitle'] + ': </b> ' + brake_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + brake_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + brake_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (traction_control_light['selected'] == true){
                     var tractionControlLightHtml = '<div class="col-lg-6"><div> <b>' + traction_control_light['questionTitle'] + ': </b>'+ traction_control_light['answer'][0]['value']+ '</div></div>';
 
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + traction_control_light['questionTitle'] + ' </b> ' + traction_control_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + traction_control_light['questionTitle'] + ': </b> ' + traction_control_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + traction_control_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + traction_control_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (tpms_light['selected'] == true){
                     var tpmsLightHtml = '<div class="col-lg-6"><div> <b>' + tpms_light['questionTitle'] + ': </b>'+ tpms_light['answer'][0]['value']+ '</div></div>';
                     
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + tpms_light['questionTitle'] + ' </b> ' + tpms_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + tpms_light['questionTitle'] + ': </b> ' + tpms_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + tpms_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + tpms_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (battery_light['selected'] == true){
                     var batteryLightHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + battery_light['questionTitle'] + ': </b>'+ battery_light['answer'][0]['value']+ '</div></div>'; 
 
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + battery_light['questionTitle'] + ' </b> ' + battery_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + battery_light['questionTitle'] + ': </b> ' + battery_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + battery_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + battery_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (other_warning_light['selected'] == true){
                     var otherWarningLightHtml = '<div class="col-lg-6"><div> <b>' + other_warning_light['questionTitle'] + ': </b>'+ other_warning_light['answer'][0]['value']+ '</div></div>';
 
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + other_warning_light['questionTitle'] + ' </b> ' + other_warning_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + other_warning_light['questionTitle'] + ': </b> ' + other_warning_light['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + other_warning_light['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + other_warning_light['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (OBDIICodes['selected'] == true){
                     var OBDIICodesHtml = '<div class="col-lg-6"><div> <b>' + OBDIICodes['questionTitle'] + ': </b>'+ OBDIICodes['answer'][0]['value']+ '</div></div>';
 
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + OBDIICodes['questionTitle'] + ' </b> ' + OBDIICodes['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + OBDIICodes['questionTitle'] + ': </b> ' + OBDIICodes['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + OBDIICodes['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + OBDIICodes['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (incomplete_monitors['selected'] == true){
@@ -967,649 +994,649 @@ function condition_popup_open(id){
                     $('#lights_report').append(newincompleteMonitorsHtml)
 
                 }else{
-                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + incomplete_monitors['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#lights_report').append('<div class="col-lg-6"><div> <b>' + incomplete_monitors['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (vehicleData['selected'] == true){
                     var vehicleHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + vehicleData['questionTitle'] + ': </b>'+ vehicleData['answer'] + [0]['value']+ '</div></div>';
 
-                    $('#driveability_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleData['questionTitle'] + ' </b> ' + vehicleData['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleData['questionTitle'] + ': </b> ' + vehicleData['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#driveability_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleData['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleData['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (drivetrainIssue['selected'] == true){
                     var driveTrainHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + drivetrainIssue['questionTitle'] + ': </b>'+ drivetrainIssue['answer'][0]['value']+ '</div></div>';
                    
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + drivetrainIssue['questionTitle'] + ' </b> ' + drivetrainIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + drivetrainIssue['questionTitle'] + ': </b> ' + drivetrainIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + drivetrainIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + drivetrainIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (transmissionIssue['selected'] == true){
                     var transmissionHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + transmissionIssue['questionTitle'] + ': </b>'+ transmissionIssue['answer'][0]['value']+ '</div></div>';
 
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + transmissionIssue['questionTitle'] + ' </b> ' + transmissionIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + transmissionIssue['questionTitle'] + ': </b> ' + transmissionIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + transmissionIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + transmissionIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (breakIssue['selected'] == true){
                     var breakIssueHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + breakIssue['questionTitle'] + ': </b>'+ breakIssue['answer'][0]['value']+ '</div></div>';
 
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + breakIssue['questionTitle'] + ' </b> ' + breakIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + breakIssue['questionTitle'] + ': </b> ' + breakIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + breakIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + breakIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (suspensionIssue['selected'] == true){
                     var suspensionIssueHtml = '<div class="col-lg-6"><div> <b>' + suspensionIssue['questionTitle'] + ': </b>'+ suspensionIssue['answer'][0]['value']+ '</div></div>';
 
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + suspensionIssue['questionTitle'] + ' </b> ' + suspensionIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + suspensionIssue['questionTitle'] + ': </b> ' + suspensionIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + suspensionIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + suspensionIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (steeringIssue['selected'] == true){
                     var steeringIssueHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + steeringIssue['questionTitle'] + ': </b>'+ steeringIssue['answer'][0]['value']+ '</div></div>';
                    
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + steeringIssue['questionTitle'] + ' </b> ' + steeringIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + steeringIssue['questionTitle'] + ': </b> ' + steeringIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
 
-                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + steeringIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#driveability_report').append('<div class="col-lg-6"><div> <b>' + steeringIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (vehicleStay['selected'] == true){
                     var vehicleStayHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + vehicleStay['questionTitle'] + ': </b>'+ vehicleStay['answer'][0]['value']+ '</div></div>';
                 
-                    $('#mechnical_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleStay['questionTitle'] + ' </b> ' + vehicleStay['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleStay['questionTitle'] + ': </b> ' + vehicleStay['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
 
-                    $('#mechnical_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleStay['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').empty().append('<div class="col-lg-6"><div> <b>' + vehicleStay['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (vehicleCrank['selected'] == true){
                     var vehicleCrank = '<div class="col-lg-6 bg_orange"><div> <b>' + vehicleCrank['questionTitle'] + ': </b>'+ vehicleCrank['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + vehicleCrank['questionTitle'] + ' </b> ' + vehicleCrank['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + vehicleCrank['questionTitle'] + ': </b> ' + vehicleCrank['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + vehicleCrank['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + vehicleCrank['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (engine_does_not_stay_running['selected'] == true){
                     var engineDoesNotStayRunningHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + engine_does_not_stay_running['questionTitle'] + ': </b>'+ engine_does_not_stay_running['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_does_not_stay_running['questionTitle'] + ' </b> ' + engine_does_not_stay_running['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_does_not_stay_running['questionTitle'] + ': </b> ' + engine_does_not_stay_running['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_does_not_stay_running['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_does_not_stay_running['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (engine_overheats['selected'] == true){
                     var engineOverheatsHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + engine_overheats['questionTitle'] + ': </b>'+ engine_overheats['answer'][0]['value']+ '</div></div>';
                    
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_overheats['questionTitle'] + ' </b> ' + engine_overheats['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_overheats['questionTitle'] + ': </b> ' + engine_overheats['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_overheats['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_overheats['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (supercharger_issue['selected'] == true){
                     var superchargerIssueHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + supercharger_issue['questionTitle'] + ': </b>'+ supercharger_issue['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + supercharger_issue['questionTitle'] + ' </b> ' + supercharger_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + supercharger_issue['questionTitle'] + ': </b> ' + supercharger_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + supercharger_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + supercharger_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (emissions_issue['selected'] == true){
                     var emissionsIssueHtml = '<div class="col-lg-6"><div> <b>' + emissions_issue['questionTitle'] + ': </b>'+ emissions_issue['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_issue['questionTitle'] + ' </b> ' + emissions_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_issue['questionTitle'] + ': </b> ' + emissions_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (oil_level_issue['selected'] == true){
                     var oilLevelIssueHtml = '<div class="col-lg-6"><div> <b>' + oil_level_issue['questionTitle'] + ': </b>'+ oil_level_issue['answer'][0]['value']+ '</div></div>';
                    
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_level_issue['questionTitle'] + ' </b> ' + oil_level_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_level_issue['questionTitle'] + ': </b> ' + oil_level_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_level_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_level_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
 
                 }
 
                 if (oil_condition_issue['selected'] == true){
                     var oilConditionIssueHtml = '<div class="col-lg-6"><div> <b>' + oil_condition_issue['questionTitle'] + ': </b>'+ oil_condition_issue['answer'][0]['value']+ '</div></div>';
                 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_condition_issue['questionTitle'] + ' </b> ' + oil_condition_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_condition_issue['questionTitle'] + ': </b> ' + oil_condition_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_condition_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_condition_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (coolant_level_issue['selected'] == true){
                     var coolantLevelIssueHtml = '<div class="col-lg-6"><div> <b>' + coolant_level_issue['questionTitle'] + ': </b>'+ coolant_level_issue['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + coolant_level_issue['questionTitle'] + ' </b> ' + oil_condition_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + coolant_level_issue['questionTitle'] + ': </b> ' + oil_condition_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + coolant_level_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + coolant_level_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 
                 if (engineNoice['selected'] == true){
                     var engineNoiceHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + engineNoice['questionTitle'] + ': </b>'+ engineNoice['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineNoice['questionTitle'] + ' </b> ' + engineNoice['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineNoice['questionTitle'] + ': </b> ' + engineNoice['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineNoice['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineNoice['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (engineHesitation['selected'] == true){
                     var engineHesitationHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + engineHesitation['questionTitle'] + ': </b>'+ engineHesitation['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineHesitation['questionTitle'] + ' </b> ' + engineHesitation['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineHesitation['questionTitle'] + ': </b> ' + engineHesitation['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineHesitation['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engineHesitation['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (timingchainIssue['selected'] == true){
                     var timingchainIssueHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + timingchainIssue['questionTitle'] + ': </b>'+ timingchainIssue['answer'] [0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + timingchainIssue['questionTitle'] + ' </b> ' + timingchainIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + timingchainIssue['questionTitle'] + ': </b> ' + timingchainIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + timingchainIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + timingchainIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (abnormalexhaustSmoke['selected'] == true){
                     var abnormalexhaustSmokeHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + abnormalexhaustSmoke['questionTitle'] + ': </b>'+ abnormalexhaustSmoke['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + abnormalexhaustSmoke['questionTitle'] + ' </b> ' + abnormalexhaustSmoke['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + abnormalexhaustSmoke['questionTitle'] + ': </b> ' + abnormalexhaustSmoke['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + abnormalexhaustSmoke['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + abnormalexhaustSmoke['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (headgasketIssue['selected'] == true){
                     var headgasketIssueHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + headgasketIssue['questionTitle'] + ': </b>'+ headgasketIssue['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + headgasketIssue['questionTitle'] + ' </b> ' + abnormalexhaustSmoke['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + headgasketIssue['questionTitle'] + ': </b> ' + abnormalexhaustSmoke['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + headgasketIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + headgasketIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (exhaust_noise['selected'] == true){
                     var exhaustNoiseHtml = '<div class="col-lg-6"><div> <b>' + exhaust_noise['questionTitle'] + ': </b>'+ exhaust_noise['answer'][0]['value']+ '</div></div>';
                    
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_noise['questionTitle'] + ' </b> ' + exhaust_noise['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_noise['questionTitle'] + ': </b> ' + exhaust_noise['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_noise['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_noise['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (exhaust_modifications['selected'] == true){
                     var exhaustModificationsHtml = '<div class="col-lg-6"><div> <b>' + exhaust_modifications['questionTitle'] + ': </b>'+ exhaust_modifications['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_modifications['questionTitle'] + ' </b> ' + exhaust_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_modifications['questionTitle'] + ': </b> ' + exhaust_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_modifications['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + exhaust_modifications['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (suspension_modifications['selected'] == true){
                     var suspensionModificationsHtml = '<div class="col-lg-6"><div> <b>' + suspension_modifications['questionTitle'] + ': </b>'+ suspension_modifications['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + suspension_modifications['questionTitle'] + ' </b> ' + suspension_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + suspension_modifications['questionTitle'] + ': </b> ' + suspension_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + suspension_modifications['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + suspension_modifications['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (emissions_modifications['selected'] == true){
                     var emissionsModificationsHtml = '<div class="col-lg-6"><div> <b>' + emissions_modifications['questionTitle'] + ': </b>'+ emissions_modifications['answer'][0]['value']+ '</div></div>';
                   
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_modifications['questionTitle'] + ' </b> ' + emissions_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_modifications['questionTitle'] + ': </b> ' + emissions_modifications['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_modifications['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + emissions_modifications['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (catalytic_converters_missing['selected'] == true){
                     var catalyticConvertersMissingHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + catalytic_converters_missing['questionTitle'] + ': </b>'+ catalytic_converters_missing['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + catalytic_converters_missing['questionTitle'] + ' </b> ' + catalytic_converters_missing['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + catalytic_converters_missing['questionTitle'] + ': </b> ' + catalytic_converters_missing['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + catalytic_converters_missing['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + catalytic_converters_missing['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (jump_start_required['selected'] == true){
                     var jumpStartRequiredHtml = '<div class="col-lg-6"><div> <b>' + jump_start_required['questionTitle'] + ': </b>'+ jump_start_required['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + jump_start_required['questionTitle'] + ' </b> ' + jump_start_required['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + jump_start_required['questionTitle'] + ': </b> ' + jump_start_required['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + jump_start_required['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + jump_start_required['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (aftermarket_mechanical['selected'] == true){
                     var aftermarketMechanicalHtml = '<div class="col-lg-6"><div> <b>' + aftermarket_mechanical['questionTitle'] + ': </b>'+ aftermarket_mechanical['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_mechanical['questionTitle'] + ' </b> ' + aftermarket_mechanical['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_mechanical['questionTitle'] + ': </b> ' + aftermarket_mechanical['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_mechanical['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_mechanical['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (engine_accessory_issue['selected'] == true){
                     var engineAccessoryIssueHtml = '<div class="col-lg-6"><div> <b>' + engine_accessory_issue['questionTitle'] + ': </b>'+ engine_accessory_issue['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_accessory_issue['questionTitle'] + ' </b> ' + engine_accessory_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_accessory_issue['questionTitle'] + ': </b> ' + engine_accessory_issue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_accessory_issue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + engine_accessory_issue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (fluid_leaks['selected'] == true){
                     var fluidLeaksHtml = '<div class="col-lg-6"><div> <b>' + fluid_leaks['questionTitle'] + ': </b>'+ fluid_leaks['answer'][0]['value']+ '</div></div>';
                     
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + fluid_leaks['questionTitle'] + ' </b> ' + fluid_leaks['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + fluid_leaks['questionTitle'] + ': </b> ' + fluid_leaks['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + fluid_leaks['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + fluid_leaks['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (oil_intermix_dipstick_v2['selected'] == true){
                     var oilIntermixDipstickV2Html = '<div class="col-lg-6 bg_yellow"><div> <b>' + oil_intermix_dipstick_v2['questionTitle'] + ': </b>'+ oil_intermix_dipstick_v2['answer'][0]['value']+ '</div></div>';
 
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_intermix_dipstick_v2['questionTitle'] + ' </b> ' + oil_intermix_dipstick_v2['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_intermix_dipstick_v2['questionTitle'] + ': </b> ' + oil_intermix_dipstick_v2['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_intermix_dipstick_v2['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#mechnical_report').append('<div class="col-lg-6"><div> <b>' + oil_intermix_dipstick_v2['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (minor_body_damage['selected'] == true){
                     var minorBodyDamageHtml = '<div class="col-lg-6"><div><div> <b>' + minor_body_damage['questionTitle'] + ': </b>'+ minor_body_damage['answer'][0]['value']+'</div> </div>';
-                    $('#exterior_report').empty().append('<div class="col-lg-6"><div> <b>' + minor_body_damage['questionTitle'] + ' </b> ' + minor_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#exterior_report').empty().append('<div class="col-lg-6"><div> <b>' + minor_body_damage['questionTitle'] + ': </b> ' + minor_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#exterior_report').empty().append('<div class="col-lg-6"><div> <b>' + minor_body_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').empty().append('<div class="col-lg-6"><div> <b>' + minor_body_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (modrate_body_damage['selected'] == true){
                     
                     var modrateBodyDamageHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + modrate_body_damage['questionTitle'] + ': </b>'+ modrate_body_damage['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_damage['questionTitle'] + ' </b> ' + modrate_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_damage['questionTitle'] + ': </b> ' + modrate_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (major_body_damage['selected'] == true){
                     var majorBodyDamageHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + major_body_damage['questionTitle'] + ': </b>'+ major_body_damage['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_damage['questionTitle'] + ' </b> ' + major_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');                    
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_damage['questionTitle'] + ': </b> ' + major_body_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');                    
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
 
                 }
 
                 if (scratches['selected'] == true){
                     var scratchesHtml = '<div class="col-lg-6"><div> <b>' + scratches['questionTitle'] + ': </b>'+ scratches['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + scratches['questionTitle'] + ' </b> ' + scratches['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + scratches['questionTitle'] + ': </b> ' + scratches['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + scratches['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + scratches['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (glass_damage['selected'] == true){
                     var glassDamageHtml = '<div class="col-lg-6"><div> <b>' + glass_damage['questionTitle'] + ': </b>'+ glass_damage['answer'][0]['value']+ '</div></div>';
                     
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + glass_damage['questionTitle'] + ' </b> ' + glass_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');        
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + glass_damage['questionTitle'] + ': </b> ' + glass_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');        
 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + glass_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + glass_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (light_damage['selected'] == true){
                     var lightDamageHtml = '<div class="col-lg-6"><div> <b>' + light_damage['questionTitle'] + ': </b>'+ light_damage['answer'][0]['value']+ '</div></div>';
                 
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + light_damage['questionTitle'] + ' </b> ' + light_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + light_damage['questionTitle'] + ': </b> ' + light_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + light_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + light_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (minor_body_rust['selected'] == true){
                     var minorBodyRustHtml = '<div class="col-lg-6"><div> <b>' + minor_body_rust['questionTitle'] + ': </b>'+ minor_body_rust['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + minor_body_rust['questionTitle'] + ' </b> ' + minor_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + minor_body_rust['questionTitle'] + ': </b> ' + minor_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + minor_body_rust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + minor_body_rust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (modrate_body_rust['selected'] == true){
                     var modrateBodyRustHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + modrate_body_rust['questionTitle'] + ': </b>'+ modrate_body_rust['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_rust['questionTitle'] + ' </b> ' + modrate_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_rust['questionTitle'] + ': </b> ' + modrate_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_rust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + modrate_body_rust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (major_body_rust['selected'] == true){
                     var majorBodyRustHtml = '<div class="col-lg-6"><div> <b>' + major_body_rust['questionTitle'] + ': </b>'+ major_body_rust['answer'][0]['value']+ '</div></div>';
                     
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_rust['questionTitle'] + ' </b> ' + major_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_rust['questionTitle'] + ': </b> ' + major_body_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');   
 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_rust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + major_body_rust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (hail_damage['selected'] == true){
                     var hailDamageHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + hail_damage['questionTitle'] + ': </b>'+ hail_damage['answer'][0]['value']+ '</div></div>';
                    
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + hail_damage['questionTitle'] + ' </b> ' + hail_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + hail_damage['questionTitle'] + ': </b> ' + hail_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + hail_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');                    
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + hail_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');                    
                 }
 
                 if (aftermarket_parts['selected'] == true){
                     var aftermarketPartsHtml = '<div class="col-lg-6"><div> <b>' + aftermarket_parts['questionTitle'] + ': </b>'+ aftermarket_parts['answer'] [0]['value']+ '</div></div>';
                    
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_parts['questionTitle'] + ' </b> ' + aftermarket_parts['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_parts['questionTitle'] + ': </b> ' + aftermarket_parts['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_parts['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');   
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_parts['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');   
 
                 }
 
                 if (mismatched_paint['selected'] == true){
                     var mismatchedPaintHtml = '<div class="col-lg-6"><div> <b>' + mismatched_paint['questionTitle'] + ': </b>'+ mismatched_paint['answer'][0]['value']+ '</div></div>';
                     
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + mismatched_paint['questionTitle'] + ' </b> ' + mismatched_paint['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + mismatched_paint['questionTitle'] + ': </b> ' + mismatched_paint['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + mismatched_paint['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');  
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + mismatched_paint['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');  
                 }
 
                 if (paint_meter_readings['selected'] == true){
                     var paintMeterReadingsHtml = '<div class="col-lg-6"><div> <b>' + paint_meter_readings['questionTitle'] + ': </b>'+ 'minValue : ' +paint_meter_readings['answer'][0]['minValue']+ ',maxValue: '+ paint_meter_readings['answer'][0]['maxValue']  +'</div></div>';
                 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + paint_meter_readings['questionTitle'] + ' </b> minValue : ' + paint_meter_readings['answer'][0]['minValue'] + ', maxValue: '+ paint_meter_readings['answer'][0]['maxValue']  +'</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + paint_meter_readings['questionTitle'] + ': </b> minValue : ' + paint_meter_readings['answer'][0]['minValue'] + ', maxValue: '+ paint_meter_readings['answer'][0]['maxValue']  +'</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + paint_meter_readings['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');  
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + paint_meter_readings['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');  
                 }
                 
                 if (poor_quality_repair['selected'] == true){
                     var poorQualityRepairHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + poor_quality_repair['questionTitle'] + ': </b>'+ poor_quality_repair['answer'][0]['value']+ '</div></div>';
                    
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + poor_quality_repair['questionTitle'] + ' </b> ' + poor_quality_repair['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + poor_quality_repair['questionTitle'] + ': </b> ' + poor_quality_repair['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + poor_quality_repair['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');  
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + poor_quality_repair['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');  
                 }
 
                 if (previous_paint_work['selected'] == true){
                     var previousPaintWorkHtml = '<div class="col-lg-6"><div> <b>' + previous_paint_work['questionTitle'] + ': </b>'+ previous_paint_work['answer'][0]['value']+ '</div></div>';
 
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + previous_paint_work['questionTitle'] + ' </b> ' + previous_paint_work['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + previous_paint_work['questionTitle'] + ': </b> ' + previous_paint_work['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + previous_paint_work['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#exterior_report').append('<div class="col-lg-6"><div> <b>' + previous_paint_work['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 if (penetratingRust['selected'] == true){
                     var penetratingRustHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + penetratingRust['questionTitle'] + ': </b>'+ penetratingRust['answer'][0]['value']+ '</div></div>';
                     
-                    $('#frame_report').empty().append('<div class="col-lg-6"><div> <b>' + penetratingRust['questionTitle'] + ' </b> ' + penetratingRust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#frame_report').empty().append('<div class="col-lg-6"><div> <b>' + penetratingRust['questionTitle'] + ': </b> ' + penetratingRust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#frame_report').empty().append('<div class="col-lg-6"><div> <b>' + penetratingRust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#frame_report').empty().append('<div class="col-lg-6"><div> <b>' + penetratingRust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (unbodyDamage['selected'] == true){
                     var unbodyDamageHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + unbodyDamage['questionTitle'] + ': </b>'+ unbodyDamage['answer'][0]['value']+ '</div></div>';
 
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + unbodyDamage['questionTitle'] + ' </b> ' + unbodyDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + unbodyDamage['questionTitle'] + ': </b> ' + unbodyDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + unbodyDamage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + unbodyDamage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (surface_rust['selected'] == true){
                     var surfaceRustHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + surface_rust['questionTitle'] + ': </b>'+ surface_rust['answer'][0]['value']+ '</div></div>';
 
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + surface_rust['questionTitle'] + ' </b> ' + surface_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + surface_rust['questionTitle'] + ': </b> ' + surface_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + surface_rust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + surface_rust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (heavy_rust['selected'] == true){
                     var heavyRustHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + heavy_rust['questionTitle'] + ': </b>'+ heavy_rust['answer'][0]['value']+ '</div></div>';
 
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + heavy_rust['questionTitle'] + ' </b> ' + heavy_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + heavy_rust['questionTitle'] + ': </b> ' + heavy_rust['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + heavy_rust['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#frame_report').append('<div class="col-lg-6"><div> <b>' + heavy_rust['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (seatDamage['selected'] == true){
                     var seatDamageHtml = '<div class="col-lg-6"><div> <b>' + seatDamage['questionTitle'] + ': </b>'+ seatDamage['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').empty().append('<div class="col-lg-6"><div> <b>' + seatDamage['questionTitle'] + ' </b> ' + seatDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').empty().append('<div class="col-lg-6"><div> <b>' + seatDamage['questionTitle'] + ': </b> ' + seatDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').empty().append('<div class="col-lg-6"><div> <b>' + seatDamage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').empty().append('<div class="col-lg-6"><div> <b>' + seatDamage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (carpet_damage['selected'] == true){
                     var carpetDamageHtml = '<div class="col-lg-6"><div> <b>' + carpet_damage['questionTitle'] + ': </b>'+ carpet_damage['answer'][0]['value']+ '</div></div>';
 
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + carpet_damage['questionTitle'] + ' </b> ' + carpet_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + carpet_damage['questionTitle'] + ': </b> ' + carpet_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + carpet_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + carpet_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (dashboardDamage['selected'] == true){
                     var dashboardDamageHtml = '<div class="col-lg-6"><div> <b>' + dashboardDamage['questionTitle'] + ': </b>'+ dashboardDamage['answer'][0]['value']+ '</div></div>';
 
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + dashboardDamage['questionTitle'] + ' </b> ' + dashboardDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + dashboardDamage['questionTitle'] + ': </b> ' + dashboardDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + dashboardDamage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + dashboardDamage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (headliner_damage['selected'] == true){
                     var headlinerDamageHtml = '<div class="col-lg-6"><div> <b>' + headliner_damage['questionTitle'] + ': </b>'+ headliner_damage['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + headliner_damage['questionTitle'] + ' </b> ' + headliner_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + headliner_damage['questionTitle'] + ': </b> ' + headliner_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + headliner_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + headliner_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (interiorTrimDamage['selected'] == true){
                     var interiorTrimDamageHtml = '<div class="col-lg-6"><div> <b>' + interiorTrimDamage['questionTitle'] + ': </b>'+ interiorTrimDamage['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interiorTrimDamage['questionTitle'] + ' </b> ' + interiorTrimDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interiorTrimDamage['questionTitle'] + ': </b> ' + interiorTrimDamage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interiorTrimDamage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interiorTrimDamage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (interior_order['selected'] == true){
                     var interiorOrderHtml = '<div class="col-lg-6"><div> <b>' + interior_order['questionTitle'] + ': </b>'+ interior_order['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interior_order['questionTitle'] + ' </b> ' + interior_order['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interior_order['questionTitle'] + ': </b> ' + interior_order['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interior_order['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + interior_order['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(crank_windows['selected'] == true){
                     var crankWindowsHtml = '<div class="col-lg-6"><div> <b>' + crank_windows['questionTitle'] + ': </b>'+ crank_windows['answer'][0]['value']+ '</div></div>';
 
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + crank_windows['questionTitle'] + ' </b> ' + crank_windows['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + crank_windows['questionTitle'] + ': </b> ' + crank_windows['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + crank_windows['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + crank_windows['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(no_factory_ac['selected'] == true){
                     var noFactoryAcHtml = '<div class="col-lg-6"><div> <b>' + no_factory_ac['questionTitle'] + ': </b>'+ no_factory_ac['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + no_factory_ac['questionTitle'] + ' </b> ' + no_factory_ac['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + no_factory_ac['questionTitle'] + ': </b> ' + no_factory_ac['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + no_factory_ac['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + no_factory_ac['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(electricalIssue['selected'] == true){
                     var electricalIssueHtml = '<div class="col-lg-6"><div> <b>' + electricalIssue['questionTitle'] + ': </b>'+ electricalIssue['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + electricalIssue['questionTitle'] + ' </b> ' + electricalIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + electricalIssue['questionTitle'] + ': </b> ' + electricalIssue['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + electricalIssue['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + electricalIssue['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(five_digit_odometer['selected'] == true){
                     var fiveDigitOdometerHtml = '<div class="col-lg-6"><div> <b>' + five_digit_odometer['questionTitle'] + ': </b>'+ five_digit_odometer['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + five_digit_odometer['questionTitle'] + ' </b> ' + five_digit_odometer['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + five_digit_odometer['questionTitle'] + ': </b> ' + five_digit_odometer['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + five_digit_odometer['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + five_digit_odometer['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(sunroof['selected'] == true){
                     var sunroofHtml = '<div class="col-lg-6"><div> <b>' + sunroof['questionTitle'] + ': </b>'+ sunroof['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + sunroof['questionTitle'] + ' </b> ' + sunroof['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + sunroof['questionTitle'] + ': </b> ' + sunroof['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + sunroof['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + sunroof['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(navigation['selected'] == true){
                     var navigationHtml = '<div class="col-lg-6"><div> <b>' + navigation['questionTitle'] + ': </b>'+ navigation['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + navigation['questionTitle'] + ' </b> ' + navigation['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + navigation['questionTitle'] + ': </b> ' + navigation['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + navigation['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + navigation['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(aftermarket_stereo['selected'] == true){
                     var aftermarketStereoHtml = '<div class="col-lg-6"><div> <b>' + aftermarket_stereo['questionTitle'] + ': </b>'+ aftermarket_stereo['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_stereo['questionTitle'] + ' </b> ' + aftermarket_stereo['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_stereo['questionTitle'] + ': </b> ' + aftermarket_stereo['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_stereo['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_stereo['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (airbagData['selected'] == true){
                     var airbagHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + airbagData['questionTitle'] + ': </b>'+ airbagData['answer'][0]['value'] + '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + airbagData['questionTitle'] + ' </b> ' + airbagData['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + airbagData['questionTitle'] + ': </b> ' + airbagData['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + airbagData['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + airbagData['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if( hvac_not_working['selected'] == true){
                     var hvacNotWorkingHtml = '<div class="col-lg-6"><div> <b>' + hvac_not_working['questionTitle'] + ': </b>'+ hvac_not_working['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + hvac_not_working['questionTitle'] + ' </b> ' + hvac_not_working['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + hvac_not_working['questionTitle'] + ': </b> ' + hvac_not_working['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
 
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + hvac_not_working['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + hvac_not_working['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(leather_seats['selected'] == true){
                     var leatherSeatsHtml = '<div class="col-lg-6"><div> <b>' + leather_seats['questionTitle'] + ': </b>'+ leather_seats['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + leather_seats['questionTitle'] + ' </b> ' + leather_seats['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + leather_seats['questionTitle'] + ': </b> ' + leather_seats['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + leather_seats['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + leather_seats['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(aftermarket_sunroof['selected'] == true){
                     var aftermarketSunroofHtml = '<div class="col-lg-6"><div> <b>' + aftermarket_sunroof['questionTitle'] + ': </b>'+ aftermarket_sunroof['answer'][0]['value']+ '</div></div>';
                   
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_sunroof['questionTitle'] + ' </b> ' + aftermarket_sunroof['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_sunroof['questionTitle'] + ': </b> ' + aftermarket_sunroof['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_sunroof['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + aftermarket_sunroof['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(backup_camera['selected'] == true){
                     var backupCameraHtml = '<div class="col-lg-6"><div> <b>' + backup_camera['questionTitle'] + ': </b>'+ backup_camera['answer'][0]['value']+ '</div></div>';
                     
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + backup_camera['questionTitle'] + ' </b> ' + backup_camera['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + backup_camera['questionTitle'] + ': </b> ' + backup_camera['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>'); 
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + backup_camera['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + backup_camera['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(charging_cable['selected'] == true){
                     var chargingCableHtml = '<div class="col-lg-6"><div> <b>' + charging_cable['questionTitle'] + ': </b>'+ charging_cable['answer'][0]['value']+ '</div></div>';
                    
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + charging_cable['questionTitle'] + ' </b> ' + charging_cable['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + charging_cable['questionTitle'] + ': </b> ' + charging_cable['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + charging_cable['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#interior_report').append('<div class="col-lg-6"><div> <b>' + charging_cable['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                     
                 if (aftermarket_wheels['selected'] == true){
                     var aftermarketWheelsHtml = '<div class="col-lg-6"><div> <b>' + aftermarket_wheels['questionTitle'] + ': </b>'+ aftermarket_wheels['answer'][0]['value']+ '</div></div>';
                    
-                    $('#tires_report').empty().append('<div class="col-lg-6"><div> <b>' + aftermarket_wheels['questionTitle'] + ' </b> ' + aftermarket_wheels['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').empty().append('<div class="col-lg-6"><div> <b>' + aftermarket_wheels['questionTitle'] + ': </b> ' + aftermarket_wheels['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                     
                 }else{
-                    $('#tires_report').empty().append('<div class="col-lg-6"><div> <b>' + aftermarket_wheels['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').empty().append('<div class="col-lg-6"><div> <b>' + aftermarket_wheels['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (damaged_wheels['selected'] == true){
                     var damagedWheelsHtml = '<div class="col-lg-6"><div> <b>' + damaged_wheels['questionTitle'] + ': </b>'+ damaged_wheels['answer'][0]['value']+ '</div></div>';
                    
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_wheels['questionTitle'] + ' </b> ' + damaged_wheels['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_wheels['questionTitle'] + ': </b> ' + damaged_wheels['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_wheels['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_wheels['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (oversized_tires['selected'] == true){
                     var oversizedTiresHtml = '<div class="col-lg-6"><div> <b>' + oversized_tires['questionTitle'] + ': </b>'+ oversized_tires['answer'][0]['value']+ '</div></div>';
                     
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + oversized_tires['questionTitle'] + ' </b> ' + oversized_tires['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + oversized_tires['questionTitle'] + ': </b> ' + oversized_tires['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + oversized_tires['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + oversized_tires['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (damaged_tiles['selected'] == true){
                     var damagedTilesHtml = '<div class="col-lg-6"><div> <b>' + damaged_tiles['questionTitle'] + ': </b>'+ damaged_tiles['answer'][0]['value']+ '</div></div>';
                    
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_tiles['questionTitle'] + ' </b> ' + damaged_tiles['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_tiles['questionTitle'] + ': </b> ' + damaged_tiles['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_tiles['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + damaged_tiles['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (uneven_tread_wear['selected'] == true){
                     var unevenTreadWearHtml = '<div class="col-lg-6"><div> <b>' + uneven_tread_wear['questionTitle'] + ': </b>'+ uneven_tread_wear['answer'][0]['value']+ '</div></div>';
                    
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + uneven_tread_wear['questionTitle'] + ' </b> ' + uneven_tread_wear['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + uneven_tread_wear['questionTitle'] + ': </b> ' + uneven_tread_wear['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + uneven_tread_wear['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + uneven_tread_wear['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (mismatched_tires['selected'] == true){
                     var mismatchedTiresHtml = '<div class="col-lg-6"><div> <b>' + mismatched_tires['questionTitle'] + ': </b>'+ mismatched_tires['answer'][0]['value']+ '</div></div>';
                    
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + mismatched_tires['questionTitle'] + ' </b> ' + mismatched_tires['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + mismatched_tires['questionTitle'] + ': </b> ' + mismatched_tires['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + mismatched_tires['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + mismatched_tires['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(missing_spare_tire['selected'] == true){
                     var missingSpareTireHtml = '<div class="col-lg-6"><div> <b>' + missing_spare_tire['questionTitle'] + ': </b>'+ missing_spare_tire['answer'][0]['value']+ '</div></div>';
                     
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + missing_spare_tire['questionTitle'] + ' </b> ' + missing_spare_tire['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + missing_spare_tire['questionTitle'] + ': </b> ' + missing_spare_tire['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + missing_spare_tire['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + missing_spare_tire['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (tire_measurements['selected'] == true){
@@ -1621,107 +1648,107 @@ function condition_popup_open(id){
                     // $('#tires_report').append('<div class="col-lg-6"> <b>' + tire_measurements['questionTitle'] + ': </b> Yes '+ 'Front Right Tire:' + tire_measurements['answer'] [0]['suffix'] + ',Front Left Tire:'+ tire_measurements['answer'] [1]['suffix'] + ',Back Left Tire: ' +  
                     // tire_measurements['answer'] [2]['suffix'] + ',Back Right Tire:' + tire_measurements['answer'] [3]['suffix'] + ' </div>');
 
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + tire_measurements['questionTitle'] + ' </b> ' + 'Front Right Tire:' + tire_measurements['answer'] [0]['suffix'] + ',Front Left Tire:'+ tire_measurements['answer'] [1]['suffix'] + ',Back Left Tire: ' +  
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + tire_measurements['questionTitle'] + ': </b> ' + 'Front Right Tire:' + tire_measurements['answer'] [0]['suffix'] + ',Front Left Tire:'+ tire_measurements['answer'] [1]['suffix'] + ',Back Left Tire: ' +  
                     tire_measurements['answer'] [2]['suffix'] + ',Back Right Tire:' + tire_measurements['answer'] [3]['suffix'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + tire_measurements['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#tires_report').append('<div class="col-lg-6"><div> <b>' + tire_measurements['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (title_absent['selected'] == true){
                     var titleAbsentHtml = '<div class="col-lg-6 bg_blue"><div> <b>' + title_absent['questionTitle'] + ': </b>'+ title_absent['answer'][0]['value']+ '</div></div>';
                   
-                    $('#title_report').empty().append('<div class="col-lg-6"><div> <b>' + title_absent['questionTitle'] + ' </b> ' + title_absent['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').empty().append('<div class="col-lg-6"><div> <b>' + title_absent['questionTitle'] + ': </b> ' + title_absent['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + title_absent['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').empty().append('<div class="col-lg-6"><div> <b>' + title_absent['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
                 
                 if (title_branded['selected'] == true){
                     var titleBrandedHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + title_branded['questionTitle'] + ': </b>'+ title_branded['answer'][0]['value']+ '</div></div>';
                     
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + title_branded['questionTitle'] + ' </b> ' + title_branded['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + title_branded['questionTitle'] + ': </b> ' + title_branded['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + title_branded['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + title_branded['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(true_mileage_unknown['selected'] == true){
                     var trueMileageUnknownHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + true_mileage_unknown['questionTitle'] + ': </b>'+ true_mileage_unknown['answer'][0]['value']+ '</div></div>';
                    
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + true_mileage_unknown['questionTitle'] + ' </b> ' + true_mileage_unknown['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + true_mileage_unknown['questionTitle'] + ': </b> ' + true_mileage_unknown['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + true_mileage_unknown['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + true_mileage_unknown['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
 
                 }
                                 
                 if (flood_damage['selected'] == true){
                     var floodDamageHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + flood_damage['questionTitle'] + ': </b>'+ flood_damage['answer'][0]['value']+ '</div></div>';
                     
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + flood_damage['questionTitle'] + ' </b> ' + flood_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + flood_damage['questionTitle'] + ': </b> ' + flood_damage['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + flood_damage['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + flood_damage['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(off_lease_vehicle['selected'] == true){
                     var offLeaseVehicleHtml = '<div class="col-lg-6"><div> <b>' + off_lease_vehicle['questionTitle'] + ': </b>'+ off_lease_vehicle['answer'][0]['value']+ '</div></div>';
                     
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + off_lease_vehicle['questionTitle'] + ' </b> ' + off_lease_vehicle['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + off_lease_vehicle['questionTitle'] + ': </b> ' + off_lease_vehicle['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + off_lease_vehicle['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + off_lease_vehicle['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(repair_order_attached['selected'] == true){
                     var repairOrderAttachedHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + repair_order_attached['questionTitle'] + ': </b>'+ repair_order_attached['answer'][0]['value']+ '</div></div>';
                 
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repair_order_attached['questionTitle'] + ' </b> ' + repair_order_attached['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repair_order_attached['questionTitle'] + ': </b> ' + repair_order_attached['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
 
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repair_order_attached['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repair_order_attached['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(repossession['selected'] == true){
                     var repossessionHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + repossession['questionTitle'] + ': </b>'+ repossession['answer'][0]['value']+ '</div></div>';
                     
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession['questionTitle'] + ' </b> ' + repossession['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession['questionTitle'] + ': </b> ' + repossession['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(repossession_papers_wo_title['selected'] == true){
                     var repossessionPapersWoTitleHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + repossession_papers_wo_title['questionTitle'] + ': </b>'+ repossession_papers_wo_title['answer'][0]['value']+ '</div></div>';
                    
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession_papers_wo_title['questionTitle'] + ' </b> ' + repossession_papers_wo_title['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession_papers_wo_title['questionTitle'] + ': </b> ' + repossession_papers_wo_title['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession_papers_wo_title['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + repossession_papers_wo_title['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(mobility['selected'] == true){
                     var mobilityHtml = '<div class="col-lg-6 bg_yellow"><div> <b>' + mobility['questionTitle'] + ': </b>'+ mobility['answer'][0]['value']+ '</div></div>';
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + mobility['questionTitle'] + ' </b> ' + mobility['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + mobility['questionTitle'] + ': </b> ' + mobility['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + mobility['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + mobility['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if (transferrable_registration['selected'] == true){
                     var transferrableRegistrationHtml = '<div class="col-lg-6 bg_orange"><div> <b>' + transferrable_registration['questionTitle'] + ': </b>'+ transferrable_registration['answer'][0]['value']+ '</div></div>';
                     
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + transferrable_registration['questionTitle'] + ' </b> ' + transferrable_registration['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + transferrable_registration['questionTitle'] + ': </b> ' + transferrable_registration['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + transferrable_registration['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + transferrable_registration['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                 if(sold_on_bill_of_sale['selected'] == true){
                     var soldOnBillOfSaleHtml = '<div class="col-lg-6 bg_red"><div> <b>' + sold_on_bill_of_sale['questionTitle'] + ': </b>'+ sold_on_bill_of_sale['answer'][0]['value']+ '</div></div>';
                    
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + sold_on_bill_of_sale['questionTitle'] + ' </b> ' + sold_on_bill_of_sale['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + sold_on_bill_of_sale['questionTitle'] + ': </b> ' + sold_on_bill_of_sale['answer'][0]['value'] + '</div> <div class="text-right text-success">Yes</div> </div>');
                 }else{
-                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + sold_on_bill_of_sale['questionTitle'] + ': </b> </div> <div class="text-right text-danger">  No </div></div>');
+                    $('#title_report').append('<div class="col-lg-6"><div> <b>' + sold_on_bill_of_sale['questionTitle'] + '</b> </div> <div class="text-right text-danger">  No </div></div>');
                 }
 
                   
                 var lights = response[1];
                 if (lights[1]) {
                     var colors = lights[1].split(' ');
-                    var acvLightHtml = '<div class="col-lg-6"><div class="lights-btn"><b>ACV Lights: <a href="' + lights[2] + '" target="_blank"><button>Auction URL</button></a></b>';
+                    var acvLightHtml = '<div class="col-lg-6"><div class="lights-btn"><b>ACV Lights: <a href="' + lights[2] + '" target="_blank"><button class="btn btn-sm btn-primary" >Go To Auction</button></a></b>';
 
                     for (var i = 0; i < colors.length; i++) {
                         acvLightHtml += '<span class="' + colors[i] + '">' + colors[i] + '</span> ';
@@ -1730,11 +1757,14 @@ function condition_popup_open(id){
                     acvLightHtml += '</div></div>';
                 }
 
-                var gfdfg = '<table data-v-bf22c5b6="" data-v-7769f27a="" class="acv-table table table-striped"><tbody data-v-bf22c5b6=""><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> Distance </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+lights[3]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> City </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[4]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> VIN </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[5]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Odometer </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6="">  '+ lights[6]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Transmission </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[7]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Trim </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[8]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Drivetrain </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[9]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Engine </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[10]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Fuel Type </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[11]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Year </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[12]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Make </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[13]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Model </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[14]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Color </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[15]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction ID </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> 4395727 </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction Date </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[16]+' </span><!----></td></tr></tbody></table>';
+                var vehicle_details = '<span><b>Vehicle Details</b></span><table data-v-bf22c5b6="" data-v-7769f27a="" class="table table-bordered table-striped"><tbody data-v-bf22c5b6=""><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> Distance </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+lights[3]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> City </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[4]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> VIN </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[5]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Odometer </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6="">  '+ lights[6]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Transmission </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[7]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Trim </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[8]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Drivetrain </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[9]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Engine </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[10]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Fuel Type </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[11]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Year </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[12]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Make </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[13]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Model </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[14]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Color </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[15]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction ID </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> 4395727 </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction Date </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[16] +' </span><!----></td></tr></tbody></table>';
+                
+                $('#vehicle-detail').empty()
+                .append(vehicle_details)
                 
                 $('#auction-condition').empty()
                 .append(acvLightHtml)
-                .append(gfdfg)
+                
                 //red color
                 .append(soldOnBillOfSaleHtml)
 
@@ -1780,6 +1810,7 @@ function condition_popup_open(id){
                 .append(repossessionPapersWoTitleHtml)
                 .append(repairOrderAttachedHtml)
                 .append(mobilityHtml)
+
                 .append(minorBodyDamageHtml)
                 .append(glassDamageHtml)
                 .append(lightDamageHtml)
@@ -1884,5 +1915,37 @@ function title_condition_report(){
     $('#title').modal({show:true});
 }
 
+function placebid(currunt_bid, bidAmount, auctionId ){
+    $('#place_bid').modal({show:true});
+    $('#auction_id').val(auctionId);
+    $('#place_bid_amount').text(bidAmount);
+    $('#currunt_bid').text(currunt_bid);
+}
+
+function notification(){
+    $('#notifications').modal({show:true});
+    $.ajax({
+        url: WS_PATH + '/get-notification-list/',
+        type: 'POST',
+        success: function (response) {
+            var data = response;                    
+            var str = '';
+            if (data.length == 0) {
+                str += '<tr>';
+                    str += '<td colspan="1" align="center">No Notification found</td>';
+                str += '</tr>';
+            }else{
+                data.forEach(auction => {
+                    var auctionData = JSON.parse(auction[2]);
+                    var auctionId = auctionData['data']['id'];
+                    var massage = auctionData['data']['message'];
+                    str += '<span>'+ auctionId + ' : ' + massage + '</span>';
+                });
+            }
+            $('#notification_list').empty().append(str);
+        }
+    })
+
+}
 
 

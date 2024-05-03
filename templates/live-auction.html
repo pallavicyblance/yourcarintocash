@@ -29,24 +29,10 @@
                     <li data-status="won">
                         <a href="won-auction">Won</a>
                     </li>
-                
-                    <!-- <li class="active" {% if status == None :  %} active {% endif %}>
-                        <a href="auction">Active</a>
-                    </li>
-                    <li {% if status == upcoming :  %} active {% endif %}  >
-                        <a href="upcoming-auction">Upcoming</a>
-                    </li>
-                    <li {% if status == missed :  %} active {% endif %}>
-                        <a href="missed-auction">Missed</a>
-                    </li>
-                    <li {% if status == lost :  %} active {% endif %}>
-                        <a href="lost-auction">Lost</a>
-                    </li>
-                    <li {% if status == won :  %} active {% endif %}>
-                        <a href="won-auction">Won</a>
-                    </li> -->
+                   
                 </ul>
             </div>
+            
             <div class="col-md-4">
                 <div class="search_filter">
                     <input type="input" plasholder="search" id="searchauction"  class="form-control input-sm" placeholder="Search by VIN, Auction ID,  Year, Make, Model" aria-controls="dataphone">
@@ -56,8 +42,8 @@
             <div>
 
             </div>
-            <div class="col-md-4" >
-                User:{{ user_name }}
+            <div class="col-md-4">
+                <!-- User:{{ user_name }} -->
             </div>
 
         </div>
@@ -145,16 +131,14 @@
                             <table id="dataConditionalwon" class="table table_sheet table-bordered table-striped">
                                 <thead align="center">
                                     <tr>
-                                        <th width="17%" colspan="2">Vehicle Info</th>
-                                        <th width="60">Mileage </th>
-                                        <th width="100">Location</th>
-                                        <th width="60">Current Bid</th>
-                                        <th width="60">Our Max Bid</th>
-                                        <th width="60">Our Next Bid</th>
-                                        <th width="60">Proqoute Amount</th>
-                                        <th width="120">Time Left in Auction</th>
+                                        <th width="5%" colspan="2">Vehicle Info</th>
+                                        <th width="80">Mileage </th>
+                                        <th width="120">Location</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="100">Our Max Bid</th>
+                                        <th width="80">Proqoute Amount</th>
                                         <th class="nosort" width="120">Internal Lights</th>
-                                        <th class="nosort" width="100">Action</th>
+                                        <th class="nosort" width="130">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -181,16 +165,14 @@
                             <table id="dataConditionallost" class="table table_sheet table-bordered table-striped">
                                 <thead align="center">
                                     <tr>
-                                        <th width="17%" colspan="2">Vehicle Info</th>
-                                        <th width="60">Mileage </th>
-                                        <th width="100">Location</th>
-                                        <th width="60">Current Bid</th>
-                                        <th width="60">Our Max Bid</th>
-                                        <th width="60">Our Next Bid</th>
-                                        <th width="60">Proqoute Amount</th>
-                                        <th width="120">Time Left in Auction</th>
+                                        <th width="5%" colspan="2">Vehicle Info</th>
+                                        <th width="80">Mileage </th>
+                                        <th width="120">Location</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="100">Our Max Bid</th>
+                                        <th width="80">Proqoute Amount</th>
                                         <th class="nosort" width="120">Internal Lights</th>
-                                        <th class="nosort" width="100">Action</th>
+                                        <th class="nosort" width="130">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -218,16 +200,13 @@
                             <table id="dataConditionalmissed" class="table table_sheet table-bordered table-striped">
                                 <thead align="center">
                                     <tr>
-                                        <th width="17%" colspan="2">Vehicle Info</th>
+                                        <th width="5%" colspan="2">Vehicle Info</th>
                                         <th width="60">Mileage </th>
                                         <th width="100">Location</th>
-                                        <th width="60">Current Bid</th>
-                                        <th width="60">Our Max Bid</th>
-                                        <th width="60">Our Next Bid</th>
-                                        <th width="60">Proqoute Amount</th>
-                                        <th width="120">Time Left in Auction</th>
+                                        <th width="80">Current Bid</th>
+                                        <th width="80">Proqoute Amount</th>
                                         <th class="nosort" width="120">Internal Lights</th>
-                                        <th class="nosort" width="100">Action</th>
+                                        <th class="nosort" width="130">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -257,10 +236,9 @@
                             <table id="dataConditionalupcoming" class="table table_sheet table-bordered table-striped">
                                 <thead align="center">
                                     <tr>
-                                        <th width="17%" colspan="2">Vehicle Info</th>
+                                        <th width="5%" colspan="2">Vehicle Info</th>
                                         <th width="60">Mileage </th>
                                         <th width="100">Location</th>
-                                        <th width="60">Current Bid</th>
                                         <th width="60">Our Max Bid</th>
                                         <th width="60">Our Next Bid</th>
                                         <th width="60">Proqoute Amount</th>
@@ -297,7 +275,7 @@
                             <table id="dataConditional" class="table table_sheet table-bordered table-striped">
                                 <thead align="center">
                                     <tr>
-                                        <th width="17%" colspan="2">Vehicle Info</th>
+                                        <th width="5%" colspan="2">Vehicle Info</th>
                                         <th width="60">Mileage </th>
                                         <th width="100">Location</th>
                                         <th width="60">Current Bid</th>
@@ -319,6 +297,44 @@
                 </div>
             </div>
         </section>
+
+
+        <!-- live active auction -->
+        <!-- <ul class="nav nav-tabs auction-live-show">
+            <li class="active "><a href="#">Live Active</a></li>
+        </ul>
+        <section class="content auction-live-show">
+            <div class="alert alert-error" role="alert" id="inquiry_live_msg_error" style="display:none;"></div>
+            <div class="box brnone">
+                <div class="box-body">
+                    <div class="tab-content tab-content-scroll">
+                        <div id="tab1" class="tab-pane fade in active">
+                       
+                            <table id="dataConditionallive" class="table table_sheet table-bordered table-striped">
+                                <thead align="center">
+                                    <tr>
+                                        <th width="225">Vehicle</th>
+                                        <th width="60">VIN</th>
+                                        <th width="60">Mileage </th>
+                                        <th width="100">Location</th>
+                                        <th width="60">Current Bid</th>
+                                        <th width="60">Our Next Bid</th>
+                                        <th width="60">Proqoute Amount</th>
+                                        <th width="120">Time Left in Auction</th>
+                                        <th class="nosort" width="120">Internal Lights</th>
+                                        <th class="nosort" width="100">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section> -->
     </div>
 </div>
 </div>
@@ -328,7 +344,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="modalLabel">Condition Report Details</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="conditon_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -348,7 +364,6 @@
 									<div class="vehicle-detail-popup" id="vehicle-detail"></div>
 								</div>
 							</div>
-							
                         </div>
                         <div>
                             <ul class="acv-list-item">
@@ -403,7 +418,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="framemodalLabel">Frame & Unibody</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="frame_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -432,7 +447,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="mechnicalmodalLabel">Mechanicals</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="mechnical_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -460,7 +475,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="driveabilitymodalLabel">Driveability</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="driveability_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -488,7 +503,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="lightsmodalLabel">Warning Lights</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="light_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -516,7 +531,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="tiresmodalLabel">Wheels & Tires</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="tries_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -545,7 +560,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="interiormodalLabel">Interior</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="interior_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -573,7 +588,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="titlemodalLabel">Title & History</h4>
                 <div class="modal-title_btn">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="history_close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -622,67 +637,5 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="place_bid" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-xs" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="justify-content: space-between; align-items: center;">
-				<h4 class="modal-title" >Bid + $100</h4>
-				<button type="button" class="close" id="" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">×</span>
-				</button>
-            </div>
-            <div class="modal-body placebid_popup">
-				<input type="hidden" id="auction_id" >
-				<div class="row form-group">
-					<div class="col">
-					</div>
-				</div>
-				<div class="row form-group">
-					<div class="col-lg-6">
-						<h5 class="m-0">Currunt Bid</h5>
-						<h2 class="m-0 line-through"><span id="currunt_bid"></span></h2>
-					</div>
-					<div class="col-lg-6">
-						<h5 class="m-0">Your Bid</h5>
-						<h2 class="m-0"><span id="place_bid_amount"></span></h2>
-					</div>
-					
-				</div>
-				<div class="row form-group">
-					<div class="col">
-						<button type="button" class="btn btn-primary " id="add_bid">Place Bid</button>
-					</div>
-				</div>
-			</div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="notifications" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="justify-content: space-between; align-items: center;">
-                <h4 class="modal-title" >Notifications</h4>
-                <button type="button" class="close" id="close-popup" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="model-wrapper">
-                    <div class="content-tab">
-                        <divclass="listmenu">
-							<div id="notification_list" class="auction-condition">
-                                
-							</div>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-            
-        </div>
-    </div>
-</div>
-
-
 {% include "footer.html" %}
-<script src="{{ url_for('static', filename='js/auction-info.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auction-live-info.js') }}"></script>

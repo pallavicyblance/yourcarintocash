@@ -1,11 +1,11 @@
 from flask import Flask 
 
-from module.acceptedaps import Acceptedaps
+from module.acv import ACV
 
-acceptedaps = Acceptedaps()
+acv = ACV()
 
 def won_auction():
     print('-----cron job won auction started-----')
-    acceptedaps.winlostauctions()
+    acv.winlostauctions()
     print('-----cron job won auction ended-----')
     return 'success'

@@ -2,6 +2,7 @@ import pymysql
 
 from datetime import date, timedelta
 import datetime
+import traceback
 class Setting:
     def connect(self):
         return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
@@ -418,3 +419,147 @@ class Setting:
             }];
 
         return inAuctionstatus;
+
+    def getCount(self, startDate, endDate):
+        try:
+            con = Setting.connect(self)
+            cursor = con.cursor()
+            
+            cursor.execute('SELECT COUNT(id) from accepted_aps where status = "accept" AND created_at BETWEEN %s AND %s',(startDate, endDate))
+            accepted_count = cursor.fetchone()[0]
+
+            cursor.execute('SELECT COUNT(id) from accepted_aps where status_update = "Pending pick up" AND created_at BETWEEN %s AND %s',(startDate, endDate))
+            pending_count = cursor.fetchone()[0]
+
+            cursor.execute('SELECT COUNT(id) from accepted_aps where revised_price IS NOT NULL AND created_at BETWEEN %s AND %s',(startDate, endDate))
+            offer_given_count = cursor.fetchone()[0]
+
+            cursor.execute('SELECT COUNT(id) from accepted_aps where status_update = "At auction" AND created_at BETWEEN %s AND %s',(startDate, endDate))
+            at_auction_count = cursor.fetchone()[0]
+
+            cursor.execute('SELECT COUNT(id) from accepted_aps where status_update = "Canceled" AND created_at BETWEEN %s AND %s',(startDate, endDate))
+            cancelled_count = cursor.fetchone()[0]
+            
+            if offer_given_count != 0:  
+                accepted_percetage = round((accepted_count / offer_given_count) * 100)
+                at_auction_percetage = round((at_auction_count / offer_given_count) * 100)
+            else:
+                accepted_percetage = 0
+                at_auction_percetage = 0
+
+            if accepted_count != 0:
+                offer_given_percetage = round((at_auction_count / accepted_count) * 100)
+                pending_percetage = round((pending_count / accepted_count) * 100)
+                cancelled_percetage = round((cancelled_count / accepted_count) * 100)
+            else:
+                offer_given_percetage = 0
+                pending_percetage = 0
+                cancelled_percetage = 0
+            
+            return accepted_count,offer_given_count,pending_count,at_auction_count,cancelled_count,accepted_percetage,offer_given_percetage,pending_percetage,at_auction_percetage,cancelled_percetage
+
+        except Exception as e:
+            con.rollback()
+            print(f"Error during database operation: {str(e)}")
+            traceback.print_exc()
+            return False
+        
+    def getInquiryData(self, start_date, end_date, status, start, length, column, direction, search_value):
+        """This function retrieves inquiry data from the database based on the specified parameters.
+        
+        Parameters:
+            - start_date: The start date of the inquiry data.
+            - end_date: The end date of the inquiry data.
+            - status: The status of the inquiry data.
+            - start: The starting index of the retrieved data.
+            - length: The number of records to retrieve.
+            - column: The column to sort the data by.
+            - direction: The direction of the sorting (ASC or DESC).
+            - search: The search term to filter the records.
+        
+        Returns:
+            - inquiry_data: The retrieved inquiry data."""
+
+        try:
+            con = Setting.connect(self)
+            cursor = con.cursor()
+
+            if column == 'date':
+                column = 'created_at'
+            elif column == 'offerif':
+                column = 'offer_id'
+            elif column == 'orignalprice':
+                column = 'original_price'
+            elif column == 'revisedprice':
+                column = 'revised_price'
+            elif column == 'offer':
+                column = 'status_update'
+            else:
+                column = 'created_at'
+
+            if status == 'accept':
+                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            elif status == 'notaccepted':
+                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where revised_price IS NOT NULL AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            elif status == 'pending':
+                status = 'Pending pick up'
+                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            elif status == 'atauction':
+                status = 'At auction'
+                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            elif status == 'canceled':
+                status = 'Canceled'
+                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            else:
+                cursor.execute('SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            inquiry_data = cursor.fetchall()
+
+            return inquiry_data
+
+        except Exception as e:
+            con.rollback()
+            print(f"Error during database operation: {str(e)}")
+            traceback.print_exc()
+            return False
+        
+    def get_total_records(self, start_date, end_date, status):
+        # Retrieves the total number of records based on the given start date, end date, and status.
+        # Args:
+        #     start_date (str): The start date for the records.
+        #     end_date (str): The end date for the records.
+        #     status (str): The status of the records.
+        # Returns:
+        #     int: The total number of records.
+        # Raises:
+        #     Exception: If there is an error during the database operation.
+        try:
+            con = Setting.connect(self)
+            cursor = con.cursor()
+
+            query_params = [start_date, end_date]
+
+            if status == 'accept':
+                query = 'SELECT COUNT(*) FROM accepted_aps WHERE status = %s  AND created_at BETWEEN %s AND %s'
+                query_params.insert(0, status)
+            elif status == 'notaccepted':
+                query = 'SELECT COUNT(*) FROM accepted_aps WHERE revised_price IS NOT NULL AND created_at BETWEEN %s AND %s'
+            elif status in ('pending', 'atauction', 'canceled'):
+                status_text = {
+                    'pending': 'Pending pick up',
+                    'atauction': 'At auction',
+                    'canceled': 'Canceled'
+                }
+                query = 'SELECT COUNT(*) FROM accepted_aps WHERE status_update = %s AND created_at BETWEEN %s AND %s'
+                query_params.insert(0, status_text[status])
+            else:
+                query = 'SELECT COUNT(*) FROM accepted_aps WHERE created_at BETWEEN %s AND %s'
+
+            cursor.execute(query, query_params)
+            total_records = cursor.fetchone()[0]
+
+            return total_records
+        except Exception as e:
+            con.rollback()
+            print(f"Error during database operation: {str(e)}")
+            traceback.print_exc()
+            return 0

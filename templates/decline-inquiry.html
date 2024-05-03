@@ -1,94 +1,142 @@
-{% include "header.html" %}<style>
-
-
-
-    input[type=checkbox] {
-
-        border-color: #ccc;
-
-        outline: none!important;
-
-        box-shadow: none!important;
-
-        border-radius: 0.25em;
-
-        -webkit-appearance: none;
-
-        -moz-appearance: none;
-
-        appearance: none;
-
-        border:1px solid #ccc;
-
-        width:15px;
-
-        height:15px;
-
-        background-color:#fff;
-
-        background-repeat: no-repeat;
-
-        background-position: center;
-
-        background-size: contain;
-
-        cursor:pointer;
-
-        margin: 0;
-
+{% include "header.html" %}
+<style>
+    .dt-align-center {
+        text-align: center;
     }
-
-    input:checked[type=checkbox] {
-
-        background-color: #2ab573;
-
-        border-color: #2ab573;
-
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
-
-    }
-
-    </style>
+	.dt-word-break {
+		word-break: break-word;
+	}
+	input[type=checkbox] {
+		border-color: #ccc;
+		outline: none!important;
+		box-shadow: none!important;
+		border-radius: 0.25em;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		border:1px solid #ccc;
+		width:15px;
+		height:15px;
+		background-color:#fff;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
+		cursor:pointer;
+		margin: 0;
+	}
+	input:checked[type=checkbox] {
+		background-color: #2ab573;
+		border-color: #2ab573;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+	}
+	.server_side_table .form-control{
+		height: 36px;
+	}
+	div.dataTables_processing {
+		/*position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 200px;
+		margin-left: -100px;
+		margin-top: -22px;
+		text-align: center;
+		padding: 2px;
+		z-index: 10;*/
+		position: fixed;
+		height: auto;
+	}
+	div.dataTables_processing > div:last-child {
+	  position: relative;
+	  width: 80px;
+	  height: 15px;
+	  margin: 0em auto;
+	}
+	div.dataTables_processing > div:last-child > div {
+	  position: absolute;
+	  top: 0;
+	  width: 13px;
+	  height: 13px;
+	  border-radius: 50%;
+	  background: rgb(42 181 115);
+	  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+	}
+	div.dataTables_processing > div:last-child > div:nth-child(1) {
+	  left: 8px;
+	  animation: datatables-loader-1 0.6s infinite;
+	}
+	div.dataTables_processing > div:last-child > div:nth-child(2) {
+	  left: 8px;
+	  animation: datatables-loader-2 0.6s infinite;
+	}
+	div.dataTables_processing > div:last-child > div:nth-child(3) {
+	  left: 32px;
+	  animation: datatables-loader-2 0.6s infinite;
+	}
+	div.dataTables_processing > div:last-child > div:nth-child(4) {
+	  left: 56px;
+	  animation: datatables-loader-3 0.6s infinite;
+	}
+	
+	@keyframes datatables-loader-1 {
+	  0% {
+		transform: scale(0);
+	  }
+	  100% {
+		transform: scale(1);
+	  }
+	}
+	@keyframes datatables-loader-3 {
+	  0% {
+		transform: scale(1);
+	  }
+	  100% {
+		transform: scale(0);
+	  }
+	}
+	@keyframes datatables-loader-2 {
+	  0% {
+		transform: translate(0, 0);
+	  }
+	  100% {
+		transform: translate(24px, 0);
+	  }
+	}
+	</style>
 
     <div class="content-wrapper">
 
-          <div class="container">
-
+          <div class="container_full">
               <div class="page-title-box">
-
                 <div class="row">
-
                     <div class="col-lg-12">
-
                         <h4 class="page-title">Inquiry List</h4>
-
                     </div>
-
                 </div>
-
               </div>
-
               <div class="alert alert-success" role="alert" id="inquiry_msg" style="display:none;"></div>
-
               <ul class="nav nav-tabs">
-
                 <li ><a  href="{{ url_for('inquirylist') }}">Inquiry List</a></li>
-
                 <li class="active"><a  href="{{ url_for('declinelist') }}">Declined Offer</a></li>
-
               </ul>
-
+              <div class="form-border dashboard-form-flex">						
+                <div class="form-group w-48">
+                    <label for="start_date">Start Date</label>
+                    <input name="start_date" value="{{ start_date }}" id="start_date_value" type="text" class="form-control input-lg" autocomplete="off">
+                </div>
+                <div class="form-group w-48">
+                    <label>End Date</label>
+                    <input name="end_date" value="{{ end_date }}" id="end_date_value" type="text" class="form-control input-lg" autocomplete="off">
+                </div>
+                <div class="form-group w-48">
+                    <input type="submit" class="btn btn-lg btn-primary" value="Filter" onclick="getFilterdData()">
+                    <input type="submit" class="btn btn-lg btn-primary" value="Reset" onclick="getResetData()">
+                </div>
+            </div>
               <section class="content">
-
-                  
-
                   <div class="alert alert-error" role="alert" id="inquiry_msg_error" style="display:none;"></div>
-
-
-
                   <div class="box brnone">
 
-                      <div class="box-body">
+                      <div class="box-body pt-0">
 
                           <div class="tab-content">
 
@@ -205,7 +253,7 @@
                                 </div>
 
                                 <table id="dataphone4" class="table table-bordered table-striped">
-
+                                        
                                     <thead align="center">
 
                                         <tr>
@@ -248,7 +296,7 @@
 
                                     <tbody>
 
-                                        {% if declineoffer|length == 0 %}
+                                        <!-- {% if declineoffer|length == 0 %}
 
                                         <tr>
 
@@ -312,7 +360,7 @@
 
 
 
-                                                    <td>{{ row[33] }}</td>
+                                                    <td>{{ row[33] | change_us_date_formate('%Y-%m-%d')}}</td>
 
                                                     <td align="center">
 
@@ -352,7 +400,7 @@
 
                                             {% endfor %}
 
-                                        {% endif%}
+                                        {% endif%} -->
 
                                     </tbody>
 
@@ -446,7 +494,7 @@
 
             if (result) {
 
-                var inquiry = $('input[class="selectChk"]:checked').length;
+                var inquiry = $('input[class="selectChk1"]:checked').length;
 
 
 
@@ -456,11 +504,12 @@
 
                     $('#inquiry_msg_error').show();
 
+                    setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
                 }else{
 
                     var a = '';
 
-                    $("input:checkbox[class='selectChk']:checked").each(function(){
+                    $("input:checkbox[class='selectChk1']:checked").each(function(){
 
                         a = a + $(this).val() + ',';
 
@@ -526,11 +575,11 @@
 
             if($('#allArrSelect').is(':checked')){
 
-                $('.selectChk').prop('checked', true);
+                $('.selectChk1').prop('checked', true);
 
             }else{
 
-                $('.selectChk').prop('checked', false);
+                $('.selectChk1').prop('checked', false);
 
             }
 
@@ -538,11 +587,9 @@
 
         function singleSelect(){
 
+            var total =  $('input[class="selectChk1"]').length;
 
-
-            var total =  $('input[class="selectChk"]').length;
-
-            var selectedTotal =  $('input[class="selectChk"]:checked').length;
+            var selectedTotal =  $('input[class="selectChk1"]:checked').length;
 
 
 
@@ -560,10 +607,7 @@
 
         function selectAllChk1() {
 
-            // alert("hii")
-
             if ($('#allArrSelect1').is(':checked')) {
-
                 $('.selectChk1').prop('checked', true);
 
             } else {
@@ -591,7 +635,8 @@
                     $('#inquiry_msg_error').text('Please select atleast one inquiry');
 
                     $('#inquiry_msg_error').show();
-
+                    
+                    setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
                 } else {
 
                     var a = '';
@@ -744,6 +789,139 @@
 
     </script>
 
-
-
     {% include "footer.html" %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+
+    getDashboardData();
+
+	$(document).ready(function() {
+		$('#start_date_value').datepicker({
+			autoclose: true,
+			onSelect: function(dateText) {
+	          $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
+	        }
+		});
+		$('#end_date_value').datepicker({
+			autoclose: true,
+			onSelect: function(dateText) {
+	          $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
+	        }
+		});	
+		
+	});
+	$('#start_date_value').datepicker({
+		autoclose: true,
+		onSelect: function(dateText) {
+          $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
+        },
+		format: 'yyyy-mm-dd', 
+		defaultDate: new Date(), 
+	});
+	$('#end_date_value').datepicker({
+		autoclose: true,
+		onSelect: function(dateText) {
+          $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
+        },
+		format: 'yyyy-mm-dd', 
+		defaultDate: new Date(), 
+	});
+
+    function getDashboardData(){
+        start_date = $('#start_date_value').val();
+		end_date = $('#end_date_value').val();
+        initializeDataTable(start_date, end_date);
+    }
+
+    function getFilterdData(){
+		start_date = $('#start_date_value').val();
+		end_date = $('#end_date_value').val();
+		initializeDataTable(start_date,end_date)
+    }
+
+    function getResetData(){
+		var currentDate = new Date();
+		var firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+		var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+		var startDate = formatDate(firstDayOfMonth);
+		var endDate = formatDate(lastDayOfMonth);
+		
+		$('#start_date_value').val(startDate);
+		$('#end_date_value').val(endDate);
+	
+		start_date = $('#start_date_value').val();
+		end_date = $('#end_date_value').val();
+		initializeDataTable(start_date,end_date)
+	}
+
+    function initializeDataTable(start_date, end_date) {
+        $(document).ready(function() {
+            $('#dataphone4').DataTable().destroy();
+            $('#dataphone4').DataTable({
+                order: [[8, 'desc']],
+                "processing": true,
+                "pageLength": 50, 
+                "language": {
+                    "processing": '<div><div></div><div></div><div></div><div></div></div>' // Custom loading icon
+                },
+                "serverSide": true,
+                "ajax": {
+                    "url": WS_PATH + "/get-decline-data",
+                    "type": "POST",
+                    "data": function (d) {
+                        d.start_date = start_date;
+                        d.end_date = end_date;
+                    },
+                    "dataSrc": "data"
+                },
+                "columns": [
+                    { 
+                        "data": "chk",
+                        "render": function(data, type, row) {
+                            return data;
+                        }
+                    },
+                    { "data": "car" },
+                    { "data": "offerif" },
+                    { "data":"location"},
+                    { "data": "form" },
+                    { "data": "orignalprice" },
+                    { "data": "revisedprice" },
+                    { "data": "offer" },
+                    { "data": "date" },
+                    { 
+                        "data": "btn",
+                        "render": function(data, type, row) {
+                            return data;
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "targets": 4, 
+                        "className": "dt-word-break" 
+                    },
+                    {
+                        "targets": 9, 
+                        "className": "dt-align-center" 
+                    },
+                    { "orderable": false, "targets": [0,1,3,4,9] }
+                ],
+                "initComplete": function(settings, json) {
+                    $('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" 	style="margin-left:15px;">');
+                }
+            });
+        });
+    }
+
+    function formatDate(date) {
+		var year = date.getFullYear();
+		var month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+		var day = date.getDate().toString().padStart(2, '0');
+		return year + '-' + month + '-' + day;
+	}
+    
+</script>
+    

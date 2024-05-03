@@ -27,7 +27,93 @@ class Acceptedaps:
     def connect(self):
         #return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
         return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
-    def read(self, id,param,param1):
+    
+    def read(self, id,param,param1,start,length, column, order, searchData, start_date, end_date):
+        # Reads data from the 'accepted_aps' table based on the provided parameters.
+
+        # Args:
+        #     id (int): The ID of the record to retrieve. If None, retrieves all records.
+        #     param (str): The parameter to filter the records. Possible values: 'completed', 'incomplete', 'accepted', 'monthly', 'weekly', 'today', 'userfrom'.
+        #     param1 (str): Additional parameter for filtering the records.
+        #     start (int): The starting index of the records to retrieve.
+        #     length (int): The number of records to retrieve.
+        #     column (str): The column to sort the records by. Possible values: 'date', 'offerif', 'orignalprice', 'revisedprice', 'offer'.
+        #     order (str): The order in which to sort the records. Possible values: 'ASC' (ascending), 'DESC' (descending).
+        #     search: The search term to filter the records.
+
+        # Returns:
+        #     list: A list of records retrieved from the 'accepted_aps' table.
+        con = Acceptedaps.connect(self)
+        cursor = con.cursor()
+        if param:
+            if param=='completed':
+                status = 'complete'
+            elif param=='incomplete':
+                status = 'incomplete'
+            elif param=='accepted':
+                status = 'accept'  
+            elif param=='monthly':
+                status = 'monthly'
+            elif param=='weekly': 
+                status = 'weekly'
+            elif param=='today': 
+                status = 'today'
+            elif param=='userfrom': 
+                status = 'userfrom'
+        
+        if column == 'date':
+            column = 'created_at'
+        elif column == 'offerif':
+            column = 'offer_id'
+        elif column == 'orignalprice':
+            column = 'original_price'
+        elif column == 'revisedprice':
+            column = 'revised_price'
+        elif column == 'offer':
+            column = 'status_update'
+        else:
+            column = 'created_at'
+
+        try:
+            if id == None:  
+                if param:
+                    if status=='monthly':
+                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date,'%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                    elif status=='weekly':
+                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                    elif status=='today':
+                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                    elif status=='userfrom':
+                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                    else:
+                        if param1:
+                            cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order), (status, start_date , end_date ,'%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+
+                        else:
+                            cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                else:
+                    cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            else:
+                cursor.execute(
+                    "SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) LIMIT %s OFFSET %s", (id,start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            return cursor.fetchall()
+        except:
+            return ()
+        finally:
+            con.close() 
+
+    def total_record(self, id,param,param1,start_date, end_date):
+        # Returns the total number of records based on the given parameters.
+        # Args:
+        #     id (int): The ID of the record to retrieve. If None, all records are considered.
+        #     param (str): The parameter to filter the records. Possible values are 'completed', 'incomplete', 'accepted',
+        #                  'monthly', 'weekly', 'today', and 'userfrom'.
+        #     param1 (bool): Additional parameter to determine the sorting order of the records.
+        # Returns:
+        #     int: The total number of records.
+        # Raises:
+        #     Exception: If there is an error executing the SQL query.
+
         con = Acceptedaps.connect(self)
         cursor = con.cursor()
         if param:
@@ -49,28 +135,28 @@ class Acceptedaps:
             if id == None:  
                 if param:
                     if status=='monthly':
-                        cursor.execute("SELECT * FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) ORDER BY id DESC  ")
+                        cursor.execute("SELECT COUNT(*) FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                     elif status=='weekly':
-                        cursor.execute("SELECT * FROM accepted_aps where week(`created_at`) = week(now()) ORDER BY id DESC  ")
+                        cursor.execute("SELECT COUNT(*) FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                     elif status=='today':
-                        cursor.execute("SELECT * FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE()  ")
+                        cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s ",(start_date, end_date))
                     elif status=='userfrom':
-                        cursor.execute("SELECT * FROM accepted_aps WHERE `ref_id` !=''  ")
+                        cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s ",(start_date, end_date))
                     else:
                         if param1:
-                            cursor.execute("SELECT * FROM accepted_aps where status='"+status+"' ORDER BY dispatched ASC  ")
+                            cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY dispatched ASC ",(start_date, end_date))
                         else:
-                            cursor.execute("SELECT * FROM accepted_aps where status='"+status+"' ORDER BY id DESC  ")
+                            cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                 else:
-                    cursor.execute("SELECT * FROM accepted_aps ORDER BY id DESC  ")
+                    cursor.execute("SELECT COUNT(*) FROM accepted_aps AND created_at BETWEEN %s AND %s ORDER BY id DESC",(start_date, end_date))
             else:
                 cursor.execute(
-                    "SELECT * FROM accepted_aps where id = %s ", (id,))
-            return cursor.fetchall()
+                    "SELECT COUNT(*) FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s", (id,start_date, end_date))
+            return cursor.fetchone()[0]
         except:
             return ()
         finally:
-            con.close()      
+            con.close()        
        
     def acceptbidsave(self, data):
         con = Acceptedaps.connect(self)
@@ -389,12 +475,52 @@ class Acceptedaps:
         finally:
             con.close()
             
-    def getdeclineoffer(self):
+    def getdeclineoffer(self, start, length, start_date, end_date, column, order, search):
+
+        # Retrieves a list of declined offers from the 'accepted_aps' table based on the specified parameters.
+        # Parameters:
+        # - start_date: The start date of the inquiry data.
+        # - end_date: The end date of the inquiry data.
+        # - start: The starting index of the records to retrieve.
+        # - length: The number of records to retrieve.
+        # - column: The column to sort the records by.
+        # - order: The order in which to sort the records (ASC or DESC).
+        # - search: The search term to filter the records.
+
+        # Returns:
+        # - A list of declined offers matching the specified parameters.
+        # - If an error occurs, returns "error".
         con = Acceptedaps.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute("SELECT * FROM `accepted_aps` WHERE status = %s" ,('Decline'))
+            if column == 'date':
+                column = 'created_at'
+            elif column == 'offerif':
+                column = 'offer_id'
+            elif column == 'orignalprice':
+                column = 'original_price'
+            elif column == 'revisedprice':
+                column = 'revised_price'
+            elif column == 'offer':
+                column = 'status_update'
+            else:
+                column = 'created_at'
+            
+            cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR original_price LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s".format(column, order), ('Decline', start_date, end_date, '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', int(length), int(start)))
             return cursor.fetchall()
+        except:
+            return "error"
+        finally:
+            con.close()
+        
+    # Retrieves the total number of records with a status of 'Decline' from the 'accepted_aps' table.
+    def get_total_records_decline(self, start_date, end_date,):
+
+        con = Acceptedaps.connect(self)
+        cursor = con.cursor()
+        try:
+            cursor.execute("SELECT count(*) FROM `accepted_aps` WHERE status = %s AND created_at BETWEEN %s AND %s", ('Decline',start_date, end_date))
+            return cursor.fetchall()[0][0]
         except:
             return "error"
         finally:

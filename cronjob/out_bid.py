@@ -5,9 +5,11 @@ import logging
 from Misc.functions import *
 from module.acceptedaps import Acceptedaps
 from module.admin import Admin
+from module.acv import ACV
 
 acceptedaps = Acceptedaps()
 admin = Admin()
+acv = ACV()
 
 class OutBid:
 
@@ -17,8 +19,8 @@ class OutBid:
     def auction_out_bid():
         logging.info('-----cron job out bid started-----')
         print('-----cron job out bid started-----')
-        active_auction = acceptedaps.getauctionsbid()
-        getjwttoken = admin.getjwttoken(acv_user()[0])
+        active_auction = acv.getauctionsbid()
+        getjwttoken = acv.getjwttoken(acv_user()[0])
         for auction in active_auction:
             user_bid = OutBid.bid_amount(auction[4],acv_user()[0])
             if auction[9] >= user_bid:
@@ -53,8 +55,7 @@ class OutBid:
             response = requests.post(url, json=json_data ,headers=headers)
             response.raise_for_status()  
             if response.status_code == 200:
-                acceptedaps.addbid(auctionId,bidamount,acv_user()[0])
-                acceptedaps.place_bid(auctionId, bidamount)
+                acv.place_bid(auctionId, bidamount)
                 logging.info("auction %s: placed bid with amount %s", auctionId, bidamount)
                 print('auction ' + str(auctionId) + ' placed bid with amount ' + str(bidamount))
                 return 'status'

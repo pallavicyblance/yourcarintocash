@@ -56,26 +56,32 @@
 				</div>
 				<div class="navbar-custom-menu">
 					<ul class="nav navbar-nav">
-                            <li class="">
+                        <li class="">
+                            <a href="{{ url_for('liveauction') }}"><b>Live Auctions</b></a>
+                        </li>
+                            <li class="{% if request.path == url_for('auction') %} active {% endif %}">
                                 <a href="{{ url_for('auction') }}"><b>Auction</b></a>
                             </li>
-                            <li class="">
+                            <li class="{% if request.path == url_for('dashboard') %} active {% endif %}">
                                 <a href="{{ url_for('dashboard') }}"><b>Dashboard</b></a>
                             </li>
-							  <li class="">
+
+                            <li class="{% if request.path == url_for('inquirylist') and 'status=accepted&dispatch=no' not in request.query_string.decode('utf-8') %}active {% elif request.path == url_for('declinelist') %}active {% endif %}">
                                 <a href="{{ url_for('inquirylist') }}"><b>Inquiry</b></a>
                             </li>
-							 <li class="">
+                            
+                            <li class="{% if request.path == url_for('inquirylist') and 'status=accepted&dispatch=no' in request.query_string.decode('utf-8') %}active{% endif %}">
                                 <a href="{{ url_for('inquirylist') }}?status=accepted&dispatch=no"><b>Accepted Offers</b>
-                                <span class="notification" style="display:none;"></span>
+                                    <span class="notification" style="display:none;"></span>
                                 </a>
                             </li>
-                            <li class="">
+
+                            <li class="{% if request.path == url_for('conditionfilter') %} active {% endif %}">
                                 <a href="{{ url_for('conditionfilter') }}"><b>Conditional Filter</b>
                                 </a>
                             </li>
                             
-                            <li class="">
+                            <li class="{% if request.path == url_for('discountmanagement') %} active {% endif %}">
                                 <a href="{{ url_for('discountmanagement') }}"><b>Price Management</b></a>
                             </li>
                             <!--<li class="">-->

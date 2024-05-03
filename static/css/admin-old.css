@@ -173,7 +173,7 @@ table.table-bordered tbody td {
 .pt-0{
     padding:0 20px 10px 20px;
 }
-.pt-0 .form-inline .input-sm, .dataTables_wrapper .form-control.input-sm {
+.pt-0 .form-inline .input-sm {
     height: 35px;
 }
 .dflex{
@@ -409,8 +409,8 @@ h4{
 }
 .dashboard-form-flex{
 	margin-bottom: 0px;
-  border: 1px solid #ccc;
-  /*border-bottom: transparent; */
+    border: 1px solid #ccc;
+    /* border-bottom: transparent; */
 	background: #fff;
 	padding: 15px 20px 0 20px;
 	box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
@@ -419,12 +419,7 @@ h4{
 	grid-gap: 15px;
     border-radius: 10px;
 }
-.dashboard-form-flex:not(.form-border) {
-    border: none;
-}
-.dashboard-form-flex .form-control {
-    height: auto;
-}
+
 
 
 .form-border{
@@ -567,13 +562,10 @@ table.dataTable thead > tr > th.sorting_disabled {
 	height: 34px;
 	border-radius: 3px!important;
 }
-body .datepicker table tr td span{
-    height: 40px;
-    line-height: 40px;
-}
 .datepicker table tr td.active.active{
 	background: #2ab573 !important;
 	text-align: center;
+	border-radius: 50%;
 	border: none;
 	cursor: pointer;
 	line-height: normal;
@@ -583,9 +575,6 @@ body .datepicker table tr td span{
 	height: 25px;
 	line-height: 25px;
 	color: #fff;
-}
-.datepicker table tr td span.month.active {
-    background: #2ab573 !important;
 }
 .datepicker-switch{
 	text-align: center;
@@ -2352,196 +2341,3 @@ table.table-bordered tbody td.dblclick_td .table_input {
 	}
 }
 
-/* -------============= Dashboard Page css =============------------*/
-.dashbord-page{
-    
-}
-.dashbord-page .row {
-    display: flex;
-    flex-wrap: wrap;
-}
-.dashbord-page .col-lg-7 .row {
-    row-gap: 20px;
-}
-.dashboard_counter_col {
-    background: #fff;
-    padding: 25px 20px;
-    box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
-    border-radius: 10px;
-    margin-bottom: 0px;
-    height: 100%;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    text-align: center;
-    min-height: 120px;
-    border: 1px solid;
-    transition: all 0.2s
-}
-a.dashboard_counter_col:hover {
-    box-shadow: 0 0 2rem 0 rgb(136 152 170 / 30%);
-    box-shadow: 0 0 2rem 0 rgb(0 0 0 / 24%);
-}
-.dashboard_counter_col h4{
-    text-align: left;
-}
-.dashboard_counter_col h3{
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    font-size: 46px;
-}
-
-.dashboard_counter_first .dashboard_counter_col h3{
-    font-size: 100px;
-}
-.dashboard_counter_col h3.text-warning{
-    color: #c1c100;
-}
-.dashboard_counter_col h3.text-secondary{
-    color: darkgray;
-}
-.dashboard_counter_col h3.text-success{
-    color: #02bf02;
-}
-.dashboard_counter_col.alert-success, .dashboard_counter_col.alert-success *{
-    background-color: #cdf3e1!important;
-    border-color: #c3e6cb!important;
-    color: #155724;
-}
-.dashboard_counter_col.alert-info, .dashboard_counter_col.alert-info *{
-    color: ##0c5460;
-    background-color: #b6d8ff !important;
-    border-color: #a7cbf5 !important;
-}
-.dashboard_counter_col.alert-danger, .dashboard_counter_col.alert-danger *{
-    color: #721c24;
-    background-color: #f8d7da!important;
-    border-color: #f5c6cb!important;
-}
-.dashboard_counter_col.alert-warning, .dashboard_counter_col.alert-warning *{
-    color: #856404;
-    background-color: #fff3cd!important;
-    border-color: #ffe8a2!important;
-}
-.dashboard_counter_col.alert-dark, .dashboard_counter_col.alert-dark *{
-    color: #383d41;
-    background-color: #e2e3e5!important;
-    border-color: #d6d8db!important;
-}
-.dashboard_box2{
-    margin-top: 20px;
-}
-.dashboard_box2 .col-lg-2{
-    width: 20%;
-}
-.dashboard_box2 .dashboard_counter_col{
-    border: none;
-}
- @keyframes growProgressBar {
-  0%, 33% { --pgPercentage: 0; }
-  100% { --pgPercentage: var(--value); }
-}
-
-@property --pgPercentage {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-.dashboard_counter_col div[role="progressbar"] {
-    --size: 12rem;
-    --fg: #2ab573;
-    --bg: rgb(103 73 159 / 10%);
-    --pgPercentage: var(--value);
-    animation: growProgressBar 3s 1 forwards;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: 
-    radial-gradient(closest-side, white 80%, transparent 0 99.9%, white 0), conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0);
-    margin: 0 auto;
-}
-.dashboard_box2 .dashboard_counter_col h4{
-    text-align: center;
-    font-size: 17px;
-    margin-top: 20px;
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.dashboard_box2 .dashboard_counter_col h5 {
-    font-size: 30px;
-}
-.dashbord-page .row{
-    margin-right: -10px;
-    margin-left: -10px;
-}
-.dashbord-page .row .col-lg-2, .dashbord-page .row .col-lg-3, .dashbord-page .row .col-lg-5, .dashbord-page .row .col-lg-6, .dashbord-page .row .col-lg-7{
-    padding-right: 10px;
-    padding-left: 10px;
-}
-.dashboard_counter_col div[role="progressbar"].progressbar_dark{
-    --fg: #adadad;
-}
-.dashboard_counter_col div[role="progressbar"].progressbar_success{
-    --fg: #155724;
-}
-.dashboard_counter_col div[role="progressbar"].progressbar_info{
-    --fg: #0c5460;
-}
-.dashboard_counter_col div[role="progressbar"].progressbar_danger{
-    --fg: #721c24;
-}
-.margin{
-    margin: 25px;
-}
-.semi-donut-model-2{
-    width: 200px;
-    height: 100px;
-    position: relative;
-    color: #fff;
-    font-size: 22px;
-    font-weight: 600;
-    overflow: hidden;
-    color: var(--fill);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    box-sizing: border-box;
-}
-.semi-donut-model-2:after{
-    content: "";
-    width: 200px;
-    height: 200px;
-    border: 25px solid;
-    border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) var(--fill) var(--fill);
-    position: absolute;
-    border-radius: 50%;
-    left: 0;
-    top: 0;
-    box-sizing: border-box;
-    transform: rotate(calc(1deg*(-45 + var(--percentage)* 1.8)));
-    -webkit-animation: fillAnimation 1s ease-in;
-    animation: fillAnimation 1s ease-in;
-}
-.semi-donut-model-2:before {
-    border-color:rgba(0,0,0,.15);
-    transform: rotate(180deg);
-}
-
-@keyframes fillAnimation{
-  0%{transform : rotate(-45deg);}
-  50%{transform: rotate(135deg);}
-}
-
-@keyframes fillGraphAnimation{
-  0%{transform: rotate(0deg);}
-  50%{transform: rotate(180deg);}
-}
-/* -------============= End Dashboard Page css =============------------*/

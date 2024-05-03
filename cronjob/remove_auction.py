@@ -1,11 +1,11 @@
 from flask import Flask, flash, session
 
-from module.acceptedaps import Acceptedaps
+from module.acv import ACV
 
-acceptedaps = Acceptedaps()
+acv = ACV()
 
 def remove_auction():
     print('-----cron job remove auction started-----')
-    acceptedaps.deleteAuction()
+    acv.deleteAuction()
     print('-----cron job remove auction ended-----')
     return 'success'

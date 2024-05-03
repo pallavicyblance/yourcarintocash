@@ -7,8 +7,7 @@ import requests
 
 from Misc.functions import *
 import socket
-import datetime
-from datetime import date
+from datetime import datetime, timedelta
 import schedule
 import threading
 import sched
@@ -21,7 +20,7 @@ from cronjob.won_auction import won_auction
 from cronjob.auction_10_min_left import auction_10_min_left
 from cronjob.auction_1_min_left import auction_1_min_left
 from cronjob.remove_auction import remove_auction
-from cronjob.pub_nub import auction_pub_nub_notification
+from cronjob.pub_nub import PubNubNotification
 from cronjob.out_bid import OutBid
 
 from module.database import Database
@@ -47,7 +46,7 @@ from module.qoute import Qoute
 
 from module.offer import Offer
 
-
+from module.acv import ACV
 
 import smtplib
 import logging
@@ -81,6 +80,7 @@ admin = Admin()
 setting = Setting()
 
 
+acv = ACV()
 
 acceptedaps = Acceptedaps()
 notes= Notes()
@@ -278,7 +278,7 @@ def signin():
             
             session['acv_user_password'] = data[0][11]
 
-            return redirect(url_for('inquirylist'))
+            return redirect(url_for('dashboard'))
 
 
 
@@ -341,56 +341,77 @@ def discountmanagement():
         return render_template('dashboard.html', data = data,role=role)
 
 
-@app.route('/dashboard/')
+# @app.route('/dashboard-old/')
 
 
 
-def dashboard():
+# def dashboardold():
 
 
 
-    if not session.get('admin_logged_in'):
+#     if not session.get('admin_logged_in'):
 
 
 
-        return redirect(url_for('login'))
+#         return redirect(url_for('login'))
 
 
 
-    else:
+#     else:
 
 
 
-        data1 = setting.getKip();
-        data2 = setting.getKipWeek();
-        data3 = setting.getKipMonth();
+#         data1 = setting.getKip();
+#         data2 = setting.getKipWeek();
+#         data3 = setting.getKipMonth();
 
-        data5 = setting.getCompleteInquiry();
-        data6 = setting.getInCompleteInquiry();
-        data7 = setting.getAcceptInquiry();
-        data8 = setting.userComesFrom();
-        data9 = setting.userComesFromAll();
+#         data5 = setting.getCompleteInquiry();
+#         data6 = setting.getInCompleteInquiry();
+#         data7 = setting.getAcceptInquiry();
+#         data8 = setting.userComesFrom();
+#         data9 = setting.userComesFromAll();
 
-        id = session['admin_logged_id']
-        role = admin.role(id)
+#         id = session['admin_logged_id']
+#         role = admin.role(id)
 
-        return render_template('dashboard-new.html', currentDay = data1,currentWeek = data2, currentMonth = data3 , completeInquiry=data5, inCompleteInquiry=data6, acceptInquiry=data7,userfrom=data8,userfromTotal=data9,role=role)
+#         return render_template('dashboard-new.html', currentDay = data1,currentWeek = data2, currentMonth = data3 , completeInquiry=data5, inCompleteInquiry=data6, acceptInquiry=data7,userfrom=data8,userfromTotal=data9,role=role)
 
 # code added by pallavi
+@app.route('/dashboard/',methods = ['POST', 'GET'])
+    # This function handles the '/dashboard-new' route.
+    # If the user is not logged in as an admin, it redirects to the login page.
+    # If the request method is POST, it retrieves the start and end dates from the form,
+    # calls the 'getCount' function from the 'setting' module, and returns the result as JSON.
+    # If the request method is GET, it sets the start and end dates to the first and last day of the current month,
+    # calls the 'getCount' function from the 'setting' module, and renders the 'kpi-dashboard.html' template
+    # with the count, start date, and end date as template variables.
+def dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            dashboard_count = setting.getCount(start_date,end_date)
+            return jsonify(dashboard_count)
+        else:
+            today = date.today()
+            first_day_of_month = today.replace(day=1)
+            last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
+            start_date = first_day_of_month.strftime("%Y-%m-%d")
+            end_date = last_day_of_month.strftime("%Y-%m-%d")
+            dashboard_count = setting.getCount(start_date,end_date)
+            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = start_date, end_date = end_date)
 
-@app.route('/acvnewlogin/', methods = ['POST', 'GET'])
-def acvnewlogin(user_id,email,password):
+@app.route('/auction-new-user-bid/', methods = ['POST', 'GET'])
+def acvnewuserbid():
     loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
     data = {
-        'email': email,  
-        'password': password
+        'email': 'twincitytest2@twincity.com',  
+        'password': 'TwinCityTest2!'
     }
     response = requests.post(loginurl, json=data)
     refresh_token = response.json().get('refreshToken')
-
-    pubnum_auth_key = response.json().get('pubnub').get('authKey')
-    pubnum_expiration = response.json().get('pubnub').get('expiration')
-    pubnum_subscribe_key = response.json().get('pubnub').get('subscribeKey')
 
     refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
     data = {
@@ -400,71 +421,46 @@ def acvnewlogin(user_id,email,password):
 
     jwtToken = response.json().get('jwt')
 
-    session['acv_jwt_token'] = jwtToken
+    # url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction'
+    # params = {'start': 0, 'rows': 10}
+    # headers = {'Authorization': jwtToken}
 
-    admin.storeToken(jwtToken,user_id,pubnum_auth_key,pubnum_expiration,pubnum_subscribe_key)
+    # response = requests.get(url, params=params, headers=headers)
+    # response.raise_for_status()
+    # response_data = response.json()
 
-    url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction'
-    params = {'start': 0, 'rows': 10}
-    headers = {'Authorization': jwtToken}
+    # for auction in response_data.get("auctions", []):
+        # if auction['status'] == 'active':
+    auction_data = fetch_auction_details(4422216, jwtToken)
+    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/4422216/bid'
+    json_data_bid = {
+        'amount': auction_data['nextProxyAmount'],
+        'proxy': True, 
+        'persistent': False
+    }
+    headers = {
+        'Authorization': jwtToken,
+        'Content-Type': 'application/json'
+    }
 
-    response = requests.get(url, params=params, headers=headers)
-    response.raise_for_status()
-    response_data = response.json()
-
-    for auction in response_data.get("auctions", []):
-        if auction['status'] == 'active':
-            auction_data = fetch_auction_details(auction, jwtToken)
-            nextproxybidamount = auction_data['nextProxyAmount'] 
-            acceptedaps.insertauctiondata(auction_data,0,auction_data['nextProxyAmount']) 
-            acceptedaps.auctionconditionreport(auction_data)
-            acceptedaps.countslights(auction['id'])
-    
-
-    url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction/runlist'
-    params = {'start': 0, 'rows': 10}
-    headers = {'Authorization': jwtToken}
-
-    response = requests.get(url, params=params, headers=headers)
-    response.raise_for_status()
-    response_data = response.json()
-
-    for auction in response_data.get("auctions", []):
-        proxybidamount = auction['price']
-        nextproxybidamount = auction['price'] + 50
-        auction_data = fetch_auction_details(auction, jwtToken)
-        acceptedaps.insertauctiondata(auction_data,proxybidamount, nextproxybidamount)
-        acceptedaps.auctionconditionreport(auction_data)
-
+    try:
+        response = requests.post(url, json=json_data_bid, headers=headers)
+        acv.updateproxydata(auction_data['id'],auction_data['nextProxyAmount'])
+        print('add bid',auction_data['id'],'bid',auction_data['nextProxyAmount'])
+        response.raise_for_status()  
+    except requests.exceptions.RequestException as e:
+        return ''
+                
     return 'success'
 
 def fetch_auction_details(auction, jwttoken):
-    auction_id = auction['id']
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
-    params = {'id': auction_id}
+    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction}'
+    params = {'id': auction}
     headers = {'Authorization': jwttoken}
     auctiondetails = requests.get(url, params=params, headers=headers)
     auctiondetails.raise_for_status()
     return auctiondetails.json()
-    
-def place_auction_bid(auctionId, bidamount, jwttoken):
-
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
-    params = {'amount': bidamount}
-    headers = {'Authorization': jwttoken,'Content-Type': 'application/json'}
-    try:
-        response = requests.post(url, json=params,headers=headers)
-        response.raise_for_status()  
-        response_data = response.json() 
-
-        acceptedaps.addbid(auctionId,response_data['amount'],acv_user()[0])
-        acceptedaps.place_bid(auctionId, response_data['amount'])
-        return response_data
-    except requests.exceptions.RequestException as e:
-        print("Error:", e)
-        print("Response:", response.text)
-        return None
-    
+        
 @app.route('/place-bid/',methods = ['POST','GET'])
 def place_bid():
     
@@ -472,8 +468,7 @@ def place_bid():
     auctionId = data['auctionId']
     bidamount = data['bidamount']   
 
-    # getjwttoken = session.get('acv_jwt_token')
-    getjwttoken = admin.getjwttoken(acv_user()[0])
+    getjwttoken = acv.getjwttoken(acv_user()[0])
 
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
     params = {'amount': bidamount}
@@ -486,8 +481,7 @@ def place_bid():
         response.raise_for_status()  
         response_data = response.json() 
 
-        acceptedaps.addbid(auctionId,response_data['amount'],id)
-        acceptedaps.place_bid(auctionId, response_data['amount'])
+        acv.place_bid(auctionId, response_data['amount'])
 
         url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}'
         params = {'id': auctionId}
@@ -497,7 +491,7 @@ def place_bid():
         ishighbidder = auctiondetails.json().get('isHighBidder')
         nextbidamount = auctiondetails.json().get('nextBidAmount')
         if ishighbidder:
-            acceptedaps.update(auctionId,ishighbidder,nextbidamount)
+            acv.update(auctionId,ishighbidder,nextbidamount)
 
         return response_data
     except requests.exceptions.RequestException as e:
@@ -511,7 +505,7 @@ def place_proxy_bid():
     auctionId = data['auctionId']
     bidamount = data['proxyBidAmount']   
 
-    getjwttoken = admin.getjwttoken(acv_user()[0])
+    getjwttoken = acv.getjwttoken(acv_user()[0])
 
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
     json_data_bid = {
@@ -527,29 +521,8 @@ def place_proxy_bid():
     try:
         response = requests.post(url, json=json_data_bid, headers=headers)
         response.raise_for_status()  
-        # response_proxy_data = response.json() 
-
-        amount = int(bidamount) + 50
-
-
-        acceptedaps.updateproxydata(auctionId,bidamount)
-        return 'success'
-        # url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/runlist'
-        # params = {'start': 0, 'rows': 10}
-        # headers = {'Authorization': getjwttoken[0]}
-
-        # response = requests.get(url, params=params, headers=headers)
-        # response.raise_for_status()
-        # response_data = response.json()
-        
-        # for auction in response_data.get("auctions", []):
-        #     if int(auctionId) == auction['id']:
-        #         proxybidamount = auction['price']
-        #         nextProxyBidAmount = auction['price'] + 50
-        #         acceptedaps.updateproxydata(auctionId,proxybidamount, nextProxyBidAmount)
-
-        # return response_proxy_data
-       
+        acv.updateproxydata(auctionId,bidamount)
+        return 'success'       
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         print("Response:", response.text)
@@ -564,18 +537,53 @@ def auction():
         acv_user_email = session.get('acv_user_email')
         acv_user_password = session.get('acv_user_password')
         user_name = session.get('admin_logged_username') + ' ' + session.get('admin_logged_lastname')
-        # acvlogin(acv_user_id,acv_user_email,acv_user_password)
-        # condition_flter = acceptedaps.getConditionalReport()
-        condition_flter = acceptedaps.getconditionReport('')
+
+        condition_flter = acv.getconditionReport('')
+
         return render_template('auction.html', condition_flter=condition_flter,user_name=user_name)
-    
+        
 @app.route('/condition-report-details/',methods = ['POST','GET'])
 def conditionReportDetails():
     selected_report_id = request.form['id']
-    reportfetched = acceptedaps.getconditionReport(selected_report_id)
-    auctionsfetched = acceptedaps.getauctions()
-    wonauctions = acceptedaps.getwonauction()
-    lostauctions = acceptedaps.getlostauction()
+    reportfetched = acv.getconditionReport(selected_report_id)
+    auctionsfetched = acv.getauctions()
+    wonauctions = acv.getwonauction()
+    lostauctions = acv.getlostauction()
+    countNotificaton = acv.getNotificationCount()
+
+    final_action = {'auctions': [], 'reports': [], 'won_auction': [], 'lost_auction': [], 'count': countNotificaton}
+
+    for auction in auctionsfetched:
+        if meets_condition(auction, reportfetched):
+                final_action['auctions'].append(auction)
+
+    for wonauction in wonauctions:
+        if meets_condition(wonauction, reportfetched):
+            final_action['won_auction'].append(wonauction)
+
+    for lostauction in lostauctions:
+        if meets_condition(lostauction, reportfetched):
+            final_action['lost_auction'].append(lostauction)
+
+    final_action['reports'] = reportfetched
+    
+    return jsonify(final_action)
+
+@app.route('/liveauction/', methods=['GET'])
+def liveauction():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('login'))
+    else:
+        condition_flter = acv.getconditionReport('')
+        return render_template('live-auction.html',condition_flter=condition_flter)
+
+@app.route('/live-details/',methods = ['POST','GET'])
+def liveconditionReportDetails():
+    selected_report_id = request.form['id']
+    reportfetched = acv.getconditionReport(selected_report_id)
+    auctionsfetched = acv.getliveauctions()
+    wonauctions = acv.getlivewonauction()
+    lostauctions = acv.getlivelostauction()
 
     final_action = {'auctions': [], 'reports': [], 'won_auction': [], 'lost_auction': []}
 
@@ -595,21 +603,152 @@ def conditionReportDetails():
     
     return jsonify(final_action)
 
+@app.route('/save-live-auction',methods = ['POST','GET'])
+def saveliveauction():
+    loginurl = 'https://buy-api.gateway.acvauctions.com/v2/login'
+
+    data = {
+        'email': 'ben@twincitiesautoauctions.com',
+        'password': 'E$$BiyfxNx6P'
+    }
+
+    try:
+        response = requests.post(loginurl, json=data)
+        refresh_token = response.json().get('refreshToken')
+        
+        if refresh_token:
+            refreshTokenurl = 'https://buy-api.gateway.acvauctions.com/v2/login/refresh'
+            data = {
+                'refreshToken' : refresh_token
+            }
+            try:
+                response = requests.post(refreshTokenurl, json=data)
+        
+                jwtToken = response.json().get('jwt')
+
+                url = 'https://buy-api.gateway.acvauctions.com/v2/auction'
+                params = {'start': 0, 'rows': 20}
+                headers = {'Authorization': jwtToken}
+
+                try:
+                    response = requests.get(url, params=params, headers=headers)
+                    response_data = response.json()
+                    
+                    if response_data.get("auctions", []):
+                        for auction in response_data.get("auctions", []):
+                            auction_data = fetch_live_auction_details(auction, jwtToken)
+                            
+                            acv.liveinsertauctiondata(auction_data) 
+                            acv.liveauctionconditionreport(auction_data)
+                            acv.livecountslights(auction['id'])
+                        return 'success'
+                    else:
+                        return "No live auctions available."
+                except requests.exceptions.RequestException as e:
+                    print("Error:", e)
+                    return None
+            except requests.exceptions.RequestException as e:
+                print("Error:", e)
+                return None
+        else:
+            print("Login failed. No refresh token received.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None
+
+@app.route('/save-live-upcoming-auction',methods = ['POST','GET'])
+def saveliveupcomingauction():
+    loginurl = 'https://buy-api.gateway.acvauctions.com/v2/login'
+
+    data = {
+        'email': 'ben@twincitiesautoauctions.com',
+        'password': 'E$$BiyfxNx6P'
+    }
+
+    try:
+        response = requests.post(loginurl, json=data)
+        refresh_token = response.json().get('refreshToken')
+        
+        if refresh_token:
+            refreshTokenurl = 'https://buy-api.gateway.acvauctions.com/v2/login/refresh'
+            data = {
+                'refreshToken' : refresh_token
+            }
+            try:
+                response = requests.post(refreshTokenurl, json=data)
+        
+                jwtToken = response.json().get('jwt')
+
+                url = 'https://buy-api.gateway.acvauctions.com/v2/auction/runlist'
+                params = {'start': 0, 'rows': 20}
+                headers = {'Authorization': jwtToken}
+
+                try:
+                    response = requests.get(url, params=params, headers=headers)
+                    response_data = response.json()
+                    
+                    if response_data.get("auctions", []):
+                        for auction in response_data.get("auctions", []):
+                            auction_data = fetch_live_auction_details(auction, jwtToken)
+
+                            acv.liveinsertauctiondata(auction_data) 
+                            acv.liveauctionconditionreport(auction_data)
+                            acv.livecountslights(auction['id'])
+                        return 'success'
+                    else:
+                        return "No live upcoming auctions available."
+                except requests.exceptions.RequestException as e:
+                    print("Error:", e)
+                    return None
+            except requests.exceptions.RequestException as e:
+                print("Error:", e)
+                return None
+        else:
+            print("Login failed. No refresh token received.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None
+    
+def fetch_live_auction_details(auction, jwttoken):
+    auction_id = auction['id']
+    url = f'https://buy-api.gateway.acvauctions.com/v2/auction/{auction_id}'
+    params = {'id': auction_id}
+    headers = {'Authorization': jwttoken}
+    auctiondetails = requests.get(url, params=params, headers=headers)
+    auctiondetails.raise_for_status()
+    return auctiondetails.json()
+
+@app.route('/upcoming-live-auction-data/', methods=['GET','POST'])
+def upcoming_live_auction_data():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('login'))
+    else:
+        response_upcoming_data = acv.getLiveUpcomingauction()
+        return jsonify(response_upcoming_data)
+
+@app.route('/get-live-auction-condition/',methods=['GET','POST'])
+def getliveauctioncondition():
+    auction_id = request.form['auction_id']
+    conditions = acv.getliveauctioncondition(auction_id)
+    return jsonify(conditions)
+    
 @app.route('/match-condition/', methods = ['POST','GET'])
 def meets_condition(auction_data, condition_flter):
     for condition in condition_flter:
-        if acceptedaps.checkconditonwithauction(auction_data, condition):
-            acceptedaps.matchauction(auction_data[4],is_match=True)
+        if acv.checkconditonwithauction(auction_data, condition):
+            acv.matchauction(auction_data[4],is_match=True)
             return True
         else:
-            acceptedaps.matchauction(auction_data[4],is_match=False)
+            acv.matchauction(auction_data[4],is_match=False)
 
 @app.route('/upcoming-auction-data/', methods=['GET','POST'])
 def upcoming_auction_data():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-        response_upcoming_data = acceptedaps.getUpcomingauction()
+        response_upcoming_data = acv.getUpcomingauction()
         return jsonify(response_upcoming_data)
       
 @app.route('/missed-auction/', methods=['GET','POST'])
@@ -617,7 +756,7 @@ def missed_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-        response_missed_data = acceptedaps.getMisseauction()
+        response_missed_data = acv.getMisseauction()
         return jsonify(response_missed_data)
     
 @app.route('/lost-auction/', methods=['GET','POST'])
@@ -625,7 +764,7 @@ def lost_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-        lostauction = acceptedaps.getlostauction()
+        lostauction = acv.getlostauction()
         return jsonify(lostauction)
     
 @app.route('/won-auction/', methods=['GET','POST'])
@@ -633,7 +772,7 @@ def get_won_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-        wonauction = acceptedaps.getwonauction()
+        wonauction = acv.getwonauction()
         return jsonify(wonauction)
 
 @app.route('/search-auction/',methods=['GET','POST'])
@@ -641,24 +780,24 @@ def searchauction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-        auctions = acceptedaps.searchauction(request.form['searchval'], request.form['status'])
+        auctions = acv.searchauction(request.form['searchval'], request.form['status'])
         return jsonify(auctions)
 
 @app.route('/win-lost-auction/',methods=['GET','POST'])
 def winlostauction():
-    acceptedaps.winlostauctions()
+    acv.winlostauctions()
     return 'success'
+
+@app.route('/get-notification-list/', methods=['GET','POST'])
+def getNotification():
+    notifications = acv.getNotificationList()
+    return jsonify(notifications)
 
 @app.route('/get-auction-condition/',methods=['GET','POST'])
 def getauctioncondition():
     auction_id = request.form['auction_id']
-    conditions = acceptedaps.getauctioncondition(auction_id)
+    conditions = acv.getauctioncondition(auction_id)
     return jsonify(conditions)
-
-@app.route('/fetch_new_notification', methods=['GET'])
-def start_fetching_new_auctions():
-    place_bid()
-    return jsonify({'message': 'Fetching new bid'})
 # code end by pallavi
 
 @app.route('/settingupdate/', methods = ['POST'])
@@ -932,37 +1071,229 @@ def updateprofile():
 
 
 
+# inquiry page route 
+@app.route('/inquiry-list')
 def inquirylist():
-
-
-
-    if not session.get('admin_logged_in'):
-
-
-
+    if not session.get('admin_logged_in'):  
         return redirect(url_for('login'))
-
-
-
     else:
-
-
         param = request.args.get('status')
         param1 = request.args.get('dispatch')
-        data = acceptedaps.read(None,param,param1)
-        declineoffer = acceptedaps.getdeclineoffer()
-
-
         id = session['admin_logged_id']
         role = admin.role(id)
-
+        today = date.today()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
+        start_date = first_day_of_month.strftime("%Y-%m-%d")
+        end_date = last_day_of_month.strftime("%Y-%m-%d")
         if param1:
-            return render_template('inquiry-dispatch.html', data = data, role=role)
+            return render_template('inquiry-dispatch.html',role=role, start_date = start_date, end_date = end_date )
         else :
-            return render_template('inquiry.html', data = data, role=role , declineoffer=declineoffer)
+            return render_template('inquiry-new.html',  role=role ,  start_date = start_date, end_date = end_date)
 
+# inquiry data fetch with datatable route for inquiry
+@app.route('/get-inquiry-data', methods = ['POST', 'GET'])
+def getInquiryData():
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+        status = request.form['status']
+        draw = request.form['draw']
 
+        # get limitation for data for inquiry
+        start = request.form['start']
+        length = request.form['length']
 
+        # get column and order for data sorting for inquiry
+        orderByColumnIndex = int(request.form['order[0][column]'])
+        orderByColumnNameKey = 'columns[' + str(orderByColumnIndex) + '][data]'
+        orderByColumnName = request.form[orderByColumnNameKey]
+        orderByColumnDirection = request.form['order[0][dir]']
+
+        searchValue = request.form['search[value]']
+
+        inquiry_data = setting.getInquiryData(start_date,end_date,status,start, length, orderByColumnName, orderByColumnDirection, searchValue)
+
+        total_records = setting.get_total_records(start_date, end_date, status)
+
+        id = session.get('admin_logged_id')
+        role = admin.role(id)
+        data_list = []
+        for data in inquiry_data:
+            abc = ''
+            if data[6] != 'Decline':
+                if role == (('Super Admin',),):
+                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(data[0]) + '" onchange="singleSelect()">'
+            
+            if data[10] == "NaN":
+                offerif = ''
+            elif data[10] == "none":
+                offerif = ''
+            else:
+                offerif = data[11]
+            
+            car_info = str(data[1]) + ' ' + str(data[2]) + ' ' + str(data[3])
+
+            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
+
+            if data[5] == "NaN":
+                originalprice = 'Not Finished'
+            elif data[5] == None:
+                originalprice = 'Not Finished'
+            elif data[5] != "":
+                originalprice = '$' + str(data[5])
+            else:
+                originalprice = '$0.00'
+
+            if data[10] == "NaN":
+                revisedprice = 'Not Finished'
+            elif data[10] == None:
+                revisedprice = 'Not Finished'
+            elif data[10] != "":
+               revisedprice = '$' + str(data[10]) 
+            else:
+                revisedprice = '$0.00'
+
+            if data[6] == 'accept':
+                if data[14] != None:
+                    offer = data[14] 
+                else:
+                    offer = 'Accepted'
+            else:
+                offer = 'Not accepted'
+
+            created_date = changeUSDateFormat(data[9])
+
+            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            if role == (('Super Admin',),):
+                btn += '<a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
+                            
+            if data[6] == 'accept':
+                if data[12] == 'yes':
+                    btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
+                else:
+                    btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
+            
+            tracked_form = ""
+            
+            if data[13] == 'https://t.co/' :
+                tracked_form = 'https://www.twitter.com/'
+            else:
+                tracked_form = data[13]
+
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_list.append(data_dict)
+        response = {
+            "draw": int(draw),
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data_list
+        }
+        
+        return jsonify(response)
+
+# inquiry data fetch with datatable route for inquiry dispatch
+@app.route('/get-dispatch-data', methods = ['POST', 'GET'])
+def getDispatchData():
+
+    if request.method == 'POST':
+        draw = request.form['draw']
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        # get limitation for data for inquiry dispatch
+        start = request.form['start']
+        length = request.form['length']
+
+        # grt column and order for data sorting for inquiry dispatch
+        orderByColumnIndex = int(request.form['order[0][column]'])
+        orderByColumnNameKey = 'columns[' + str(orderByColumnIndex) + '][data]'
+        orderByColumnName = request.form[orderByColumnNameKey]
+        orderByColumnDirection = request.form['order[0][dir]']
+
+        searchData = request.form['search[value]']
+
+        param = 'accepted'
+        param1 = 'no'
+        id = session.get('admin_logged_id')
+        role = admin.role(id)
+        decline_data = acceptedaps.read(None,param,param1,start, length, orderByColumnName, orderByColumnDirection, searchData, start_date, end_date)
+        total_records = acceptedaps.total_record(None,param,param1,start_date, end_date)
+        data_list = []
+
+        for data in decline_data:
+            abc = ''
+            if data[6] != 'Decline':
+                if role == (('Super Admin',),):
+                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(data[0]) + '" onchange="singleSelect()">'
+            
+            if data[10] == "NaN":
+                offerif = ''
+            elif data[10] == "none":
+                offerif = ''
+            else:
+                offerif = data[11]
+            
+            car_info = str(data[1]) + ' ' + str(data[3]) + ' ' + str(data[2])
+
+            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
+
+            if data[5] == "NaN":
+                originalprice = 'Not Finished'
+            elif data[5] == None:
+                originalprice = 'Not Finished'
+            elif data[5] != "":
+                originalprice = '$' + str(data[5])
+            else:
+                originalprice = '$0.00'
+
+            if data[10] == "NaN":
+                revisedprice = 'Not Finished'
+            elif data[10] == None:
+                revisedprice = 'Not Finished'
+            elif data[10] != "":
+               revisedprice = '$' + str(data[10]) 
+            else:
+                revisedprice = '$0.00'
+
+            if data[6] == 'accept':
+                if data[14] != None:
+                    offer = data[14] 
+                else:
+                    offer = 'Accepted'
+            else:
+                offer = 'Not accepted'
+
+            created_date = changeUSDateFormat(data[9])
+
+            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            if role == (('Super Admin',),):
+                btn += '<a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
+                            
+            if data[6] == 'accept':
+                if data[12] == 'yes':
+                    btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
+                else:
+                    btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
+            
+            tracked_form = ""
+            
+            if data[13] == 'https://t.co/' :
+                tracked_form = 'https://www.twitter.com/'
+            else:
+                tracked_form = data[13]
+
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_list.append(data_dict)
+
+        response = {
+            "draw": int(draw),
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data_list
+        }
+        
+        return jsonify(response)
 @app.route('/inquiry-fetch/<int:id>/')
 
 def inquiryFetch(id):
@@ -1475,21 +1806,108 @@ def decline_offer_data(id):
     return [decline_data]
 
 
+# get decline offer data route
 @app.route('/decline-list')
 def declinelist():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
-
-        declineoffer = acceptedaps.getdeclineoffer()
-        # return [declineoffer]
-        # return [data]
         id = session['admin_logged_id']
         role = admin.role(id)
+        today = date.today()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
+        start_date = first_day_of_month.strftime("%Y-%m-%d")
+        end_date = last_day_of_month.strftime("%Y-%m-%d")
+        return render_template('decline-inquiry.html', role=role, start_date= start_date, end_date= end_date)
 
-        # return [data[0][48]]
+@app.route('/get-decline-data' , methods = ['POST'])
+def get_decline_data():
+    if request.method == 'POST':
+        draw = request.form['draw']
 
-        return render_template('decline-inquiry.html', role=role , declineoffer=declineoffer)
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        # get limitation for data for decline offer
+        start = request.form['start']
+        length = request.form['length']
+
+        # get column and order for data sorting for decline offer
+        orderByColumnIndex = int(request.form['order[0][column]'])
+        orderByColumnNameKey = 'columns[' + str(orderByColumnIndex) + '][data]'
+        orderByColumnName = request.form[orderByColumnNameKey]
+        orderByColumnDirection = request.form['order[0][dir]']
+        searchDate = request.form['search[value]']
+
+        decline_data = acceptedaps.getdeclineoffer(start, length, start_date, end_date, orderByColumnName, orderByColumnDirection, searchDate)
+        total_records = acceptedaps.get_total_records_decline(start_date, end_date)
+        id = session.get('admin_logged_id')
+        role = admin.role(id)
+        data_list = []
+        for data in decline_data:
+            abc = ''
+            if role == (('Super Admin',),):
+                abc = '<input type="checkbox" name="chkArr[]" class="selectChk1" value="' + str(data[0]) + '" onchange="singleSelect()">'
+
+            offerif = ''
+            if data[6] != 'incomplete':
+                offerif = data[11] 
+            
+            car_info = str(data[1]) + ' ' + str(data[3]) + ' ' + str(data[2])
+
+            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
+
+            if data[5] == "NaN":
+                originalprice = 'Not Finished'
+            elif data[5] == None:
+                originalprice = 'Not Finished'
+            elif data[5] != "":
+                originalprice = str(data[5])
+            else:
+                originalprice = '$0.00'
+
+            if data[10] == "NaN":
+                revisedprice = 'Not Finished'
+            elif data[10] == None:
+                revisedprice = 'Not Finished'
+            elif data[10] != "":
+               revisedprice = str(data[10]) 
+            else:
+                revisedprice = '$0.00'
+
+            offer = 'Declined'
+            
+            created_date = changeUSDateFormat(data[9])
+
+            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            if role == (('Super Admin',),):
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
+                            
+            if data[6] == 'accept':
+                if data[12] == 'yes':
+                    btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
+                else:
+                    btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
+            
+            tracked_form = ""
+            
+            if data[13] == 'https://t.co/' :
+                tracked_form = 'https://www.twitter.com/'
+            else:
+                tracked_form = data[13]
+
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'orignalprice':originalprice, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+
+            data_list.append(data_dict)
+        response = {
+            "draw": int(draw),
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data_list
+        }
+        
+        return jsonify(response)
 
 @app.route('/ajax-image-upload', methods=['POST'])
 def ajax_upload_image():
@@ -1977,6 +2395,18 @@ def listen_for_auctions():
 
     return "Now listening for auction events...",data
 
+@app.template_filter('change_us_date_formate')
+def changeUSDateFormat(date,input_format='%Y-%m-%d %H%M%S',time_format='%H%M%S'):
+    if isinstance(date, datetime): 
+        date_str = date.strftime(input_format)
+        time_str = date.strftime(time_format) 
+    else:
+        date_str = date
+        time_str = ''
+    date_obj = datetime.strptime(date_str, input_format)
+    time_obj = datetime.strptime(time_str, time_format)
+    return date_obj.strftime('%m/%d/%Y') + ' ' + time_obj.strftime('%H:%M:%S')
+
 # def simulate_task(scheduler):
 
 #     scheduler.enter(40, 1, acv_login, (scheduler))
@@ -1992,22 +2422,24 @@ def listen_for_auctions():
     
 #     return 'Task started successfully.'
 
-# @app.route('/get-auction-proqoute', methods=['POST','GET'])
-# def get_proqoute():
-#     #return 'ninnininini'
-#     data = acceptedaps.get_proqoute()
-#     return 'dfdsfdfdsfddsffdsfds'
+@app.route('/get-auction-proqoute', methods=['POST','GET'])
+def get_proqoute():
+    #return 'ninnininini'
+    data = acv.get_proqoute()
+    return 'dfdsfdfdsfddsffdsfds'
 
 scheduler = BackgroundScheduler()
 
-scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*', second='*/30')
-scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
-scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
-scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='10')
-# scheduler.add_job(func=OutBid.auction_out_bid, trigger='cron', hour='*', minute='*/3', second='*')
-# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*/5', second='*')
-# scheduler.add_job(func=remove_auction, trigger='cron', hour='*/32', minute='*', second='*')
-# scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3', second='*')
+# scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
+# scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/30')
+# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+# scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*/1')
+# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/40')
+#scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
+#scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
+# scheduler.add_job(func=PubNubNotification.auction_pub_nub_notification, trigger='cron', hour='*', minute='*/2')
+#scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
+#scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
 scheduler.start()
     
 # @app.route('/run-crone-job/')

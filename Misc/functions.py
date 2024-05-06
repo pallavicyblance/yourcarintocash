@@ -61,6 +61,22 @@ def sessionidgenerator():
      sessionid = created_at.strftime("%m%d%y%H%M%S")
      return sessionid
 
+def changeStartDateFormat(date):
+    try:
+        start_date = datetime.strptime(date, '%m-%d-%Y').strftime('%Y-%m-%d')
+    except ValueError:
+        start_date = date
+    final_date = start_date + ' 00:00:00'
+    return final_date
+
+def changeEndDateFormat(date):
+    try:
+        end_date = datetime.strptime(date, '%m-%d-%Y').strftime('%Y-%m-%d')
+    except ValueError:
+        end_date = date
+    final_date = end_date + ' 23:59:59'
+    return final_date
+
 # code added by pallavi
 def acv_user():
 

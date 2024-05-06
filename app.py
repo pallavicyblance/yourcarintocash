@@ -392,6 +392,7 @@ def dashboard():
         if request.method == 'POST':
             start_date = request.form['start_date']
             end_date = request.form['end_date']
+            
             dashboard_count = setting.getCount(start_date,end_date)
             return jsonify(dashboard_count)
         else:
@@ -400,8 +401,12 @@ def dashboard():
             last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
             start_date = first_day_of_month.strftime("%Y-%m-%d")
             end_date = last_day_of_month.strftime("%Y-%m-%d")
-            dashboard_count = setting.getCount(start_date,end_date)
-            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = start_date, end_date = end_date)
+
+            usa_format_start_date = first_day_of_month.strftime("%m-%d-%Y")
+            usa_format_end_date = last_day_of_month.strftime("%m-%d-%Y")
+
+            dashboard_count = setting.getCount(usa_format_start_date,usa_format_end_date)
+            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = usa_format_start_date, end_date = usa_format_end_date)
 
 @app.route('/auction-new-user-bid/', methods = ['POST', 'GET'])
 def acvnewuserbid():
@@ -1086,10 +1091,14 @@ def inquirylist():
 
         end_date = current_date.strftime("%Y-%m-%d")
         start_date = date_60_days_ago.strftime("%Y-%m-%d")
+
+        usa_format_start_date = date_60_days_ago.strftime("%m-%d-%Y")
+        usa_format_end_date = current_date.strftime("%m-%d-%Y")
+
         if param1:
-            return render_template('inquiry-dispatch.html',role=role, start_date = start_date, end_date = end_date )
+            return render_template('inquiry-dispatch.html',role=role, start_date = usa_format_start_date, end_date = usa_format_end_date )
         else :
-            return render_template('inquiry-new.html',  role=role ,  start_date = start_date, end_date = end_date)
+            return render_template('inquiry-new.html',  role=role ,  start_date = usa_format_start_date, end_date = usa_format_end_date)
 
 # inquiry data fetch with datatable route for inquiry
 @app.route('/get-inquiry-data', methods = ['POST', 'GET'])
@@ -1265,9 +1274,9 @@ def getDispatchData():
                             
             if data[6] == 'accept':
                 if data[12] == 'yes':
-                    btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
+                    btn += '<br><span class="dispatch-btn2">Dispatched to Copart</span>'
                 else:
-                    btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
+                    btn += '<br><span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
             tracked_form = ""
             
@@ -1814,12 +1823,15 @@ def declinelist():
         end_date = current_date.strftime("%Y-%m-%d")
         start_date = date_60_days_ago.strftime("%Y-%m-%d")
 
+        usa_format_start_date = date_60_days_ago.strftime("%m-%d-%Y")
+        usa_format_end_date = current_date.strftime("%m-%d-%Y")
+
         # today = date.today()
         # first_day_of_month = today.replace(day=1)
         # last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
         # start_date = first_day_of_month.strftime("%Y-%m-%d")
         # end_date = last_day_of_month.strftime("%Y-%m-%d")
-        return render_template('decline-inquiry.html', role=role, start_date= start_date, end_date= end_date)
+        return render_template('decline-inquiry.html', role=role, start_date= usa_format_start_date, end_date= usa_format_end_date)
 
 @app.route('/get-decline-data' , methods = ['POST'])
 def get_decline_data():

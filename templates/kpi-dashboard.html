@@ -276,7 +276,7 @@
 		onSelect: function(dateText) {
           $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
         },
-		format: 'yyyy-mm-dd', 
+		format: 'mm-dd-yyyy', 
 		defaultDate: new Date(), 
 	});
 	$('#end_date_value').datepicker({
@@ -284,7 +284,7 @@
 		onSelect: function(dateText) {
           $(this).datepicker('hide'); // Manually hide the datepicker after selecting a date
         },
-		format: 'yyyy-mm-dd', 
+		format: 'mm-dd-yyyy', 
 		defaultDate: new Date(), 
 	});
 
@@ -426,7 +426,8 @@
 		var year = date.getFullYear();
 		var month = (date.getMonth() + 1).toString().padStart(2, '0'); 
 		var day = date.getDate().toString().padStart(2, '0');
-		return year + '-' + month + '-' + day;
+		return month + '-' + day + '-' + year;
+		// return year + '-' + month + '-' + day;
 	}
 
 	jQuery(function () {

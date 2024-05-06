@@ -7,6 +7,7 @@ import datetime
 import traceback
 import json
 from datetime import date
+from Misc.functions import *
 import http.client
 
 import requests
@@ -72,6 +73,9 @@ class Acceptedaps:
         else:
             column = 'created_at'
 
+        start_date = changeStartDateFormat(start_date)
+        end_date = changeEndDateFormat(end_date)
+
         try:
             if id == None:  
                 if param:
@@ -129,6 +133,10 @@ class Acceptedaps:
                 status = 'today'
             elif param=='userfrom': 
                 status = 'userfrom'
+        
+        start_date = changeStartDateFormat(start_date)
+        end_date = changeEndDateFormat(end_date)
+
         try:
             if id == None:  
                 if param:
@@ -197,9 +205,13 @@ class Acceptedaps:
                     aaa = 'https://l.facebook.com/'	
                 else:
                     aaa = data['ref_id']
+
+                print('0000')
+                print("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s, %s, %s, %s, %s, %s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,))
                     
                 cursor.execute("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s,  %s, %s,%s,%s,%s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,))
                 con.commit()
+                print('1111')
                 inquiry_id = int(cursor.lastrowid)
                 #offer_id  = "YCIC" + str(inquiry_id)
                 offer_id  = "YC" + str(inquiry_id).zfill(4)
@@ -501,6 +513,9 @@ class Acceptedaps:
                 column = 'status_update'
             else:
                 column = 'created_at'
+
+            start_date = changeStartDateFormat(start_date)
+            end_date = changeEndDateFormat(end_date)
             
             cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s".format(column, order), ('Decline', start_date, end_date, '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', int(length), int(start)))
             return cursor.fetchall()
@@ -515,6 +530,8 @@ class Acceptedaps:
         con = Acceptedaps.connect(self)
         cursor = con.cursor()
         try:
+            start_date = changeStartDateFormat(start_date)
+            end_date = changeEndDateFormat(end_date)
             cursor.execute("SELECT count(*) FROM `accepted_aps` WHERE status = %s AND created_at BETWEEN %s AND %s", ('Decline',start_date, end_date))
             return cursor.fetchall()[0][0]
         except:

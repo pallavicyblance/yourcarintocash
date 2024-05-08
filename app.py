@@ -1297,12 +1297,9 @@ def getDispatchData():
         
         return jsonify(response)
 @app.route('/inquiry-fetch/<int:id>/')
-
 def inquiryFetch(id):
-
-
-
-    data = acceptedaps.read(id,'','');
+    
+    data = acceptedaps.readnew(id)
     state = commonarray.getstate()
     back = request.args.get('back')
     state_n = ''

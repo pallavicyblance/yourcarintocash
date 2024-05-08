@@ -104,6 +104,17 @@ class Acceptedaps:
         finally:
             con.close() 
 
+    def readnew(self, id):
+        con = Acceptedaps.connect(self)
+        cursor = con.cursor()
+        try:
+            cursor.execute("SELECT * FROM accepted_aps where id = %s ", (id,))
+            return cursor.fetchall()
+        except:
+            return ()
+        finally:
+            con.close()
+              
     def total_record(self, id,param,param1,start_date, end_date):
         # Returns the total number of records based on the given parameters.
         # Args:

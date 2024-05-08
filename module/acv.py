@@ -61,26 +61,68 @@ class ACV:
         cursor = con.cursor()
         try:     
             body_damage = ""
-            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
+            # major, moderate, minor body damage are false
+            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'No, my vehicle is in good shape!'
+
+            # major body damage is true and moderate body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0:
                 body_damage = 'FR,RR,SD,TP'
-
-            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
-                body_damage = 'FR,RR'
             
+            # moderate body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR'
+            
+            # major body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #major body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #moderate body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
+                body_damage = 'FR'
+            
+            #minor body damage is true
             elif data['conditionReport']['sections'][0]['questions'][0]['selected'] == 1:
-                body_damage = 'SD'
-
+                body_damage = 'No, my vehicle is in good shape!'
+                
             airbag_value = 'N'
             if data['conditionReport']['sections'][5]['questions'][13]['selected'] == 1:
                 airbag_value = 'Y'
 
-            if (data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0 or  data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0):
-                start_and_drive = 'D'
+            start_and_drive = ''
+            # if engine_does_not_start is false and engine_does_not_crank is false
+            if data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                # engine_does_not_stay_running is true or vehicle inoperable is true
+                if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is true or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    start_and_drive = 'S'
 
-            elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0:
-                start_and_drive = 'S'
+                # engine_does_not_stay_running is false or vehicle inoperable is true
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is false or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 and data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                        start_and_drive = 'D'
+
+            # if engine_does_not_start is true or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
+                start_and_drive = 'N'
             
-            elif (data['conditionReport']['sections'][3]['questions']['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1):
+            # if engine_does_not_start is true or engine_does_not_crank is false
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                start_and_drive = 'N'
+            
+            # if engine_does_not_start is false or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
                 start_and_drive = 'N'
 
             trasmission_issue = "No my vehicle is in good shape!"
@@ -107,26 +149,25 @@ class ACV:
                 trasmission_issue = 'Yes major frame issues'
             
             title_type = ""
-            if data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1):
-                title_type = 'Unknowne,Salvage Rebuilt'
+            # if sold on bill sale is true
+            if data['conditionReport']['sections'][7]['questions'][10]['selected'] == 1:
+                title_type = "Unknown"
+            else:
+                # if branded title is true
+                if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
+                    title_type = 'Salvage Rebuilt'
+                else:
+                    # hail damage is true
+                    if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
+                        title_type = 'Salvage Rebuilt'
+                    else:
+                        title_type = 'Clean Title'
 
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1):
-                title_type = 'clean title,Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
-                title_type = 'Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1:
-                title_type = 'Unknown'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0:
-                title_type = 'clean title'
-
+            print('title_type',title_type)
             fire_water_damage = 'no'
             if data['conditionReport']['sections'][7]['questions'][3]['selected'] == 1:
                 fire_water_damage = 'W'
             
-
             lights = []
             if data['blueLight'] == 1:
                 lights.append('blue')
@@ -933,26 +974,68 @@ class ACV:
         try:     
 
             body_damage = ""
-            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
-                body_damage = 'FR,RR,SD,TP'
+            # major, moderate, minor body damage are false
+            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'No, my vehicle is in good shape!'
 
-            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
-                body_damage = 'FR,RR'
+            # major body damage is true and moderate body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0:
+                body_damage = 'FR,RR,SD,TP'
             
+            # moderate body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR'
+            
+            # major body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #major body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #moderate body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
+                body_damage = 'FR'
+            
+            #minor body damage is true
             elif data['conditionReport']['sections'][0]['questions'][0]['selected'] == 1:
-                body_damage = 'SD'
+                body_damage = 'No, my vehicle is in good shape!'
 
             airbag_value = 'N'
             if data['conditionReport']['sections'][5]['questions'][13]['selected'] == 1:
                 airbag_value = 'Y'
 
-            if (data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0 or  data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0):
-                start_and_drive = 'D'
+            start_and_drive = ''
+            # if engine_does_not_start is false and engine_does_not_crank is false
+            if data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                # engine_does_not_stay_running is true or vehicle inoperable is true
+                if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is true or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    start_and_drive = 'S'
 
-            elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0:
-                start_and_drive = 'S'
+                # engine_does_not_stay_running is false or vehicle inoperable is true
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is false or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 and data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                        start_and_drive = 'D'
+
+            # if engine_does_not_start is true or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
+                start_and_drive = 'N'
             
-            elif (data['conditionReport']['sections'][3]['questions']['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1):
+            # if engine_does_not_start is true or engine_does_not_crank is false
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                start_and_drive = 'N'
+            
+            # if engine_does_not_start is false or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
                 start_and_drive = 'N'
 
             trasmission_issue = "No my vehicle is in good shape!"
@@ -979,20 +1062,19 @@ class ACV:
                 trasmission_issue = 'Yes major frame issues'
             
             title_type = ""
-            if data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1):
-                title_type = 'clean title,Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1):
-                title_type = 'Unknown,Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
-                title_type = 'Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1:
-                title_type = 'clean title'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0:
-                title_type = 'Unknown'
+            # if sold on bill sale is true
+            if data['conditionReport']['sections'][7]['questions'][10]['selected'] == 1:
+                title_type = "Unknown"
+            else:
+                # if branded title is true
+                if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
+                    title_type = 'Salvage Rebuilt'
+                else:
+                    # hail damage is true
+                    if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
+                        title_type = 'Salvage Rebuilt'
+                    else:
+                        title_type = 'Clean Title'
             
             fire_water_damage = 'no'
             if data['conditionReport']['sections'][7]['questions'][3]['selected'] == 1:
@@ -2287,28 +2369,71 @@ class ACV:
     def liveinsertauctiondata(self, data):
         con = ACV.connect(self)
         cursor = con.cursor()
-        try:     
-            body_damage = ""
-            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
-                body_damage = 'FR,RR,SD,TP'
+        try:   
 
-            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
-                body_damage = 'FR,RR'
+            body_damage = ""
+            # major, moderate, minor body damage are false
+            if data['conditionReport']['sections'][0]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'No, my vehicle is in good shape!'
+
+            # major body damage is true and moderate body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][1]['selected'] == 0:
+                body_damage = 'FR,RR,SD,TP'
             
+            # moderate body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR'
+            
+            # major body damage is true and minor body damage is false
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1 and data['conditionReport']['sections'][0]['questions'][0]['selected'] == 0:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #major body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][2]['selected'] == 1:
+                body_damage = 'FR,RR,SD,TP'
+            
+            #moderate body damage is true
+            elif data['conditionReport']['sections'][0]['questions'][1]['selected'] == 1:
+                body_damage = 'FR'
+            
+            #minor body damage is true
             elif data['conditionReport']['sections'][0]['questions'][0]['selected'] == 1:
-                body_damage = 'SD'
+                body_damage = 'No, my vehicle is in good shape!'
 
             airbag_value = 'N'
             if data['conditionReport']['sections'][5]['questions'][13]['selected'] == 1:
                 airbag_value = 'Y'
 
-            if (data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0 or  data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0):
-                start_and_drive = 'D'
+            start_and_drive = ''
+            # if engine_does_not_start is false and engine_does_not_crank is false
+            if data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 and data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                # engine_does_not_stay_running is true or vehicle inoperable is true
+                if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is true or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    start_and_drive = 'S'
 
-            elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0:
-                start_and_drive = 'S'
+                # engine_does_not_stay_running is false or vehicle inoperable is true
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
+                    start_and_drive = 'S'
+                
+                # engine_does_not_stay_running is false or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 and data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                        start_and_drive = 'D'
+
+            # if engine_does_not_start is true or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
+                start_and_drive = 'N'
             
-            elif (data['conditionReport']['sections'][3]['questions']['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1):
+            # if engine_does_not_start is true or engine_does_not_crank is false
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 0:
+                start_and_drive = 'N'
+            
+            # if engine_does_not_start is false or engine_does_not_crank is true
+            elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 0 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
                 start_and_drive = 'N'
 
             trasmission_issue = "No my vehicle is in good shape!"
@@ -2334,25 +2459,23 @@ class ACV:
 
             elif (data['conditionReport']['sections'][1]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][1]['questions'][0]['selected'] == 1):
                 trasmission_issue = 'Yes major frame issues'
-                       
-            
+
+
             title_type = ""
-           
-            if data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][11]['selected'] == 1):
-                title_type = 'Unknowne,Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0 and (data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][11]['selected'] == 1):
-                title_type = 'clean title,Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1 or data['conditionReport']['sections'][0]['questions'][11]['selected'] == 1:
-                title_type = 'Salvage Rebuilt'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 1:
-                title_type = 'Unknown'
-
-            elif data['conditionReport']['sections'][7]['questions'][0]['selected'] == 0:
-                title_type = 'clean title'
-
+            # if sold on bill sale is true
+            if data['conditionReport']['sections'][7]['questions'][9]['selected'] == 1:
+                title_type = "Unknown"
+            else:
+                # if branded title is true
+                if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
+                    title_type = 'Salvage Rebuilt'
+                else:
+                    # hail damage is true
+                    if data['conditionReport']['sections'][0]['questions'][11]['selected'] == 1:
+                        title_type = 'Salvage Rebuilt'
+                    else:
+                        title_type = 'Clean Title'      
+            
             fire_water_damage = 'no'
             if data['conditionReport']['sections'][7]['questions'][3]['selected'] == 1:
                 fire_water_damage = 'W'

@@ -207,17 +207,13 @@ class Acceptedaps:
         cursor1 = con1.cursor()
 
         try:            
-           
             if data['record_id'] == '':
-                
                 if data['ref_id'] == 'https://yourcarintocash.com/':
                     aaa = ''
                 elif data['ref_id'] == 'http://m.facebook.com':    
                     aaa = 'https://l.facebook.com/'	
                 else:
                     aaa = data['ref_id']
-
-                print('0000')
                 print("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s, %s, %s, %s, %s, %s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,))
                     
                 cursor.execute("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s,  %s, %s,%s,%s,%s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,))
@@ -230,6 +226,7 @@ class Acceptedaps:
                 con1.commit()
                 return inquiry_id
             else:
+                print('else')
                 id = data['record_id']
                 mileage1 = data['mileage'] + ',000'
                 if data['currenttab']=='17':

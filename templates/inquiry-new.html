@@ -1,107 +1,107 @@
 {% include "header.html" %}
 <style>
-	.dt-word-break {
-		word-break: break-word;
-	}
-	.align-center {
+.dt-word-break {
+    word-break: break-word;
+}
+.align-center {
     	text-align: center;
 	}
-	input[type=checkbox] {
-		border-color: #ccc;
-		outline: none!important;
-		box-shadow: none!important;
-		border-radius: 0.25em;
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		border:1px solid #ccc;
-		width:15px;
-		height:15px;
-		background-color:#fff;
-		background-repeat: no-repeat;
-		background-position: center;
-		background-size: contain;
-		cursor:pointer;
-		margin: 0;
-	}
-	input:checked[type=checkbox] {
-		background-color: #2ab573;
-		border-color: #2ab573;
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
-	}
-	.server_side_table .form-control{
-		height: 36px;
-	}
-	div.dataTables_processing {
-		/*position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 200px;
-		margin-left: -100px;
-		margin-top: -22px;
-		text-align: center;
-		padding: 2px;
-		z-index: 10;*/
-		position: fixed;
-		height: auto;
-	}
-	div.dataTables_processing > div:last-child {
-	  position: relative;
-	  width: 80px;
-	  height: 15px;
-	  margin: 0em auto;
-	}
-	div.dataTables_processing > div:last-child > div {
-	  position: absolute;
-	  top: 0;
-	  width: 13px;
-	  height: 13px;
-	  border-radius: 50%;
-	  background: rgb(42 181 115);
-	  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-	}
-	div.dataTables_processing > div:last-child > div:nth-child(1) {
-	  left: 8px;
-	  animation: datatables-loader-1 0.6s infinite;
-	}
-	div.dataTables_processing > div:last-child > div:nth-child(2) {
-	  left: 8px;
-	  animation: datatables-loader-2 0.6s infinite;
-	}
-	div.dataTables_processing > div:last-child > div:nth-child(3) {
-	  left: 32px;
-	  animation: datatables-loader-2 0.6s infinite;
-	}
-	div.dataTables_processing > div:last-child > div:nth-child(4) {
-	  left: 56px;
-	  animation: datatables-loader-3 0.6s infinite;
-	}
-	
-	@keyframes datatables-loader-1 {
-	  0% {
-		transform: scale(0);
-	  }
-	  100% {
-		transform: scale(1);
-	  }
-	}
-	@keyframes datatables-loader-3 {
-	  0% {
-		transform: scale(1);
-	  }
-	  100% {
-		transform: scale(0);
-	  }
-	}
-	@keyframes datatables-loader-2 {
-	  0% {
-		transform: translate(0, 0);
-	  }
-	  100% {
-		transform: translate(24px, 0);
-	  }
-	}
-	</style>
+input[type=checkbox] {
+    border-color: #ccc;
+    outline: none!important;
+    box-shadow: none!important;
+    border-radius: 0.25em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border:1px solid #ccc;
+    width:15px;
+    height:15px;
+    background-color:#fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    cursor:pointer;
+    margin: 0;
+}
+input:checked[type=checkbox] {
+    background-color: #2ab573;
+    border-color: #2ab573;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+.server_side_table .form-control{
+    height: 36px;
+}
+div.dataTables_processing {
+    /*position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    margin-left: -100px;
+    margin-top: -22px;
+    text-align: center;
+    padding: 2px;
+    z-index: 10;*/
+    position: fixed;
+    height: auto;
+}
+div.dataTables_processing > div:last-child {
+  position: relative;
+  width: 80px;
+  height: 15px;
+  margin: 0em auto;
+}
+div.dataTables_processing > div:last-child > div {
+  position: absolute;
+  top: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgb(42 181 115);
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+div.dataTables_processing > div:last-child > div:nth-child(1) {
+  left: 8px;
+  animation: datatables-loader-1 0.6s infinite;
+}
+div.dataTables_processing > div:last-child > div:nth-child(2) {
+  left: 8px;
+  animation: datatables-loader-2 0.6s infinite;
+}
+div.dataTables_processing > div:last-child > div:nth-child(3) {
+  left: 32px;
+  animation: datatables-loader-2 0.6s infinite;
+}
+div.dataTables_processing > div:last-child > div:nth-child(4) {
+  left: 56px;
+  animation: datatables-loader-3 0.6s infinite;
+}
+
+@keyframes datatables-loader-1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes datatables-loader-3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes datatables-loader-2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+</style>
 
 <div class="content-wrapper">
 	  <div class="container_full">
@@ -117,56 +117,59 @@
 			<li class="active"><a  href="{{ url_for('inquirylist') }}">Inquiry List</a></li>
 			<li><a  href="{{ url_for('declinelist') }}" >Declined Offer</a></li>
 		  </ul>
-		  <div class="form-border dashboard-form-flex">						
-            <div class="form-group w-48">
-				<label for="start_date">Start Date</label>
-				<input name="start_date" value="{{ start_date }}" id="start_date_value" type="text" class="form-control input-lg" autocomplete="off">
-			</div>
-            <div class="form-group w-48">
-                <label>End Date</label>
-                <input name="end_date" value="{{ end_date }}" id="end_date_value" type="text" class="form-control input-lg" autocomplete="off">
-            </div>
-			<div class="form-group w-48">
-				<input type="hidden" id="status" value="">
-				<select id="statusSelect" class="form-select form-control btn-lg">
-					
-					<option value="">Select Status</option>
-					<option value="accept">Offer Accepted</option>
-					<option value="notaccepted" >Offer Given</option>
-					<option value="pending" >Pending pick up</option>
-					<option value="atauction" >At auction</option>
-					<option value="canceled" >Canceled </option>
-				</select>
-			</div>
-            <div class="form-group w-48">
-                <input type="submit" class="btn btn-lg btn-primary" value="Filter" onclick="getFilterdData()">
-				<input type="submit" class="btn btn-lg btn-primary" value="Reset" onclick="getResetData()">
-            </div>
-        </div>
+      <div class="form-border dashboard-form-flex">           
+          <div class="form-group w-48">
+            <label for="start_date">Start Date</label>
+            <input name="start_date" value="{{ start_date }}" id="start_date_value" type="text" class="form-control input-lg" autocomplete="off">
+          </div>
+          <div class="form-group w-48">
+              <label>End Date</label>
+              <input name="end_date" value="{{ end_date }}" id="end_date_value" type="text" class="form-control input-lg" autocomplete="off">
+          </div>
+          <div class="form-group w-48">
+              <input type="hidden" id="status" value="">
+              <select id="statusSelect" class="form-select form-control btn-lg">
+                <option value="">Select Status</option>
+                <option value="accept">Offer Accepted</option>
+                <option value="notaccepted" >Offer Given</option>
+                <option value="pending" >Pending pick up</option>
+                <option value="atauction" >At auction</option>
+                <option value="canceled" >Canceled </option>
+              </select>
+          </div>
+          <div class="form-group w-48">
+              <input type="submit" class="btn btn-lg btn-primary" value="Filter" onclick="getFilterdData()">
+              <input type="submit" class="btn btn-lg btn-primary" value="Reset" onclick="getResetData()">
+          </div>
+      </div>
+		  
 		  <section class="content">
 		  	
 		  	<div class="alert alert-error" role="alert" id="inquiry_msg_error" style="display:none;"></div>
 
 			  <div class="box brnone">
 				  <div class="box-body pt-0">
+                      
 				      <div class="tab-content">
-					    <div id="tab1" class="tab-pane fade in active">
-							<table id="inquiryData" class="table table-bordered table-striped" width="100%">
+					    <div id="tab1" class="tab-pane fade in active server_side_table">
+							<table id="inquiryData" class="table table-bordered table-striped ">
 								<thead align="center">
 									<tr>
-										{% if role == (('Super Admin',),) %}
-											<th width="5px">
-												<input type="checkbox" name="allArrSelect" id="allArrSelect" onchange="selectAllChk()">
-											</th>
-										{% endif %}
-										<th width="10%">Car</th>
-										<th width="10%">Offer ID</th>
-										<th width="12%">User's Geolocation</th>
-										<th width="18%"> User Tracked From </th>
-										<th>Price</th>
-										<th>Offer</th>
-										<th>Created Date</th>
-										<th class="nosort" width="15%" >Action</th>
+										<tr>
+											{% if role == (('Super Admin',),) %}
+												<th width="5px">
+													<input type="checkbox" name="allArrSelect" id="allArrSelect" onchange="selectAllChk()">
+												</th>
+											{% endif %}
+											<th width="10%">Car</th>
+											<th width="10%">Offer ID</th>
+											<th width="12%">User's Geolocation</th>
+											<th width="18%"> User Tracked From </th>
+											<th>Price</th>
+											<th>Offer</th>
+											<th>Created Date</th>
+											<th class="nosort" width="15%" >Action</th>
+										</tr>
 									</tr>
 								</thead>
 								<tbody>
@@ -180,14 +183,11 @@
 	  </div>
 </div>
 </div>
+{% include "footer.html" %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script>
-	
-</script>
-<script>
-
-	function deleteInquiry(ids1){
-
-
+  function deleteInquiry(ids1){
 		var result = confirm("Are sure want to delete this inquiry?");
 		if (result) {
 
@@ -215,166 +215,157 @@
 			});
 		}
 	}
-	function inquiryDelete(){
+  function inquiryDelete(){
 
-		var result = confirm("Are sure want to delete this inquiry?");
-		if (result) {
-			var inquiry = $('input[class="selectChk"]:checked').length;
+  var result = confirm("Are sure want to delete this inquiry?");
+  if (result) {
+    var inquiry = $('input[class="selectChk"]:checked').length;
 
-			if(inquiry==0){
-				$('#inquiry_msg_error').text('Please select atleast one inquiry');
-				$('#inquiry_msg_error').show();
-				setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
-			}else{
-				var a = '';
-				$("input:checkbox[class='selectChk']:checked").each(function(){
-					a = a + $(this).val() + ',';
-				});
-				var b =  a.slice(0, -1);
+    if(inquiry==0){
+      $('#inquiry_msg_error').text('Please select atleast one inquiry');
+      $('#inquiry_msg_error').show();
+      setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
+    }else{
+      var a = '';
+      $("input:checkbox[class='selectChk']:checked").each(function(){
+        a = a + $(this).val() + ',';
+      });
+      var b =  a.slice(0, -1);
 
-				$.ajax({
-					url: WS_PATH+'all-delete-inquiry',
-					data: {id:b},
-					type: 'POST',
-					success: function(response){
+      $.ajax({
+        url: WS_PATH+'all-delete-inquiry',
+        data: {id:b},
+        type: 'POST',
+        success: function(response){
 
-						var data = JSON.parse(response);
-						var data1 = data.model;
-						if(data1){
-							console.log('fffffffffffff',data1);
-							$('#inquiry_msg').show();
-							$( "#inquiry_msg" ).html('Inquiry deleted successfully!');
+          var data = JSON.parse(response);
+          var data1 = data.model;
+          if(data1){
+            console.log('fffffffffffff',data1);
+            $('#inquiry_msg').show();
+            $( "#inquiry_msg" ).html('Inquiry deleted successfully!');
 
-							setTimeout(function(){ window.location.reload(); }, 2000);
+            setTimeout(function(){ window.location.reload(); }, 2000);
 
 
-						}
-					},
-					error: function(error){
-						console.log(error);
-					}
-				});
-			}
-		}
-	}
-	function selectAllChk(){
+          }
+        },
+        error: function(error){
+          console.log(error);
+        }
+      });
+    }
+  }
+}
+function selectAllChk(){
+  if($('#allArrSelect').is(':checked')){
+    $('.selectChk').prop('checked', true);
+  }else{
+    $('.selectChk').prop('checked', false);
+  }
+}
+function singleSelect(){
+  var total =  $('input[class="selectChk"]').length;
+  var selectedTotal =  $('input[class="selectChk"]:checked').length;
 
-		if($('#allArrSelect').is(':checked')){
-			$('.selectChk').prop('checked', true);
-		}else{
-			$('.selectChk').prop('checked', false);
-		}
-	}
-	function singleSelect(){
+  if(total==selectedTotal){
+    $('#allArrSelect').prop('checked', true);
+  }else{
+    $('#allArrSelect').prop('checked', false);
+  }
+}
+function selectAllChk1() {
+  if ($('#allArrSelect1').is(':checked')) {
+    $('.selectChk1').prop('checked', true);
+  } else {
+    $('.selectChk1').prop('checked', false);
+  }
+}
 
-		var total =  $('input[class="selectChk"]').length;
-		var selectedTotal =  $('input[class="selectChk"]:checked').length;
+function inquiryDelete1() {
+  var result = confirm("Are sure want to delete this inquiry?");
+  if (result) {
+    var inquiry1 = $('input[class="selectChk1"]:checked').length;
 
-		if(total==selectedTotal){
-			$('#allArrSelect').prop('checked', true);
-		}else{
-			$('#allArrSelect').prop('checked', false);
-		}
-	}
-	function selectAllChk1() {
-		if ($('#allArrSelect1').is(':checked')) {
-			$('.selectChk1').prop('checked', true);
-		} else {
-			$('.selectChk1').prop('checked', false);
-		}
-	}
-	function inquiryDelete1() {
-		var result = confirm("Are sure want to delete this inquiry?");
-		if (result) {
-			var inquiry1 = $('input[class="selectChk1"]:checked').length;
+    if (inquiry1 == 0) {
+      $('#inquiry_msg_error').text('Please select atleast one inquiry');
+      $('#inquiry_msg_error').show();
 
-			if (inquiry1 == 0) {
-				$('#inquiry_msg_error').text('Please select atleast one inquiry');
-				$('#inquiry_msg_error').show();
+      setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
+    } else {
+      var a = '';
+      $("input:checkbox[class='selectChk1']:checked").each(function () {
+        a = a + $(this).val() + ',';
+      });
+      var b = a.slice(0, -1);
 
-				setTimeout(function(){ $('#inquiry_msg_error').hide() }, 2000);
-			} else {
-				var a = '';
-				$("input:checkbox[class='selectChk1']:checked").each(function () {
-					a = a + $(this).val() + ',';
-				});
-				var b = a.slice(0, -1);
+      $.ajax({
+        url: WS_PATH + 'all-delete-inquiry',
+        data: { id: b },
+        type: 'POST',
+        success: function (response) {
 
-				$.ajax({
-					url: WS_PATH + 'all-delete-inquiry',
-					data: { id: b },
-					type: 'POST',
-					success: function (response) {
+          var data = JSON.parse(response);
+          var data1 = data.model;
+          if (data1) {
+            console.log('fffffffffffff', data1);
+            $('#inquiry_msg').show();
+            $("#inquiry_msg").html('Inquiry deleted successfully!');
 
-						var data = JSON.parse(response);
-						var data1 = data.model;
-						if (data1) {
-							console.log('fffffffffffff', data1);
-							$('#inquiry_msg').show();
-							$("#inquiry_msg").html('Inquiry deleted successfully!');
+            setTimeout(function () { window.location.reload(); }, 2000);
+          }
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+    }
+  }
+}
+function decline_show(id) {
+  // alert(id)
+  $("#exampleModal").modal('show')
+  $.ajax({
+    type: "Get",
+    url: WS_PATH + "decline-offer-data/" + id,
+    // data: "data",
+    // dataType: "dataType",
+    success: function (response) {
+      $("#d_name").text(response[0][46])
+      $("#d_email").text(response[0][47])
+      $("#d_phone").text(response[0][48])
+      $("#declined_offer").text(response[0][52])
+      // $("#d_interiorphoto").val(response[0][48])
+      var a = response[0][49]
 
-							setTimeout(function () { window.location.reload(); }, 2000);
-						}
-					},
-					error: function (error) {
-						console.log(error);
-					}
-				});
-			}
-		}
-	}
-	function decline_show(id) {
-			// alert(id)
-			$("#exampleModal").modal('show')
-			$.ajax({
-				type: "Get",
-				url: WS_PATH + "decline-offer-data/" + id,
-				// data: "data",
-				// dataType: "dataType",
-				success: function (response) {
-					$("#d_name").text(response[0][46])
-					$("#d_email").text(response[0][47])
-					$("#d_phone").text(response[0][48])
-					$("#declined_offer").text(response[0][52])
-					// $("#d_interiorphoto").val(response[0][48])
-					var a = response[0][49]
+      console.log('nigam'+a);
 
-					console.log('nigam'+a);
+      if(a!=null && a!='' && a!='null'){
+        var myArray = a.split(",");
+        console.log(myArray)
+        let text = "";
+        for (let i = 0; i<myArray.length; i++) {
+          if(myArray[i]!='' && myArray[i]!=null){
+            text += '<img class="img-preview" src="static/images/'+myArray[i]+'"  width="100px"/>';
+            document.getElementById("d_interiorphoto").innerHTML = text;
+          }
+        }
+      }
+      if(response[0][50]!='' && response[0][50]!=null){
+        $('#d_vinphoto').html('<img class="img-preview" src="static/images/' + response[0][50] + '"  width="100px"/>');
+      }
 
-					if(a!=null && a!='' && a!='null'){
-						var myArray = a.split(",");
-						console.log(myArray)
-						let text = "";
-						for (let i = 0; i<myArray.length; i++) {
-							if(myArray[i]!='' && myArray[i]!=null){
-								text += '<img class="img-preview" src="static/images/'+myArray[i]+'"  width="100px"/>';
-								document.getElementById("d_interiorphoto").innerHTML = text;
-							}
-						}
-					}
-					if(response[0][50]!='' && response[0][50]!=null){
-						$('#d_vinphoto').html('<img class="img-preview" src="static/images/' + response[0][50] + '"  width="100px"/>');
-					}
-
-					// $("#d_mileagephoto").val(response[0][50])
-					if(response[0][51]!='' && response[0][51]!=null){
-						$('#d_mileagephoto').html('<img class="img-preview" src="static/images/' + response[0][51] + '"  width="100px"/>');
-					}
-					if(response[0][53]!='' && response[0][53]!=null){
-						$('#d_interiorphoto1').html('<img class="img-preview" src="static/images/' + response[0][53] + '"  width="100px"/>');
-					}
-				}
-			});
-		}
-
-	
-	
-	
+      // $("#d_mileagephoto").val(response[0][50])
+      if(response[0][51]!='' && response[0][51]!=null){
+        $('#d_mileagephoto').html('<img class="img-preview" src="static/images/' + response[0][51] + '"  width="100px"/>');
+      }
+      if(response[0][53]!='' && response[0][53]!=null){
+        $('#d_interiorphoto1').html('<img class="img-preview" src="static/images/' + response[0][53] + '"  width="100px"/>');
+      }
+    }
+  });
+}
 </script>
-
-{% include "footer.html" %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
 <script>
 	
@@ -478,62 +469,110 @@
 	}
 	
 	function initializeDataTable(start_date, end_date, status) {
-		console.log('start_date', start_date, 'end_date', end_date)
+		var role1 = '{{role_name}}'
 		$('#inquiryData').DataTable().destroy();
-		var dataTable = $('#inquiryData').DataTable({
-        order: [[7, 'desc']],
-        "processing": true,
-        "pageLength": 50, 
-        "language": {
-            "processing": '<div><div></div><div></div><div></div><div></div></div>'
-        },
-        "serverSide": true,
-        "ajax": {
-            "url": WS_PATH + "/get-inquiry-data",
-            "type": "POST",
-            "data": function (d) {
-                d.start_date = start_date;
-                d.end_date = end_date;
-                d.status = status;
-            },
-            "dataSrc": "data"
-        },
-        "columns": [
-            { 
-                "data": "chk",
-                "render": function(data, type, row) {
-                    return data;
-                }
-            },
-            { "data": "car" },
-            { "data": "offerif" },
-            { "data":"location"},
-            { "data": "form" },
-            { "data": "revisedprice" },
-            { "data": "offer" },
-            { "data": "date" },
-            { 
-                "data": "btn",
-                "render": function(data, type, row) {
-                    return data;
-                }
-            },
-        ],
-        "columnDefs": [
-            {
-                "targets": 4, 
-                "className": "dt-word-break" 
-            },
-            { "orderable": false, "targets": [0,1,3,4,8] },
-			{
-				"targets": 8,
-				"className": "align-center"
-			}
-        ],
-        "initComplete": function(settings, json) {
-            $('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" style="margin-left:15px;">');
-        }
-    });
+		if(role1=='Super Admin'){
+			var dataTable = $('#inquiryData').DataTable({
+				order: [[7, 'desc']],
+				"processing": true,
+				"pageLength": 50, 
+				"language": {
+					"processing": '<div><div></div><div></div><div></div><div></div></div>'
+				},
+				"serverSide": true,
+				"ajax": {
+					"url": WS_PATH + "/get-inquiry-data",
+					"type": "POST",
+					"data": function (d) {
+						d.start_date = start_date;
+						d.end_date = end_date;
+						d.status = status;
+					},
+					"dataSrc": "data"
+				},
+				"columns": [
+					{ 
+						"data": "chk",
+						"render": function(data, type, row) {
+							return data;
+						}
+					},
+					{ "data": "car" },
+					{ "data": "offerif" },
+					{ "data":"location"},
+					{ "data": "form" },
+					{ "data": "revisedprice" },
+					{ "data": "offer" },
+					{ "data": "date" },
+					{ 
+						"data": "btn",
+						"render": function(data, type, row) {
+							return data;
+						}
+					},
+				],
+				"columnDefs": [
+					{
+						"targets": 4, 
+						"className": "dt-word-break" 
+					},
+					{ "orderable": false, "targets": [0,1,3,4,8] },
+					{
+						"targets": 8,
+						"className": "align-center"
+					}
+				],
+				"initComplete": function(settings, json) {
+					$('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" style="margin-left:15px;">');
+				}
+			});
+		}else{
+			var dataTable = $('#inquiryData').DataTable({
+				order: [[6, 'desc']],
+				"processing": true,
+				"pageLength": 50, 
+				"language": {
+					"processing": '<div><div></div><div></div><div></div><div></div></div>'
+				},
+				"serverSide": true,
+				"ajax": {
+					"url": WS_PATH + "/get-inquiry-data",
+					"type": "POST",
+					"data": function (d) {
+						d.start_date = start_date;
+						d.end_date = end_date;
+						d.status = status;
+					},
+					"dataSrc": "data"
+				},
+				"columns": [
+					{ "data": "car" },
+					{ "data": "offerif" },
+					{ "data":"location"},
+					{ "data": "form" },
+					{ "data": "revisedprice" },
+					{ "data": "offer" },
+					{ "data": "date" },
+					{ 
+						"data": "btn",
+						"render": function(data, type, row) {
+							return data;
+						}
+					},
+				],
+				"columnDefs": [
+					{
+						"targets": 4, 
+						"className": "dt-word-break" 
+					},
+					{ "orderable": false, "targets": [0,2,3,7] },
+					{
+						"targets": 7,
+						"className": "align-center"
+					}
+				],
+			});
+		}
 	}
 
 	function formatDate(date) {

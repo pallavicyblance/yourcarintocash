@@ -38,19 +38,19 @@
 
         });
         
-        $(function() {
-            $("#dataphone111").DataTable({
-                //order: [[6, 'desc']],
-                order: [[8, 'desc']],
-                'aoColumnDefs': [{
-                    'bSortable': false,
-                    'aTargets': [-1,0] /* 1st one, start by the right */
-                }]
-            });
+        // $(function() {
+        //     $("#dataphone111").DataTable({
+        //         //order: [[6, 'desc']],
+        //         order: [[8, 'desc']],
+        //         'aoColumnDefs': [{
+        //             'bSortable': false,
+        //             'aTargets': [-1,0] /* 1st one, start by the right */
+        //         }]
+        //     });
             
-            $('#dataphone111_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>')
+        //     $('#dataphone111_length').append('<button onclick="inquiryDelete()" class="btn btn-primary" style="margin-left:15px;">Delete</button>')
 
-        });
+        // });
         
         $(function() {
             $('#dataphone').on( 'length.dt', function ( e, settings, len ) {
@@ -72,14 +72,14 @@
                 }]
             });
             
-            $("#dataphone4").DataTable({
-                 order: [[8, 'desc']],
-                'aoColumnDefs': [{
-                    'bSortable': false,
-                    'aTargets': [-1,0]
-                }]
-            });
-            $('#dataphone4_length').append('<button onclick="inquiryDelete1()" class="btn btn-primary" style="margin-left:15px;">Delete</button>');
+            // $("#dataphone4").DataTable({
+            //      order: [[8, 'desc']],
+            //     'aoColumnDefs': [{
+            //         'bSortable': false,
+            //         'aTargets': [-1,0]
+            //     }]
+            // });
+            // $('#dataphone4_length').append('<button onclick="inquiryDelete1()" class="btn btn-primary" style="margin-left:15px;">Delete</button>');
 
 
         });

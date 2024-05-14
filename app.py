@@ -1086,6 +1086,7 @@ def inquirylist():
         param1 = request.args.get('dispatch')
         id = session['admin_logged_id']
         role = admin.role(id)
+        role_name = role[0][0]
         current_date = datetime.now()
         date_60_days_ago = current_date - timedelta(days=60)
 
@@ -1096,9 +1097,9 @@ def inquirylist():
         usa_format_end_date = current_date.strftime("%m-%d-%Y")
 
         if param1:
-            return render_template('inquiry-dispatch.html',role=role, start_date = usa_format_start_date, end_date = usa_format_end_date )
+            return render_template('inquiry-dispatch.html',role=role, role_name = role_name, start_date = usa_format_start_date, end_date = usa_format_end_date )
         else :
-            return render_template('inquiry-new.html',  role=role ,  start_date = usa_format_start_date, end_date = usa_format_end_date)
+            return render_template('inquiry-new.html',  role=role ,  role_name=role_name,start_date = usa_format_start_date, end_date = usa_format_end_date)
 
 # inquiry data fetch with datatable route for inquiry
 @app.route('/get-inquiry-data', methods = ['POST', 'GET'])
@@ -1166,7 +1167,7 @@ def getInquiryData():
 
             created_date = changeUSDateFormat(data[9])
 
-            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
                 btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
                             
@@ -1240,15 +1241,6 @@ def getDispatchData():
 
             location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
 
-            # if data[5] == "NaN":
-            #     originalprice = 'Not Finished'
-            # elif data[5] == None:
-            #     originalprice = 'Not Finished'
-            # elif data[5] != "":
-            #     originalprice = '$' + str(data[5])
-            # else:
-            #     originalprice = '$0.00'
-
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
             elif data[10] == None:
@@ -1268,7 +1260,7 @@ def getDispatchData():
 
             created_date = changeUSDateFormat(data[9])
 
-            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
                 btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
                             
@@ -1813,7 +1805,7 @@ def declinelist():
     else:
         id = session['admin_logged_id']
         role = admin.role(id)
-
+        role_name = role[0][0]
         current_date = datetime.now()
         date_60_days_ago = current_date - timedelta(days=60)
 
@@ -1828,7 +1820,7 @@ def declinelist():
         # last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
         # start_date = first_day_of_month.strftime("%Y-%m-%d")
         # end_date = last_day_of_month.strftime("%Y-%m-%d")
-        return render_template('decline-inquiry.html', role=role, start_date= usa_format_start_date, end_date= usa_format_end_date)
+        return render_template('decline-inquiry.html', role=role, role_name = role_name, start_date= usa_format_start_date, end_date= usa_format_end_date)
 
 @app.route('/get-decline-data' , methods = ['POST'])
 def get_decline_data():
@@ -1889,7 +1881,7 @@ def get_decline_data():
             
             created_date = changeUSDateFormat(data[9])
 
-            btn = '<a class="btn btn-sm btn-primary" href="/dev-carcash/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
+            btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
                 btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
                             

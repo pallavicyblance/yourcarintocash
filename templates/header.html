@@ -76,6 +76,7 @@
                                 </a>
                             </li>
 
+                            {% if role == (('Super Admin',),) %}
                             <li class="{% if request.path == url_for('conditionfilter') %} active {% endif %}">
                                 <a href="{{ url_for('conditionfilter') }}"><b>Conditional Filter</b>
                                 </a>
@@ -84,6 +85,7 @@
                             <li class="{% if request.path == url_for('discountmanagement') %} active {% endif %}">
                                 <a href="{{ url_for('discountmanagement') }}"><b>Price Management</b></a>
                             </li>
+                            {% endif %}
                             <!--<li class="">-->
                             <!--    <a href="{{ url_for('add_admin') }}"><b>Manage Admin</b></a>-->
                             <!--</li>-->

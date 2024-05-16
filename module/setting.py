@@ -2,6 +2,7 @@ import pymysql
 
 from datetime import date, timedelta
 import datetime
+from Misc.functions import *
 import traceback
 class Setting:
     def connect(self):
@@ -425,6 +426,9 @@ class Setting:
             con = Setting.connect(self)
             cursor = con.cursor()
             
+            startDate = changeStartDateFormat(startDate)
+            endDate = changeEndDateFormat(endDate)
+
             cursor.execute('SELECT COUNT(id) from accepted_aps where status = "accept" AND created_at BETWEEN %s AND %s',(startDate, endDate))
             accepted_count = cursor.fetchone()[0]
 
@@ -495,22 +499,58 @@ class Setting:
             else:
                 column = 'created_at'
 
+            start_date = changeStartDateFormat(start_date)
+            end_date = changeEndDateFormat(end_date)
+
+            search_terms = search_value.split()
+            search_value = '%' + '%'.join(search_terms) + '%'
+
+            concat_columns = "CONCAT(year, ' ', model, ' ', make_code, ' ')"
+
             if status == 'accept':
-                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "status = 'accept'"
             elif status == 'notaccepted':
-                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where revised_price IS NOT NULL AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "revised_price IS NOT NULL"
             elif status == 'pending':
-                status = 'Pending pick up'
-                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%',  '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "status_update = 'Pending pick up'"
             elif status == 'atauction':
-                status = 'At auction'
-                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "status_update = 'At auction'"
             elif status == 'canceled':
-                status = 'Canceled'
-                cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "status_update = 'Canceled'"
             else:
-                cursor.execute('SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                status_condition = "1"
+
+            query = """
+                SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update
+                FROM accepted_aps
+                WHERE created_at BETWEEN %s AND %s
+                AND ({})
+                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                ORDER BY {} {}
+                LIMIT %s OFFSET %s
+            """.format(status_condition, concat_columns, column, direction)
+
+            cursor.execute(query, (start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+
             inquiry_data = cursor.fetchall()
+
+            
+            # if status == 'accept':
+            #     cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            # elif status == 'notaccepted':
+            #     cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where revised_price IS NOT NULL AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            # elif status == 'pending':
+            #     status = 'Pending pick up'
+            #     cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%',  '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            # elif status == 'atauction':
+            #     status = 'At auction'
+            #     cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction),(status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            # elif status == 'canceled':
+            #     status = 'Canceled'
+            #     cursor.execute('SELECT id,year,model,make_code,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update from accepted_aps where status_update = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (status, start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+            # else:
+                # cursor.execute('SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s'.format(column, direction), (start_date, end_date, '%' + search_value + '%', '%' + concat_columns + '%', '%' + concat_columns + '%', '%' + concat_columns + '%', '%' + search_value + '%', int(length), int(start)))
+            # inquiry_data = cursor.fetchall()
 
             return inquiry_data
 
@@ -520,7 +560,7 @@ class Setting:
             traceback.print_exc()
             return False
         
-    def get_total_records(self, start_date, end_date, status):
+    def get_total_records(self, start_date, end_date, status, search_value):
         # Retrieves the total number of records based on the given start date, end date, and status.
         # Args:
         #     start_date (str): The start date for the records.
@@ -534,28 +574,114 @@ class Setting:
             con = Setting.connect(self)
             cursor = con.cursor()
 
-            query_params = [start_date, end_date]
+            start_date = changeStartDateFormat(start_date)
+            end_date = changeEndDateFormat(end_date)
+
+            search_terms = search_value.split()
+            search_value = '%' + '%'.join(search_terms) + '%'
+
+            concat_columns = "CONCAT(year, ' ', model, ' ', make_code, ' ')"
+
+            query = '''
+                SELECT COUNT(*)
+                FROM accepted_aps
+                WHERE created_at BETWEEN %s AND %s
+                AND (
+                    offer_id LIKE %s OR 
+                    {} LIKE %s OR 
+                    year LIKE %s OR 
+                    make_code LIKE %s OR 
+                    model LIKE %s OR 
+                    revised_price LIKE %s
+                )
+            '''.format(concat_columns)
+
+            query_params = [start_date, end_date, search_value, search_value, search_value,search_value, search_value, search_value]
 
             if status == 'accept':
-                query = 'SELECT COUNT(*) FROM accepted_aps WHERE status = %s  AND created_at BETWEEN %s AND %s'
-                query_params.insert(0, status)
+                query = '''
+                    SELECT COUNT(*)
+                    FROM accepted_aps
+                    WHERE created_at BETWEEN %s AND %s
+                    AND status = %s
+                    AND (
+                        offer_id LIKE %s OR 
+                        {} LIKE %s OR 
+                        year LIKE %s OR 
+                        make_code LIKE %s OR 
+                        model LIKE %s OR 
+                        revised_price LIKE %s
+                    )
+                '''.format(concat_columns)
+                query_params.insert(2, status)
             elif status == 'notaccepted':
-                query = 'SELECT COUNT(*) FROM accepted_aps WHERE revised_price IS NOT NULL AND created_at BETWEEN %s AND %s'
+                query = '''
+                    SELECT COUNT(*)
+                    FROM accepted_aps
+                    WHERE revised_price IS NOT NULL
+                    AND created_at BETWEEN %s AND %s
+                    AND (
+                        offer_id LIKE %s OR 
+                        {} LIKE %s OR 
+                        year LIKE %s OR 
+                        make_code LIKE %s OR 
+                        model LIKE %s OR 
+                        revised_price LIKE %s
+                    )
+                '''.format(concat_columns)
+                query_params = [start_date, end_date, search_value, search_value, search_value,search_value, search_value, search_value]
             elif status in ('pending', 'atauction', 'canceled'):
                 status_text = {
                     'pending': 'Pending pick up',
                     'atauction': 'At auction',
                     'canceled': 'Canceled'
                 }
-                query = 'SELECT COUNT(*) FROM accepted_aps WHERE status_update = %s AND created_at BETWEEN %s AND %s'
-                query_params.insert(0, status_text[status])
-            else:
-                query = 'SELECT COUNT(*) FROM accepted_aps WHERE created_at BETWEEN %s AND %s'
+                query = '''
+                    SELECT COUNT(*)
+                    FROM accepted_aps
+                    WHERE status_update = %s
+                    AND created_at BETWEEN %s AND %s
+                    AND (
+                        offer_id LIKE %s OR 
+                        {} LIKE %s OR 
+                        year LIKE %s OR 
+                        make_code LIKE %s OR 
+                        model LIKE %s OR 
+                        revised_price LIKE %s
+                    )
+                '''.format(concat_columns)
+                query_params = [status_text[status], start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
 
             cursor.execute(query, query_params)
             total_records = cursor.fetchone()[0]
 
             return total_records
+
+            
+
+            # query_params = [start_date, end_date, search_value, search_value, search_value,
+            # search_value, search_value, search_value]
+
+            # if status == 'accept':
+            #     # query = 'SELECT COUNT(*) FROM accepted_aps WHERE status = %s  AND created_at BETWEEN %s AND %s'
+            #     query_params.insert(0, status)
+            # elif status == 'notaccepted':
+            #     query = 'SELECT COUNT(*) FROM accepted_aps WHERE revised_price IS NOT NULL AND created_at BETWEEN %s AND %s'
+            # elif status in ('pending', 'atauction', 'canceled'):
+            #     status_text = {
+            #         'pending': 'Pending pick up',
+            #         'atauction': 'At auction',
+            #         'canceled': 'Canceled'
+            #     }
+            #     query = 'SELECT COUNT(*) FROM accepted_aps WHERE status_update = %s AND created_at BETWEEN %s AND %s'
+            #     query_params.insert(0, status_text[status])
+            # else:
+            #     # query = 'SELECT COUNT(*) FROM accepted_aps WHERE created_at BETWEEN %s AND %s'
+
+            # cursor.execute(query, query_params)
+            # total_records = cursor.fetchone()[0]
+
+            # return total_records
         except Exception as e:
             con.rollback()
             print(f"Error during database operation: {str(e)}")

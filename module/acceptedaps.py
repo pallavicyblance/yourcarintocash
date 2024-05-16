@@ -76,28 +76,137 @@ class Acceptedaps:
         start_date = changeStartDateFormat(start_date)
         end_date = changeEndDateFormat(end_date)
 
+        search_terms = searchData.split()
+        search_value = '%' + '%'.join(search_terms) + '%'
+
+        concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
+
         try:
             if id == None:  
                 if param:
                     if status=='monthly':
-                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                        query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update
+                            FROM accepted_aps
+                            WHERE MONTH(`created_at`) = MONTH(now()) AND YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                        cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                     elif status=='weekly':
-                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                        query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update
+                            FROM accepted_aps
+                            WHERE week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                        cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+
                     elif status=='today':
-                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                        query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update
+                            FROM accepted_aps
+                            WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                        cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                     elif status=='userfrom':
-                        cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+
+                        query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update
+                            FROM accepted_aps
+                            WHERE WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                        cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                     else:
                         if param1:
-                            cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order), (status, start_date , end_date , '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
-
+                            query = """
+                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                                FROM accepted_aps
+                                WHERE status = %s AND created_at BETWEEN %s AND %s
+                                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                                ORDER BY {} {}  
+                                LIMIT %s OFFSET %s
+                            """.format(concat_columns, column, order)
+                            cursor.execute(query, (status, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                         else:
-                            cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                            query = """
+                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                                FROM accepted_aps
+                                WHERE status = %s AND created_at BETWEEN %s AND %s
+                                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                                ORDER BY {} {}  
+                                LIMIT %s OFFSET %s
+                            """.format(concat_columns, column, order)
+                            cursor.execute(query, (status, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                 else:
-                    cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                    query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                            FROM accepted_aps
+                            WHERE created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}  
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                    
+                    cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                    
+                    # cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
             else:
-                cursor.execute(
-                    "SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) LIMIT %s OFFSET %s", (id,start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+                query = """
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                            FROM accepted_aps
+                            WHERE where id = %s AND created_at BETWEEN %s AND %s
+                            AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                            ORDER BY {} {}  
+                            LIMIT %s OFFSET %s
+                        """.format(concat_columns, column, order)
+                    
+                cursor.execute(query, (id, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                
+                # cursor.execute(
+                #     "SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) LIMIT %s OFFSET %s", (id,start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+
+
+            # if id == None:  
+            #     if param:
+            #         if status=='monthly':
+            #             cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            #         elif status=='weekly':
+            #             cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            #         elif status=='today':
+            #             cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            #         elif status=='userfrom':
+            #             cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            #         else:
+            #             if param1:
+            #                 query = """
+            #                     SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+            #                     FROM accepted_aps
+            #                     WHERE status = %s AND created_at BETWEEN %s AND %s
+            #                     AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+            #                     ORDER BY {} {}  
+            #                     LIMIT %s OFFSET %s
+            #                 """.format(concat_columns, column, order)
+            #                 cursor.execute(query, (status, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+                            
+            #                 # cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order), (status, start_date , end_date , '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+
+            #             else:
+            #                 cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            #     else:
+            #         cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
+            # else:
+            #     cursor.execute(
+            #         "SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) LIMIT %s OFFSET %s", (id,start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
             return cursor.fetchall()
         except:
             return ()
@@ -115,7 +224,7 @@ class Acceptedaps:
         finally:
             con.close()
               
-    def total_record(self, id,param,param1,start_date, end_date):
+    def total_record(self, id,param,param1,start_date, end_date, searchData):
         # Returns the total number of records based on the given parameters.
         # Args:
         #     id (int): The ID of the record to retrieve. If None, all records are considered.
@@ -148,27 +257,177 @@ class Acceptedaps:
         start_date = changeStartDateFormat(start_date)
         end_date = changeEndDateFormat(end_date)
 
+        search_terms = searchData.split()
+        search_value = '%' + '%'.join(search_terms) + '%'
+
+        concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
+
         try:
             if id == None:  
                 if param:
                     if status=='monthly':
-                        cursor.execute("SELECT COUNT(*) FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
+                        query = '''
+                            SELECT COUNT(*)
+                            FROM accepted_aps
+                            where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now())
+                            AND created_at BETWEEN %s AND %s
+                            AND (
+                                offer_id LIKE %s OR 
+                                {} LIKE %s OR 
+                                year LIKE %s OR 
+                                make LIKE %s OR 
+                                model LIKE %s OR 
+                                revised_price LIKE %s
+                            ) ORDER BY id ASC
+                        '''.format(concat_columns)
+
+                        query_params = [start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                        cursor.execute(query, query_params)
+                        
+                        # cursor.execute("SELECT COUNT(*) FROM accepted_aps where MONTH(`created_at`) = MONTH(now()) and YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                     elif status=='weekly':
-                        cursor.execute("SELECT COUNT(*) FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
+                        query = '''
+                            SELECT COUNT(*)
+                            FROM accepted_aps
+                            where week(`created_at`) = week(now())
+                            AND created_at BETWEEN %s AND %s
+                            AND (
+                                offer_id LIKE %s OR 
+                                {} LIKE %s OR 
+                                year LIKE %s OR 
+                                make LIKE %s OR 
+                                model LIKE %s OR 
+                                revised_price LIKE %s
+                            ) ORDER BY id ASC
+                        '''.format(concat_columns)
+
+                        query_params = [start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                        cursor.execute(query, query_params)
+                        # cursor.execute("SELECT COUNT(*) FROM accepted_aps where week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                     elif status=='today':
-                        cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s ",(start_date, end_date))
+                        query = '''
+                            SELECT COUNT(*)
+                            FROM accepted_aps
+                            where DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE()
+                            AND created_at BETWEEN %s AND %s
+                            AND (
+                                offer_id LIKE %s OR 
+                                {} LIKE %s OR 
+                                year LIKE %s OR 
+                                make LIKE %s OR 
+                                model LIKE %s OR 
+                                revised_price LIKE %s
+                            ) 
+                        '''.format(concat_columns)
+
+                        query_params = [start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                        cursor.execute(query, query_params)
+                        # cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s ",(start_date, end_date))
                     elif status=='userfrom':
-                        cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s ",(start_date, end_date))
+                        query = '''
+                            SELECT COUNT(*)
+                            FROM accepted_aps
+                            where `ref_id` !=''
+                            AND created_at BETWEEN %s AND %s
+                            AND (
+                                offer_id LIKE %s OR 
+                                {} LIKE %s OR 
+                                year LIKE %s OR 
+                                make LIKE %s OR 
+                                model LIKE %s OR 
+                                revised_price LIKE %s
+                            )
+                        '''.format(concat_columns)
+
+                        query_params = [start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                        cursor.execute(query, query_params)
+                        # cursor.execute("SELECT COUNT(*) FROM accepted_aps WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s ",(start_date, end_date))
                     else:
                         if param1:
-                            cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY dispatched ASC ",(start_date, end_date))
+                            query = '''
+                                SELECT COUNT(*)
+                                FROM accepted_aps
+                                WHERE status = %s
+                                AND created_at BETWEEN %s AND %s
+                                AND (
+                                    offer_id LIKE %s OR 
+                                    {} LIKE %s OR 
+                                    year LIKE %s OR 
+                                    make LIKE %s OR 
+                                    model LIKE %s OR 
+                                    revised_price LIKE %s
+                                ) ORDER BY dispatched ASC
+                            '''.format(concat_columns)
+
+                            query_params = [status, start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                            cursor.execute(query, query_params)
+                            # cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY dispatched ASC ",(start_date, end_date))
                         else:
-                            cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
+                            query = '''
+                                SELECT COUNT(*)
+                                FROM accepted_aps
+                                WHERE status = %s
+                                AND created_at BETWEEN %s AND %s
+                                AND (
+                                    offer_id LIKE %s OR 
+                                    {} LIKE %s OR 
+                                    year LIKE %s OR 
+                                    make LIKE %s OR 
+                                    model LIKE %s OR 
+                                    revised_price LIKE %s
+                                ) ORDER BY id ASC
+                            '''.format(concat_columns)
+
+                            query_params = [status, start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                            cursor.execute(query, query_params)
+
+                            # cursor.execute("SELECT COUNT(*) FROM accepted_aps where status='"+status+"' AND created_at BETWEEN %s AND %s ORDER BY id DESC ",(start_date, end_date))
                 else:
-                    cursor.execute("SELECT COUNT(*) FROM accepted_aps AND created_at BETWEEN %s AND %s ORDER BY id DESC",(start_date, end_date))
+                    query = '''
+                        SELECT COUNT(*)
+                        FROM accepted_aps
+                        WHERE created_at BETWEEN %s AND %s
+                        AND (
+                            offer_id LIKE %s OR 
+                            {} LIKE %s OR 
+                            year LIKE %s OR 
+                            make LIKE %s OR 
+                            model LIKE %s OR 
+                            revised_price LIKE %s
+                        ) ORDER BY id ASC
+                    '''.format(concat_columns)
+
+                    query_params = [status, start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                    cursor.execute(query, query_params)
+                    # cursor.execute("SELECT COUNT(*) FROM accepted_aps AND created_at BETWEEN %s AND %s ORDER BY id DESC",(start_date, end_date))
             else:
-                cursor.execute(
-                    "SELECT COUNT(*) FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s", (id,start_date, end_date))
+                query = '''
+                    SELECT COUNT(*)
+                    FROM accepted_aps
+                    WHERE id = %s 
+                    and created_at BETWEEN %s AND %s
+                    AND (
+                        offer_id LIKE %s OR 
+                        {} LIKE %s OR 
+                        year LIKE %s OR 
+                        make LIKE %s OR 
+                        model LIKE %s OR 
+                        revised_price LIKE %s
+                    ) ORDER BY id ASC
+                '''.format(concat_columns)
+
+                query_params = [id,status, start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+                cursor.execute(query, query_params)
+                # cursor.execute(
+                #     "SELECT COUNT(*) FROM accepted_aps where id = %s AND created_at BETWEEN %s AND %s", (id,start_date, end_date))
             return cursor.fetchone()[0]
         except:
             return ()
@@ -524,24 +783,66 @@ class Acceptedaps:
 
             start_date = changeStartDateFormat(start_date)
             end_date = changeEndDateFormat(end_date)
-            
-            cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s".format(column, order), ('Decline', start_date, end_date, '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', int(length), int(start)))
-            return cursor.fetchall()
+
+            search_terms = search.split()
+            search_value = '%' + '%'.join(search_terms) + '%'
+
+            concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
+
+            query = """
+                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                FROM accepted_aps 
+                WHERE status = %s AND created_at BETWEEN %s AND %s
+                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                ORDER BY {} {} 
+                LIMIT %s OFFSET %s 
+            """.format(concat_columns, column, order)
+
+            cursor.execute(query, ('Decline',start_date, end_date, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
+
+            result = cursor.fetchall()
+
+            # cursor.execute("SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update FROM accepted_aps WHERE status = %s AND created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {} LIMIT %s OFFSET %s".format(column, order), ('Decline', start_date, end_date, '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', '%' + search + '%', int(length), int(start)))
+            return result
         except:
             return "error"
         finally:
             con.close()
         
     # Retrieves the total number of records with a status of 'Decline' from the 'accepted_aps' table.
-    def get_total_records_decline(self, start_date, end_date,):
+    def get_total_records_decline(self, start_date, end_date,search):
 
         con = Acceptedaps.connect(self)
         cursor = con.cursor()
         try:
             start_date = changeStartDateFormat(start_date)
             end_date = changeEndDateFormat(end_date)
-            cursor.execute("SELECT count(*) FROM `accepted_aps` WHERE status = %s AND created_at BETWEEN %s AND %s", ('Decline',start_date, end_date))
-            return cursor.fetchall()[0][0]
+            search_terms = search.split()
+            search_value = '%' + '%'.join(search_terms) + '%'
+
+            concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
+            query = '''
+                SELECT COUNT(*)
+                FROM accepted_aps
+                WHERE status = %s
+                AND created_at BETWEEN %s AND %s
+                AND (
+                    offer_id LIKE %s OR 
+                    {} LIKE %s OR 
+                    year LIKE %s OR 
+                    make LIKE %s OR 
+                    model LIKE %s OR 
+                    revised_price LIKE %s
+                )
+            '''.format(concat_columns)
+
+            query_params = ['Decline', start_date, end_date, search_value, search_value, search_value, search_value, search_value, search_value]
+
+            cursor.execute(query, query_params)
+            total_records = cursor.fetchone()[0]
+            return total_records
+            # cursor.execute("SELECT count(*) FROM `accepted_aps` WHERE status = %s AND created_at BETWEEN %s AND %s", ('Decline',start_date, end_date))
+            # return cursor.fetchall()[0][0]
         except:
             return "error"
         finally:

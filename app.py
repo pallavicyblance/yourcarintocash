@@ -404,9 +404,10 @@ def dashboard():
 
             usa_format_start_date = first_day_of_month.strftime("%m-%d-%Y")
             usa_format_end_date = last_day_of_month.strftime("%m-%d-%Y")
-
+            id = session['admin_logged_id']
+            role = admin.role(id)
             dashboard_count = setting.getCount(usa_format_start_date,usa_format_end_date)
-            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = usa_format_start_date, end_date = usa_format_end_date)
+            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = usa_format_start_date, end_date = usa_format_end_date, role = role)
 
 @app.route('/auction-new-user-bid/', methods = ['POST', 'GET'])
 def acvnewuserbid():
@@ -1124,7 +1125,7 @@ def getInquiryData():
 
         inquiry_data = setting.getInquiryData(start_date,end_date,status,start, length, orderByColumnName, orderByColumnDirection, searchValue)
 
-        total_records = setting.get_total_records(start_date, end_date, status)
+        total_records = setting.get_total_records(start_date, end_date, status, searchValue)
 
         id = session.get('admin_logged_id')
         role = admin.role(id)
@@ -1221,7 +1222,7 @@ def getDispatchData():
         id = session.get('admin_logged_id')
         role = admin.role(id)
         decline_data = acceptedaps.read(None,param,param1,start, length, orderByColumnName, orderByColumnDirection, searchData, start_date, end_date)
-        total_records = acceptedaps.total_record(None,param,param1,start_date, end_date)
+        total_records = acceptedaps.total_record(None,param,param1,start_date, end_date, searchData)
         data_list = []
 
         for data in decline_data:
@@ -1842,7 +1843,7 @@ def get_decline_data():
         searchDate = request.form['search[value]']
 
         decline_data = acceptedaps.getdeclineoffer(start, length, start_date, end_date, orderByColumnName, orderByColumnDirection, searchDate)
-        total_records = acceptedaps.get_total_records_decline(start_date, end_date)
+        total_records = acceptedaps.get_total_records_decline(start_date, end_date, searchDate)
         id = session.get('admin_logged_id')
         role = admin.role(id)
         data_list = []

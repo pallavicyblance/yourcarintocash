@@ -83,8 +83,16 @@ $(function(){
                 $('#newvinset').html('');
 			}
 			//},1000);
+
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass(`step-${$("#currenttab").val()}`);
+
 		}
 	});
+
+	$("#next").addClass(`step-${$("#currenttab").val()}`);
 
 	$("#prev").click(function(){
 		var id = $("#currenttab").val();
@@ -97,6 +105,10 @@ $(function(){
 		//alert(tabid);
 		// alert($("#currenttab").val());
 		if($("#currenttab").val() == 1){
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass(`step-2`);
 				if($("#year_drop").val() == '' || $("#make_drop").val() == '' || $("#model_drop").val() == ''){
 					if(paramValue !== null){
 						if(paramValue == 'es'){
@@ -131,6 +143,8 @@ $(function(){
 	                    autoinquirybid(1);
 					}
 		}else if ($("#currenttab").val() == 2) {
+			console.log('in444')
+			
 			var l = $("#v_zip_code").val();
 			if($("#v_zip_code").val() == ''){
 					console.log('1122');
@@ -187,7 +201,7 @@ $(function(){
 									insert_location_using_zip()
 									$('#d_subtitle').show();
 	          						$('#d_subtitle1').hide();
-									nextsteps(tabid);
+									nextsteps(tabid);						
 								}else{
 									//$("#v_zip_code").val('')
 									if(paramValue !== null){
@@ -202,13 +216,11 @@ $(function(){
 									$("#steps_error_2").addClass("alert alert-danger");
 								}
 							}
-						});
+						});			
 					}
 				}
 		}else if ($("#currenttab").val() == 3) {
-			console.log('1122');
 			 if ($('input[name="utv"]:checked').length == 0 && $("#mileage").val()=='' ) {
-					console.log('in');
 					if(paramValue !== null){
 						if(paramValue == 'es'){
 							$("#steps_error_3").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
@@ -236,9 +248,8 @@ $(function(){
 						nextsteps(tabid);
 					}
 				}
-		}else if ($("#currenttab").val() == 4) {
+		}else if ($("#currenttab").val() == 4) {			
 		 	if ($('input[name="damage"]:checked').length == 0) {
-				console.log('1122');
 				if(paramValue !== null){
 					if(paramValue == 'es'){
 						$("#steps_error_4").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
@@ -251,7 +262,6 @@ $(function(){
 				$("#steps_error_4").addClass("alert alert-danger");
 			}else{
 				var radioValue = $("input[name='damage']:checked").val();
-				console.log(radioValue);
 				if(radioValue=='Yes'){
 					nextsteps(4,'Yes')
 				}else{
@@ -259,12 +269,9 @@ $(function(){
 				}
 			}
 		}else if ($("#currenttab").val() == 5) {
-
 			var radioValue = $("input[name='damage']:checked").val();
-			//alert(radioValue)
 			if(radioValue=='Yes'){
 			 	if ($('input[name="damageimg[]"]:checked').length == 0) {
-					console.log('1122');
 					if(paramValue !== null){
 						if(paramValue == 'es'){
 							$("#steps_error_5").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
@@ -283,9 +290,8 @@ $(function(){
 				nextsteps(tabid+1);
 			}
 		}else if ($("#currenttab").val() == 6) {
-
+			
 			if ($('input[name="airbag"]:checked').length == 0 ) {
-				console.log('in');
 				if(paramValue !== null){
 					if(paramValue == 'es'){
 						$("#steps_error_6").text("El campo no se puede dejar en blanco. Por favor ingrese la información requerida.");
@@ -301,7 +307,6 @@ $(function(){
 				nextsteps(tabid);
 			}
 		}else if ($("#currenttab").val() == 7) {
-			console.log('1122');
 			 if ($('input[name="drive"]:checked').length == 0) {
 					console.log('in');
 					if(paramValue !== null){
@@ -367,7 +372,6 @@ $(function(){
 
 				}
 		}else if ($("#currenttab").val() == 11) {
-			console.log('1122');
 			 if ($('input[name="fire_damage"]:checked').length == 0 ) {
 					console.log('in');
 					if(paramValue !== null){
@@ -890,8 +894,77 @@ function nextsteps(id,s=null) {
 		}
 	}
 
+	if(id==1){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-2`);
+	}
+
+	if(id==2){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-3`);
+	}
+
+	if(id==5){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-6`);
+	}
+
+	if( id == 6){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-7`);
+	}
+	if( id == 9){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-10`);
+	}
+	if(id == 3){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-4`);
+	}
+	if(id == 10){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-11`);
+	}
+
+	if(id == 13){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-14`);
+	}
+
+	if(id == 14){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-15`);
+	}
+
+	if(id == 15){
+		$("#next").removeClass(function(index, className) {
+			return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		});
+		$("#next").addClass(`step-16`);
+		$('#d_next_btn').addClass('submit_btn_inquiry');
+	}
+
+
 	if(id == 11 ){
-	    
+		$("#sell-instantly-btn").addClass(`sell-instantly`);
 	    var selectedOption = $('#make_drop').find('option:selected');
 		var dataIdValue = selectedOption.data('id');
 
@@ -1279,7 +1352,15 @@ function nextsteps(id,s=null) {
 				var nid = parseInt(id) + 1;
 				var nid1 = parseInt(id) - 2;
 				var id1 = parseInt(id)-1;
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass(`step-5`);
 			}else{
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass(`step-7`);
 				var nid = parseInt(id) + 2;
 				var nid1 = parseInt(id) + 2;
 				var id1 = id;
@@ -1295,7 +1376,7 @@ function nextsteps(id,s=null) {
 			$("#steps_error_" + id).removeClass("alert alert-danger");
 			$(".circletab_" + nid1).addClass("active");
 
-
+			
 
 
 			jQuery(".steps").hide();
@@ -1314,7 +1395,7 @@ function nextsteps(id,s=null) {
 
 			if(id>=5){
 				var radioValue = $("input[name='damage']:checked").val();
-				if(radioValue=='Yes'){
+				if(radioValue=='Yes'){		
 					var nid1 = id;
 					var id1 = parseInt(id) - 1;
 				}else{
@@ -1334,8 +1415,17 @@ function nextsteps(id,s=null) {
 					var nid = parseInt(id) + 1;
 					$('.circletab_'+id).show();
 					$('.circletab_'+nid).hide();
-				}else{
 
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass(`step-8`);
+
+				}else{
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass(`step-7`);
 					if(drive=='S'){
 						var nid = parseInt(id) + 3;
 						nid1 = parseInt(id) + 2;
@@ -1345,6 +1435,10 @@ function nextsteps(id,s=null) {
 						$('.circletab_'+aa1).hide();
 						$("input[name=key][value='Y']").prop("checked",true);
 						$("input[name=sdamage][value='Yes, major engine issues']").prop("checked",true);
+						$("#next").removeClass(function(index, className) {
+							return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+						});
+						$("#next").addClass(`step-10`);
 					}else{
 						var nid = parseInt(id) + 2;
 						nid1 = parseInt(id) + 1;
@@ -1352,11 +1446,19 @@ function nextsteps(id,s=null) {
 						$('.circletab_'+id).hide();
 						$("input[name=sdamage][value='Yes, major engine issues']").prop("checked",true);
 						$("input[type=radio][name=key]").prop('checked', false);
+						$("#next").removeClass(function(index, className) {
+							return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+						});
+						$("#next").addClass(`step-9`);
 					}
-				}
+				}	
 			}else{
 
 				if(id==8){
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass(`step-10`);
 					var drive = $("input[name='drive']:checked").val();
 					if(drive=='D'){
 						var nid = parseInt(id) + 2;
@@ -1402,6 +1504,10 @@ function nextsteps(id,s=null) {
 				$(".progress_part_2").show();
 				$(".progress_part_1").hide();
 				console.log('fffffff');
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass(`step-13`);
 			}
 		}
 	}
@@ -1471,6 +1577,65 @@ function prevsteps(id) {
 
 	windowResizefn();
 
+	// if (id == 3){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-2`);
+	// }
+
+	// if (id == 4){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-3`);
+	// }
+
+	// if (id == 5){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-4`);
+	// }
+
+	// if (id == 6){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-5`);
+	// }
+
+	// // if (id == 7){
+	// // 	$("#next").removeClass(function(index, className) {
+	// // 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// // 	});
+	// // 	$("#next").addClass(`step-4`);
+	// // }
+
+	// if(id == 8){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-7`);
+	// }
+
+	// if(id == 10){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-8`);
+	// }
+	// if(id == 11){
+	// 	$("#next").removeClass(function(index, className) {
+	// 		return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+	// 	});
+	// 	$("#next").addClass(`step-10`);
+	// }
+
+	
+	
+
+
 
 
 	if (id == 1 ) {
@@ -1507,6 +1672,12 @@ function prevsteps(id) {
 			$("#steps_error_" + id).text("");
 			$("#steps_error_" + id).removeClass("alert alert-danger");
 			$(".circletab_"+ pid1).removeClass("complete");
+
+			//added by Nigs
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass('step-'+pid);
 		}else{
 			var id1 = parseInt(id) - 1;
 			$(".circletab_" + id1).removeClass("active");
@@ -1521,6 +1692,12 @@ function prevsteps(id) {
 
 			$('#steps_6').hide();
 			$('.circletab_5').hide();
+
+			//added by Nigs
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass('step-'+pid);
 		}
 
 		var title =  $(".circletab_"+pid1).html();
@@ -1534,6 +1711,10 @@ function prevsteps(id) {
 		}
 		if (id == 2 ) {
 			$("#prev").attr("disabled", true);
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass(`step-1`);
 		}
 		if (id == 13 ) {
 			$(".progress_part_2").hide();
@@ -1553,6 +1734,12 @@ function prevsteps(id) {
 			if(radioValue=='Yes'){
 				var id1 = parseInt(id) - 1 ;
 				var pid1 = parseInt(id) - 2;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid1);
 			}else{
 				if(id==7){
 					var id1 = parseInt(id) - 1;
@@ -1560,14 +1747,34 @@ function prevsteps(id) {
 
 					id = parseInt(id) - 2;
 					pid = parseInt(id) - 1;
+
+					//added by Nigs
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass('step-'+pid1);
 				}else{
 					var id1 = parseInt(id) - 1;
 					var pid1 = parseInt(id) - 2;
+
+					//added by Nigs
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass('step-'+pid1);
 				}
 			}
+
+			
 		}else{
 			var id1 = id;
 			var pid1 = parseInt(id) - 1
+
+			//added by Nigs
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass('step-'+pid1);
 		}
 
 
@@ -1578,11 +1785,37 @@ function prevsteps(id) {
 			if(drive!='D'){
 				var pid = id - 2;
 				pid1 = parseInt(id) - 3;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid1);
 			}else{
 				var pid = id - 1;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid);
 			}
+
+			
 		}else{
 			var pid = id - 1;
+
+			//added by Nigs
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass('step-'+pid);
+
+			//added by Nigs
+			$("#next").removeClass(function(index, className) {
+				return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+			});
+			$("#next").addClass('step-'+pid);
 		}
 
 		if(id==10){
@@ -1590,20 +1823,50 @@ function prevsteps(id) {
 			if(drive=='D'){
 				var pid = id - 2;
 				pid1 = parseInt(id) - 3;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid);
 			}else{
 				if(drive=='S'){
 					var pid = id - 3;
 					pid1 = parseInt(id) - 4;
+
+					//added by Nigs
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass('step-'+pid);
 				}else{
 					var pid = id - 1;
+
+					//added by Nigs
+					$("#next").removeClass(function(index, className) {
+						return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+					});
+					$("#next").addClass('step-'+pid);
 				}
 			}
 		}else{
 
 			if(id==9){
 				var pid = id - 2;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid);
 			}else{
 				var pid = id - 1;
+
+				//added by Nigs
+				$("#next").removeClass(function(index, className) {
+					return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+				});
+				$("#next").addClass('step-'+pid);
 			}
 		}
 
@@ -1616,6 +1879,11 @@ function prevsteps(id) {
 
 		var title =  $(".circletab_"+pid1).html();
 		$("#progressive-text").html(title);
+
+		// $("#next").removeClass(function(index, className) {
+		// 	return (className.match(/(^|\s)step-\S+/g) || []).join(' ');
+		// });
+		// $("#next").addClass('step-'+id);
 	}
 }
 

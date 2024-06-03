@@ -211,8 +211,11 @@ def index():
 
     sharing = request.args.get('amt')
 
+    utm_source = request.args.get('utm_source')
+    utm_medium = request.args.get('utm_medium')
+    utm_campaign = request.args.get('utm_campaign')
 
-    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=u1 ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing)
+    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=u1 ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign )
 
 # darshan added for sharing
 
@@ -1179,11 +1182,16 @@ def getInquiryData():
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
             tracked_form = ""
-            
-            if data[13] == 'https://t.co/' :
-                tracked_form = 'https://www.twitter.com/'
+
+            if data[15] is not None:
+                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             else:
                 tracked_form = data[13]
+            
+            # if data[13] == 'https://t.co/' :
+            #     tracked_form = 'https://www.twitter.com/'
+            # else:
+            #     tracked_form = data[13]
 
             data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
@@ -1226,6 +1234,7 @@ def getDispatchData():
         data_list = []
 
         for data in decline_data:
+
             abc = ''
             if data[6] != 'Decline':
                 if role == (('Super Admin',),):
@@ -1273,10 +1282,16 @@ def getDispatchData():
             
             tracked_form = ""
             
-            if data[13] == 'https://t.co/' :
-                tracked_form = 'https://www.twitter.com/'
+            if data[15] is not None:
+                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             else:
                 tracked_form = data[13]
+                
+
+            # if data[13] == 'https://t.co/' :
+            #     tracked_form = 'https://www.twitter.com/'
+            # else:
+            #     tracked_form = data[13]
 
             data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)

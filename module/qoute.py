@@ -7,7 +7,7 @@ import requests
 
 class Qoute:   
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4')
         #return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
 
     def frontend1(self, fdata,unable_to_verify_data):

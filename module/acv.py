@@ -4,10 +4,12 @@ import json
 import http.client
 import traceback
 from datetime import date
+# from Misc.dbconnect import *
 
 class ACV:
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
+        # return connect()
+        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4')
 
     def storeToken(self, id, pubnub_auth_key, pubnub_expiration, pubnub_subscribe_key, refresh_token):
         con = ACV.connect(self)
@@ -100,6 +102,12 @@ class ACV:
                 if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
                     start_and_drive = 'S'
                 
+                # engine_does_not_stay_running is false or vehicle inoperable is false
+                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                    # engine_does_not_stay_running is false and vehicle inoperable is false
+                    if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 and data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
+                        start_and_drive = 'D'
+                
                 # engine_does_not_stay_running is true or vehicle inoperable is false
                 elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 1 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
                     start_and_drive = 'S'
@@ -107,12 +115,7 @@ class ACV:
                 # engine_does_not_stay_running is false or vehicle inoperable is true
                 elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 1:
                     start_and_drive = 'S'
-                
-                # engine_does_not_stay_running is false or vehicle inoperable is false
-                elif data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 or data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
-                    if data['conditionReport']['sections'][2]['questions'][3]['selected'] == 0 and data['conditionReport']['sections'][3]['questions'][0]['selected'] == 0:
-                        start_and_drive = 'D'
-
+                                
             # if engine_does_not_start is true or engine_does_not_crank is true
             elif data['conditionReport']['sections'][2]['questions'][2]['selected'] == 1 or data['conditionReport']['sections'][2]['questions'][1]['selected'] == 1:
                 start_and_drive = 'N'
@@ -149,21 +152,20 @@ class ACV:
                 trasmission_issue = 'Yes major frame issues'
             
             title_type = ""
-            # if sold on bill sale is true
-            if data['conditionReport']['sections'][7]['questions'][10]['selected'] == 1:
-                title_type = "Unknown"
-            else:
-                # if branded title is true
-                if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
-                    title_type = 'Salvage Rebuilt'
-                else:
-                    # hail damage is true
-                    if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
-                        title_type = 'Salvage Rebuilt'
-                    else:
-                        title_type = 'Clean Title'
+            # sold_on_bill = data['conditionReport']['sections'][7]['questions'][10]['selected'] = 0
+            # if sold_on_bill == 1:
+            #     title_type = "Unknown"
+            # else:
+            #     # if branded title is true
+            #     if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
+            #         title_type = 'Salvage Rebuilt'
+            #     else:
+            #         # hail damage is true
+            #         if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
+            #             title_type = 'Salvage Rebuilt'
+            #         else:
+            #             title_type = 'Clean Title'
 
-            print('title_type',title_type)
             fire_water_damage = 'no'
             if data['conditionReport']['sections'][7]['questions'][3]['selected'] == 1:
                 fire_water_damage = 'W'
@@ -238,7 +240,7 @@ class ACV:
                 con.commit()
             else:
                 print('update auction')
-                cursor.execute('UPDATE auctions SET bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s where auction_id = %s',(data['bidAmount'], data['nextBidAmount'], data['isHighBidder'], data['nextProxyAmount'], data['id']))
+                cursor.execute('UPDATE auctions SET bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s where auction_id = %s',(data['bidAmount'], data['nextBidAmount'], data['isHighBidder'], data['nextProxyAmount'], data['bidCount'], data['id']))
                 con.commit()
         except:
             return ()
@@ -2066,11 +2068,10 @@ class ACV:
             traceback.print_exc()
             return False
         
-    def checkconditonwithauction(self, auctiondata, conditionreport):
+    def checkconditonwithauction(self, auctiondata, conditionreport = ""):
         con = ACV.connect(self)
         cursor = con.cursor()
-        try:    
-
+        try: 
             state = auctiondata[5].split(', ')
             titles = auctiondata[21].split(',')
             mechnical_issue = auctiondata[19].split(',') 
@@ -2090,38 +2091,84 @@ class ACV:
             mechnicalComma = mechnical_issue
             titleComma = titles
             fireWaterDame = auctiondata[51]
-            id_value = conditionreport[0]
-           
-            query = """
-                SELECT * FROM condition_report
-                WHERE is_deleted='no' AND (
-                    (FIND_IN_SET('{}', make_name) OR FIND_IN_SET('all', make_name)) AND
-                    (FIND_IN_SET('{}', model_name) OR FIND_IN_SET('all', model_name)) AND
-                    (max_year >= {} AND min_year <= {}) AND
-                    (max_mileage >= {} AND min_mileage <= {}) AND
-                    (final_zip = '' OR FIND_IN_SET({}, final_zip)) AND
-                    ((FIND_IN_SET('{}', state) OR state = '' OR FIND_IN_SET('all', make_name) OR
-                    max_year = '' OR min_year = '' OR max_mileage = '' OR min_mileage = '' OR
-                    FIND_IN_SET('{}', state) OR state = '') AND
-                    ({} OR sdamageImg_s = '') AND
-                    (FIND_IN_SET('{}', airbagComma) OR airbagComma = '') AND
-                    ({} OR driveComma = '') AND
-                    ({} OR getSDamageComma = '') AND 
-                    ({} OR titleComma = '' ) AND
-                    (FIND_IN_SET('{}', firDamageComma) OR firDamageComma = '') 
-                ) AND id = {}) ORDER BY id DESC;
-            """.format(make_name, model_name, max_year, min_year, max_mileage, min_mileage,
-                    final_zip, state, state,
-                    ' AND '.join(["FIND_IN_SET('{}', sdamageImg_s)".format(body) for body in body_damage]),
-                    airbagComma, 
-                    ' AND '.join(["FIND_IN_SET('{}', driveComma)".format(drive) for drive in driveComma]),
-                    ' AND '.join(["FIND_IN_SET('{}', getSDamageComma)".format(mechnical_issue) for mechnical_issue in mechnicalComma]),
-                    ' AND '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
-                    fireWaterDame,
-                    id_value)
-                        
-            cursor.execute(query)
+            
+            id_value = conditionreport
 
+            if len(body_damage) > 0:
+                checkcondition = ' AND '.join(["FIND_IN_SET('{}', sdamageImg_s)".format(body) for body in body_damage])
+                abc = 'getSDamageComma'
+            else:
+                checkcondition = 'sdamageImg_s = ""'
+                abc = 'sdamageImg_s'
+
+            if id_value == "":
+                print('if')
+                query = """
+                    SELECT * FROM condition_report
+                    WHERE is_deleted = 'no'
+                    AND (
+                        (FIND_IN_SET('{}', make_name) OR FIND_IN_SET('all', make_name))
+                        AND (FIND_IN_SET('{}', model_name) OR FIND_IN_SET('all', model_name))
+                        AND (max_year >= {} AND min_year <= {})
+                        AND (max_mileage >= {} AND min_mileage <= {})
+                        AND (final_zip = '' OR FIND_IN_SET({}, final_zip))
+                        AND (
+                            FIND_IN_SET('{}', state) OR state = '' OR FIND_IN_SET('all', make_name)
+                        )
+                        AND (
+                            {} OR {} = ''
+                        )
+                        AND (FIND_IN_SET('{}', airbagComma) OR airbagComma = '')
+                        AND ({} OR driveComma = '')
+                        AND ({} OR getSDamageComma = '')
+                        AND ({} OR titleComma = '')
+                        AND (FIND_IN_SET('{}', firDamageComma) OR firDamageComma = '')
+                    )
+                    ORDER BY id DESC;
+                """.format(
+                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, 
+                    checkcondition, abc, airbagComma, 
+                    ' OR '.join(["FIND_IN_SET('{}', driveComma)".format(drive) for drive in driveComma]),
+                    ' OR '.join(["FIND_IN_SET('{}', getSDamageComma)".format(mechnical_issue) for mechnical_issue in mechnicalComma]),
+                    ' OR '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
+                    fireWaterDame
+                )
+                
+                cursor.execute(query)
+            else:
+                query = """
+                    SELECT * FROM condition_report
+                    WHERE is_deleted = 'no'
+                    AND (
+                        (FIND_IN_SET('{}', make_name) OR FIND_IN_SET('all', make_name))
+                        AND (FIND_IN_SET('{}', model_name) OR FIND_IN_SET('all', model_name))
+                        AND (max_year >= {} AND min_year <= {})
+                        AND (max_mileage >= {} AND min_mileage <= {})
+                        AND (final_zip = '' OR FIND_IN_SET({}, final_zip))
+                        AND (
+                            FIND_IN_SET('{}', state) OR state = '' OR FIND_IN_SET('all', make_name)
+                        )
+                        AND (
+                            {} OR {} = ''
+                        )
+                        AND (FIND_IN_SET('{}', airbagComma) OR airbagComma = '')
+                        AND ({} OR driveComma = '')
+                        AND ({} OR getSDamageComma = '')
+                        AND ({} OR titleComma = '')
+                        AND (FIND_IN_SET('{}', firDamageComma) OR firDamageComma = '')
+                    )
+                    AND id = {}
+                    ORDER BY id DESC;
+                """.format(
+                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, 
+                    checkcondition, abc, airbagComma, 
+                    ' OR '.join(["FIND_IN_SET('{}', driveComma)".format(drive) for drive in driveComma]),
+                    ' OR '.join(["FIND_IN_SET('{}', getSDamageComma)".format(mechnical_issue) for mechnical_issue in mechnicalComma]),
+                    ' OR '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
+                    fireWaterDame, id_value
+                )
+                print('else')
+                cursor.execute(query)
             return cursor.fetchall()
             
         except:
@@ -2134,7 +2181,8 @@ class ACV:
         cursor = con.cursor()
         try:    
             current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')            
-            cursor.execute('SELECT * from auctions WHERE action_end_datetime > %s AND status = "active" ORDER BY action_end_datetime ASC', (current_datetime,))
+            cursor.execute('SELECT * from auctions WHERE status = "active" ORDER BY action_end_datetime ASC')
+            # cursor.execute('SELECT * from auctions WHERE action_end_datetime > %s AND status = "active" ORDER BY action_end_datetime ASC', (current_datetime,))
          
             return cursor.fetchall()
         except:
@@ -2146,11 +2194,19 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:    
-            cursor.execute('SELECT * from auctions Where action_start_datetime > %s AND status = "run_list" ORDER BY action_start_datetime DESC', (datetime.datetime.now(),))
+
+            cursor.execute('SELECT * from auctions Where status = "run_list" ORDER BY action_start_datetime DESC')
             upcomingauctions = cursor.fetchall()
 
-            cursor.execute('SELECT * from auctions Where action_end_datetime > %s AND is_match = %s AND status = "active" ORDER BY action_end_datetime DESC', (datetime.datetime.now(),1))
+            cursor.execute('SELECT * from auctions Where is_match = %s AND status = "active" ORDER BY action_end_datetime DESC', (1))
             activeauctions = cursor.fetchall()
+
+
+            # cursor.execute('SELECT * from auctions Where action_start_datetime > %s AND status = "run_list" ORDER BY action_start_datetime DESC', (datetime.datetime.now(),))
+            # upcomingauctions = cursor.fetchall()
+
+            # cursor.execute('SELECT * from auctions Where action_end_datetime > %s AND is_match = %s AND status = "active" ORDER BY action_end_datetime DESC', (datetime.datetime.now(),1))
+            # activeauctions = cursor.fetchall()
             
             return upcomingauctions + activeauctions
 
@@ -2193,21 +2249,22 @@ class ACV:
         cursor = con.cursor()
         try:
             current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            searchval = ' '.join(searchval.strip().split())
             if searchval != "":
-                if status == "active":
-                    cursor.execute('SELECT * FROM auctions WHERE action_end_datetime > %s AND status = "active" AND is_match = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s)', (current_datetime, '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
+                if status == "active":                  
+                    cursor.execute('SELECT * FROM auctions WHERE status = "active" AND is_match = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR vehicle_display_name LIKE %s )', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%','%' + searchval + '%'))
 
                 elif status == "upcoming":
-                    cursor.execute('SELECT * FROM auctions WHERE action_start_datetime > %s AND status = "run_list" AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s)', (current_datetime, '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
+                    cursor.execute('SELECT * FROM auctions WHERE status = "run_list" AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR vehicle_display_name LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%','%' + searchval + '%'))
 
                 elif status == "missed":
-                    cursor.execute('SELECT * FROM auctions WHERE action_end_datetime > %s AND is_match = 0 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s)', (current_datetime, '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
+                    cursor.execute('SELECT * FROM auctions WHERE is_match = 0 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR vehicle_display_name LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
 
                 elif status == "won":
-                    cursor.execute('SELECT * FROM auctions WHERE win = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
+                    cursor.execute('SELECT * FROM auctions WHERE win = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR vehicle_display_name LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
 
                 elif status == "lost":
-                    cursor.execute('SELECT * FROM auctions WHERE lost = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
+                    cursor.execute('SELECT * FROM auctions WHERE lost = 1 AND (vin LIKE %s OR auction_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR vehicle_display_name LIKE %s)', ('%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%', '%' + searchval + '%'))
             else:
                 return 1
 
@@ -2265,7 +2322,7 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and action_end_datetime > %s and status = "active"', (0,datetime.datetime.now()))
+            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and status = "active"', (0))
             return  cursor.fetchall()
         except:
             return ()
@@ -2348,7 +2405,7 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute('SELECT * FROM auctions WHERE status = "run_list" and action_start_datetime > %s',datetime.datetime.now())
+            cursor.execute('SELECT * FROM auctions WHERE status = "run_list"')
             return cursor.fetchall()
         except:
             return ()

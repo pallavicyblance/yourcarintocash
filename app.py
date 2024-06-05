@@ -22,6 +22,7 @@ from cronjob.auction_1_min_left import auction_1_min_left
 from cronjob.remove_auction import remove_auction
 from cronjob.pub_nub import PubNubNotification
 from cronjob.out_bid import OutBid
+from cronjob.generate_proqoute import Proqoute
 
 from module.database import Database
 from module.admin import Admin
@@ -548,8 +549,10 @@ def auction():
         user_name = session.get('admin_logged_username') + ' ' + session.get('admin_logged_lastname')
 
         condition_flter = acv.getconditionReport('')
+        id = session['admin_logged_id']
+        role = admin.role(id)
 
-        return render_template('auction.html', condition_flter=condition_flter,user_name=user_name)
+        return render_template('auction.html', condition_flter=condition_flter,user_name=user_name, role=role)
         
 @app.route('/condition-report-details/',methods = ['POST','GET'])
 def conditionReportDetails():
@@ -563,15 +566,15 @@ def conditionReportDetails():
     final_action = {'auctions': [], 'reports': [], 'won_auction': [], 'lost_auction': [], 'count': countNotificaton}
 
     for auction in auctionsfetched:
-        if meets_condition(auction, reportfetched):
+        if meets_condition(auction, selected_report_id):
                 final_action['auctions'].append(auction)
 
     for wonauction in wonauctions:
-        if meets_condition(wonauction, reportfetched):
+        if meets_condition(wonauction, selected_report_id):
             final_action['won_auction'].append(wonauction)
 
     for lostauction in lostauctions:
-        if meets_condition(lostauction, reportfetched):
+        if meets_condition(lostauction, selected_report_id):
             final_action['lost_auction'].append(lostauction)
 
     final_action['reports'] = reportfetched
@@ -745,12 +748,13 @@ def getliveauctioncondition():
     
 @app.route('/match-condition/', methods = ['POST','GET'])
 def meets_condition(auction_data, condition_flter):
-    for condition in condition_flter:
-        if acv.checkconditonwithauction(auction_data, condition):
+    # for condition in condition_flter:
+        if acv.checkconditonwithauction(auction_data, condition_flter):
             acv.matchauction(auction_data[4],is_match=True)
             return True
         else:
             acv.matchauction(auction_data[4],is_match=False)
+            return False
 
 @app.route('/upcoming-auction-data/', methods=['GET','POST'])
 def upcoming_auction_data():
@@ -2447,16 +2451,18 @@ def get_proqoute():
 
 scheduler = BackgroundScheduler()
 
+start_time = datetime.now() + timedelta(hours=6)
+
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-# scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/30')
-# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
-# scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*/1')
-# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/40')
-#scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
-#scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
+scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
+scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+# scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
+scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
+# scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
+# scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
 # scheduler.add_job(func=PubNubNotification.auction_pub_nub_notification, trigger='cron', hour='*', minute='*/2')
-#scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
-#scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
+# scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
+# scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
 scheduler.start()
     
 # @app.route('/run-crone-job/')
@@ -2487,4 +2493,4 @@ if __name__ == "__main__":
     # schedule_cron_job()
     # scheduler.start()
     # code ended by pallavi
-    app.run(host='192.168.1.179', port=9010)
+    app.run(host='192.168.1.179', port=9020)

@@ -2,7 +2,7 @@ from flask import Flask, flash
 import pymysql
 from module.acceptedaps import Acceptedaps
 from module.acv import ACV
-
+# from Misc.dbconnect import *
 import http.client
 import json
 acceptedaps = Acceptedaps()
@@ -10,7 +10,8 @@ acv = ACV()
 
 class Proqoute:
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4') 
+        # return connect()
+        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4') 
 
     def generateproqoute():
         proqoute_instance = Proqoute() 

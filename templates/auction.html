@@ -13,6 +13,7 @@
         <div class="row d-flex align-items-end">
             <div class="col-md-4">
                 <input type="hidden" id="status" value="active">
+                <input type="hidden" id="report" value="">
                 <ul id="tab_nav_top" class="nav nav-tabs">
                     <li class="active" data-status="active">
                         <a href="auction">Active</a>
@@ -89,13 +90,15 @@
                                                 <span class="tag label-info"><b>Make &amp; Model</b>: <span id="make_label_txt"><span id="make_p_43"></span></span> <a href="javascript:void(0)" onclick="resetLabel('make','make_label_txt','make')" id="make_model_close" style=""><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Year</b><span id="year_label_txt">:<span></span> </span> <a href="javascript:void(0)" onclick="resetLabel('year','year_label_txt','year')" id="year_close" style=""><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Mileage</b><span id="mileage_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>State:</b><span id="state_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
+                                                <span class="tag label-info"><b>Country: </b><span id="country_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
 
                                                 <span class="tag label-info"><span id="zip_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('zip','zip_label_txt','zip')" id="zip_close" style=""><i class="ti-close"></i></a></span>
 
                                             </div>
                                         </div>
                                         <div class="footerbox">
-                                            <h5>Condition Exclusions </h5>
+                                            <h5>Condition Include </h5>
                                             <div class="bootstrap-tagsinput">
                                                 <span class="tag label-info">
                                                     <b>Body damage:</b>
@@ -104,7 +107,7 @@
                                                 <span class="tag label-info"><b>Air bags:</b><span id="airbag_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('airbag','airbag_label_txt','airbag')" id="airbag_close" style="display:none;"><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Starts and drives:</b><span id="drive_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('drive','drive_label_txt','drive')" id="drive_close" style="display:none;"><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Mechanical issues:</b><span id="mechanical_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('sdamage','mechanical_label_txt','sdamage')" id="sdamage_close" style="display:none;"><i class="ti-close"></i></a></span>
-                                                <span class="tag label-info"><b>Keys:</b><span id="key_label_txt"></span><a href="javascript:void(0)" onclick="resetLabel('key','key_label_txt','key')" id="key_close" style="display:none;"> <i class="ti-close"></i></a></span>
+                                                <!-- <span class="tag label-info"><b>Keys:</b><span id="key_label_txt"></span><a href="javascript:void(0)" onclick="resetLabel('key','key_label_txt','key')" id="key_close" style="display:none;"> <i class="ti-close"></i></a></span> -->
                                                 <span class="tag label-info"><b>Title Type:</b><span id="titletype_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('title','titletype_label_txt','title')" id="title_close" style="display:none;"><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Water or fire damage:</b><span id="firedamage_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('fire_damage','firedamage_label_txt','fire_damage')" id="fire_damage_close" style="display:none;"><i class="ti-close"></i></a></span>
                                             </div>

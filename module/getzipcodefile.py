@@ -7,7 +7,7 @@ import requests
 class Getzipcodefile:
 
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4')
         #return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
     
     def getNewZipFunc(self,zipData):

@@ -124,7 +124,7 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="modalLabel">Condition Filter</h4>
                 <div style="text-align:center;">
-                <div class="error-filter" id="filter_error" style="display:none" style="color: red;">Please make sure to enter Title, conditions & Buying rules.</div>
+                <div class="error-filter" id="filter_error" style="display:none" style="color: red;">Please make sure to enter Title, Condition Type, conditions & Buying rules.</div>
                 <div class="success-filter" id="success_error" style="display:none" style="color: green;">Condition filter report saved successfully.</div>
                 <div class="error-filter" id="filter_error111" style="color: red;"></div>
                 </div>
@@ -252,11 +252,11 @@
                                 
                                 <div class="d-flex mb-3">
                                     <div class="custom-control custom-checkbox mb-10">
-                                        <input type="checkbox" class="custom-control-input country-chk" id="acv_condition" name="condition_type[]" value="ACV">
+                                        <input type="checkbox" class="custom-control-input" id="acv_condition" name="condition_type[]" value="ACV">
                                         <label class="radio-control-label" for="acv_condition">ACV</label>
                                     </div>
                                     <div class="custom-control custom-checkbox mb-10">
-                                        <input type="checkbox" class="custom-control-input country-chk" id="copart_condition" name="condition_type[]" value="Copart">
+                                        <input type="checkbox" class="custom-control-input" id="copart_condition" name="condition_type[]" value="Copart">
                                         <label class="radio-control-label" for="copart_condition">Your Car Into Cash</label>
                                     </div>
     							</div>
@@ -2192,7 +2192,7 @@ function getzipcode(id){
                             text += '<td>';
                                 text += '<button type="button" class="btn btn-sm btn-primary" data-toggle="modal" onclick="fetchCondition('+product[0]+');">Edit</button>';
                                 text += ' <a class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="deleteConditionalReport('+product[0]+')">Delete</a>';
-                                text += ' <a class="btn btn-sm btn-primary" href="/dev-carcash/conditional-report-detail/'+product[0]+'">View</a>';
+                                text += ' <a class="btn btn-sm btn-primary" href="/conditional-report-detail/'+product[0]+'">View</a>';
                             text += '</td>';
                         text += '</tr>';
                     })
@@ -2475,6 +2475,15 @@ function getzipcode(id){
 
         $('#make_name').val(makeTxt);
         $('#model_name').val(modelTxt);
+
+        var conditionType = $('input[name="condition_type[]"]:checked').val();
+               
+        if (conditionType === undefined || conditionType === null) {
+            console.log('if', 'conditionType');
+            $('#filter_error').show();
+            $('#conditionalBtn').prop('disabled', false);
+            return false; 
+        }
         
         var regexPattern = /^([1-9]\d*)$/;
         if(title.trim()==''){

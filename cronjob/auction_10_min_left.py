@@ -24,7 +24,7 @@ def auction_10_min_left():
         minutes_left = max(time_left.total_seconds() / 60, 0)
     
         if minutes_left <= 10:
-            logging.info("%s auction left 10 minutes to end", auction[4])
+            # logging.info("%s auction left 10 minutes to end", auction[4])
             print(auction[4],'auction left 10 minutes to end')
             auction_data = fetch_auction_details(auction[4], getjwttoken[0])
             place_auction_proxy_bid(auction[4],auction_data['nextProxyAmount'],getjwttoken[0])
@@ -64,6 +64,6 @@ def place_auction_proxy_bid(auctionId,nextProxyAmount,jwttoken):
                     
         except requests.exceptions.RequestException as e:
             print("Error:", e)
-            logging.info("Response for auction %s: %s", auctionId, response.text)
+            # logging.info("Response for auction %s: %s", auctionId, response.text)
             print("Response for auction :" + str(auctionId), response.text)
             return None

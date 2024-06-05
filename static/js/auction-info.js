@@ -255,6 +255,7 @@ $(document).ready(function(){
         
         var selectedConditionReportId = $(this).val();
         $('#condition_filter').val(selectedConditionReportId);
+        $('#report').val(selectedConditionReportId);
         if(selectedConditionReportId ==''){
             jQuery('#all_condition_rules').hide();
         } else{
@@ -265,7 +266,11 @@ $(document).ready(function(){
     });
     
     function auctiondata() {
-        var selectedConditionReportId = '';
+        if ($('#report').val() != ''){
+            var selectedConditionReportId = $('#report').val();
+        }else{
+            var selectedConditionReportId = '';
+        }
         fetchData(selectedConditionReportId);
     }
 
@@ -457,7 +462,7 @@ $(document).ready(function(){
 
 
                 if (dataziplist.length === 0) {
-                    zipLabelTxt.html('<b>ZIP:</b> 1 miles from');
+                    // zipLabelTxt.html('<b>ZIP:</b> 1 miles from');
                 } else {
                     var zipInfoText = '';
                     for (var i = 0; i < dataziplist.length; i++) {
@@ -466,10 +471,15 @@ $(document).ready(function(){
                     }
                     zipLabelTxt.html(zipInfoText);
                 }                
-                if (reports[29] == ""){
-                    var body_damage = "No, my vehicle is in good shape!";
-                }else{
+
+                $('#country_label_txt').html(reports[50]);
+                $('#state_label_txt').html(reports[49]);
+                if (reports[33] == "MN,Yes," || reports[33] == "Yes,MN,"){
+                    var body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
+                }else if(reports[33] == "Yes," || reports[33] == "Yes"){
                     var body_damage = "Yes, my vehicle has some damage or rust";
+                }else if(reports[33] == "MN," || reports[33] == "MN"){
+                    var body_damage = "No, my vehicle is in good shape!";
                 }
 
                 if (reports[34] == "Y,N," || reports[34] == "N,Y," ){
@@ -518,7 +528,7 @@ $(document).ready(function(){
                     var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
                 }else if(reports[38] == "clean title,Unknown,"){
                     var title_type = "Yes, I have a clean title, No, I don’t have a title";
-                }else if(reports[38] == "clean title"){
+                }else if(reports[38] == "clean title" || reports[38] == "clean title,"){
                     var title_type = "Yes, I have a clean title,";
                 }else if(reports[38] == "Salvage Rebuilt"){
                     var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
@@ -555,6 +565,7 @@ $(document).ready(function(){
                 $('#buyingruletype_label_txt').html(buyingruletype + ' %'+ reports[22] );
                 $('#nottoexceed_label_txt').html(reports[23]);
                 
+                // auctiondata(selectedConditionReportId);
             },
             error: function(xhr, status, error) {
                 console.error(error);
@@ -745,13 +756,15 @@ $(document).ready(function(){
 
 
 function time_left(date,id){
-    var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'GMT',});
+    // var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'GMT',});
+    var inputDate = new Date(date).toISOString();
     var targetDatestr2 = new Date(inputDate)
     var timerInterval = setInterval(function() {
         var currentDate = new Date();
         var cstFormattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
         var cstcurdate = new Date(cstFormattedDate)
-        var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
+        // var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
+        var timeDifference = Math.floor((targetDatestr2 - currentDate) / 1000);
         if (timeDifference <= 0) {
             clearInterval(timerInterval);
             $(".hours_"+id).html('Auction Ended');  
@@ -1757,7 +1770,7 @@ function condition_popup_open(id){
                     acvLightHtml += '</div></div>';
                 }
 
-                var vehicle_details = '<span><b>Vehicle Details</b></span><table data-v-bf22c5b6="" data-v-7769f27a="" class="table table-bordered table-striped"><tbody data-v-bf22c5b6=""><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> Distance </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+lights[3]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> City </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[4]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> VIN </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[5]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Odometer </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6="">  '+ lights[6]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Transmission </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[7]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Trim </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[8]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Drivetrain </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[9]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Engine </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[10]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Fuel Type </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[11]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Year </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[12]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Make </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[13]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Model </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[14]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Color </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[15]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction ID </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> 4395727 </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction Date </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[16] +' </span><!----></td></tr></tbody></table>';
+                var vehicle_details = '<span><b>Vehicle Details</b></span><table data-v-bf22c5b6="" data-v-7769f27a="" class="table table-bordered table-striped"><tbody data-v-bf22c5b6=""><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> Distance </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+lights[3]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> City </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[4]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-bf22c5b6="" class="left"> VIN </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[5]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Odometer </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6="">  '+ lights[6]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Transmission </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[7]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Trim </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[8]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Drivetrain </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[9]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Engine </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[10]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Fuel Type </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[11]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Year </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[12]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Make </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[13]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Model </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[14]+'  </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Color </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[15]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction ID </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[0]+' </span><!----></td></tr><tr data-v-bf22c5b6=""><td data-v-7769f27a="" data-v-bf22c5b6="" class="left"> Auction Date </td><td data-v-7769f27a="" data-v-bf22c5b6="" class="right"><span data-v-7769f27a="" data-v-bf22c5b6=""> '+ lights[16] +' </span><!----></td></tr></tbody></table>';
                 
                 $('#vehicle-detail').empty()
                 .append(vehicle_details)

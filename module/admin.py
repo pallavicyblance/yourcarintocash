@@ -1,7 +1,7 @@
 import pymysql
 class Admin:
     def connect(self):
-       return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
+       return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4')
     def read(self, id):
         con = Admin.connect(self)
         cursor = con.cursor()

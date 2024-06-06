@@ -2102,7 +2102,6 @@ class ACV:
                 abc = 'sdamageImg_s'
 
             if id_value == "":
-                print('if')
                 query = """
                     SELECT * FROM condition_report
                     WHERE is_deleted = 'no'
@@ -2365,11 +2364,11 @@ class ACV:
         finally:
             con.close()
 
-    def update(self,id,is_high_bidder,nextbidamount):
+    def update(self,id,is_high_bidder,nextbidamount,bidAmount,nextProxyAmount,bidCount):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute('UPDATE auctions SET is_high_bidder = %s, next_bid_amount = %s WHERE auction_id = %s', (is_high_bidder,nextbidamount,id))
+            cursor.execute('UPDATE auctions SET bid_amount = %s, next_bid_amount = %s,is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s WHERE auction_id = %s', (bidAmount,nextbidamount,is_high_bidder,nextProxyAmount,bidCount,id))
             con.commit()
         except:
             return ()

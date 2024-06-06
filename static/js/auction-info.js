@@ -474,6 +474,8 @@ $(document).ready(function(){
 
                 $('#country_label_txt').html(reports[50]);
                 $('#state_label_txt').html(reports[49]);
+
+                var body_damage = '';
                 if (reports[33] == "MN,Yes," || reports[33] == "Yes,MN,"){
                     var body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
                 }else if(reports[33] == "Yes," || reports[33] == "Yes"){
@@ -755,32 +757,61 @@ $(document).ready(function(){
 });
 
 
-function time_left(date,id){
-    // var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'GMT',});
-    var inputDate = new Date(date).toISOString();
-    var targetDatestr2 = new Date(inputDate)
+function time_left(date, id) {
+    var targetDateUTC = new Date(date);
+    
     var timerInterval = setInterval(function() {
-        var currentDate = new Date();
-        var cstFormattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-        var cstcurdate = new Date(cstFormattedDate)
-        // var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
-        var timeDifference = Math.floor((targetDatestr2 - currentDate) / 1000);
+        // Get the current time in UTC
+        var currentDateUTC = new Date(new Date().toUTCString());
+
+        // Calculate the difference in seconds between the target date and the current date
+        var timeDifference = Math.floor((targetDateUTC - currentDateUTC) / 1000);
+       
         if (timeDifference <= 0) {
             clearInterval(timerInterval);
-            $(".hours_"+id).html('Auction Ended');  
+            $(".hours_" + id).html('Auction Ended');
         } else {
+            console.log('else timeDifference',timeDifference);
             var days = Math.floor(timeDifference / (24 * 60 * 60));
             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
             var minutes = Math.floor((timeDifference % (60 * 60)) / 60);
             var seconds = timeDifference % 60;
-            $(".days_"+id).html(days+"<span>:</span>");  
-            $(".hours_"+id).html(hours+"<span>:</span>");  
-            $(".minutes_"+id).html(minutes+"<span>:</span>");  
-            $(".seconds_"+id).html(seconds+"<span></span>"); 
-            // console.log('Time remaining:', days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds');
+            $(".days_" + id).html(days + "<span>:</span>");
+            $(".hours_" + id).html(hours + "<span>:</span>");
+            $(".minutes_" + id).html(minutes + "<span>:</span>");
+            $(".seconds_" + id).html(seconds + "<span></span>");
         }
-    });
+    }, 1000); // Update every second
 }
+
+
+// function time_left(date,id){
+//     // var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'America/New_York' });
+//     var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'GMT',});
+//     // var inputDate = new Date(date).toISOString();
+//     var targetDatestr2 = new Date(inputDate)
+//     var timerInterval = setInterval(function() {
+//         var currentDate = new Date();
+//         var cstFormattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+//         var cstcurdate = new Date(cstFormattedDate)
+//         var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
+//         var timeDifference = Math.floor((targetDatestr2 - currentDate) / 1000);
+//         if (timeDifference <= 0) {
+//             clearInterval(timerInterval);
+//             $(".hours_"+id).html('Auction Ended');  
+//         } else {
+//             var days = Math.floor(timeDifference / (24 * 60 * 60));
+//             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
+//             var minutes = Math.floor((timeDifference % (60 * 60)) / 60);
+//             var seconds = timeDifference % 60;
+//             $(".days_"+id).html(days+"<span>:</span>");  
+//             $(".hours_"+id).html(hours+"<span>:</span>");  
+//             $(".minutes_"+id).html(minutes+"<span>:</span>");  
+//             $(".seconds_"+id).html(seconds+"<span></span>"); 
+//             // console.log('Time remaining:', days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds');
+//         }
+//     });
+// }
 
 
 function number_formatchanger(inputValue, id){

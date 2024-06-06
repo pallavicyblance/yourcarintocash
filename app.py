@@ -500,8 +500,11 @@ def place_bid():
 
         ishighbidder = auctiondetails.json().get('isHighBidder')
         nextbidamount = auctiondetails.json().get('nextBidAmount')
+        bidAmount = auctiondetails.json().get('bidAmount')
+        nextProxyAmount = auctiondetails.json().get('nextProxyAmount')
+        bidCount = auctiondetails.json().get('bidCount')
         if ishighbidder:
-            acv.update(auctionId,ishighbidder,nextbidamount)
+            acv.update(auctionId,ishighbidder,nextbidamount,bidAmount,nextProxyAmount,bidCount)
 
         return response_data
     except requests.exceptions.RequestException as e:

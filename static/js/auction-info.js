@@ -17,6 +17,7 @@ $(document).ready(function(){
     $(window).resize(function(){
         windowHeight();
     });
+    var loader_call = true;
     auctiondata();
 
     $(document).on('dblclick', '.dblclick_td', function() {
@@ -116,13 +117,8 @@ $(document).ready(function(){
             contentType: 'application/json',
             success: function(response) {
                 if (response.error){
-                    var errorResponse = JSON.parse(response.error);
-                    var errorMessage = errorResponse.error;
-                    if (errorResponse.errorDescription) {
-                        errorMessage = errorResponse.errorDescription;
-                    }
                     $('#inquiry_msg_error').show(); 
-                    $('#inquiry_msg_error').html(errorMessage); 
+                    $('#inquiry_msg_error').html('ACV Auction Ended! You can only bid on auctions that are live or on run list'); 
                     setTimeout(function() { 
                         $('#inquiry_msg_error').hide(); 
                     }, 3000);
@@ -130,7 +126,7 @@ $(document).ready(function(){
                     fetchData('');
                     
                     $('#inquiry_msg').show();
-                    $('#inquiry_msg').html('placed bid');
+                    $('#inquiry_msg').html('Success! Your bid has been successfully placed on ACV platform.');
                     setTimeout(function() { 
                         $('#inquiry_msg').hide(); 
                     }, 3000);
@@ -252,7 +248,8 @@ $(document).ready(function(){
     });
 
     $('#select_condition_rules').change(function() {
-        
+        $('#searchauction').val('');
+        // loader_call = true;
         var selectedConditionReportId = $(this).val();
         $('#condition_filter').val(selectedConditionReportId);
         $('#report').val(selectedConditionReportId);
@@ -275,15 +272,18 @@ $(document).ready(function(){
     }
 
     function fetchData(selectedConditionReportId) {
+        if (loader_call) {
+            $('#loadingdieditvvehicle').show();
+        }
         $.ajax({
             url: WS_PATH + '/condition-report-details/',
             type: 'POST',
             data: { id: selectedConditionReportId },
             success: function(response) {
+                loader_call = false;
                 var data = response.auctions;
                 var won_auction = response.won_auction;
                 var lost_auction = response.lost_auction;
-                var reports = response.reports[0];
 
                 var str = '';
                 if (data.length == 0) {
@@ -453,120 +453,125 @@ $(document).ready(function(){
                     deeplinking: false
                 });
 
-                $('#make_p_43').html(reports[26] + ' ' + reports[27]);
-                $('#year_label_txt').html(':' + reports[5] + ' to ' + reports[6]);
-                $('#mileage_label_txt').html(':' + reports[9] + ' to ' + reports[10]);
-
-                var dataziplist = JSON.parse(reports[31]);
-                var zipLabelTxt = $('#zip_label_txt');
-
-
-                if (dataziplist.length === 0) {
-                    // zipLabelTxt.html('<b>ZIP:</b> 1 miles from');
-                } else {
-                    var zipInfoText = '';
-                    for (var i = 0; i < dataziplist.length; i++) {
-                        var data = dataziplist[i];
-                        zipInfoText += '<b>ZIP:</b>' + data['distance'] + ' miles from ' + data['range_zip'] + ' ' ;
+                if (response.reports.length > 1) {
+                    console.log('111');
+                }else{
+                    var reports = response.reports[0];
+                    $('#make_p_43').html(reports[26] + ' ' + reports[27]);
+                    $('#year_label_txt').html(':' + reports[5] + ' to ' + reports[6]);
+                    $('#mileage_label_txt').html(':' + reports[9] + ' to ' + reports[10]);
+    
+                    var dataziplist = JSON.parse(reports[31]);
+                    var zipLabelTxt = $('#zip_label_txt');
+    
+    
+                    if (dataziplist.length === 0) {
+                        zipLabelTxt.html('');
+                    } else {
+                        var zipInfoText = '';
+                        for (var i = 0; i < dataziplist.length; i++) {
+                            var data = dataziplist[i];
+                            zipInfoText += '<b>ZIP:</b>' + data['distance'] + ' miles from ' + data['range_zip'] + ' ' ;
+                        }
+                        zipLabelTxt.html(zipInfoText);
+                    }                
+    
+                    $('#country_label_txt').html(reports[50]);
+                    $('#state_label_txt').html(reports[49]);
+    
+                    var body_damage = '';
+                    if (reports[33] == "MN,Yes," || reports[33] == "Yes,MN,"){
+                        var body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
+                    }else if(reports[33] == "Yes," || reports[33] == "Yes"){
+                        var body_damage = "Yes, my vehicle has some damage or rust";
+                    }else if(reports[33] == "MN," || reports[33] == "MN"){
+                        var body_damage = "No, my vehicle is in good shape!";
                     }
-                    zipLabelTxt.html(zipInfoText);
-                }                
-
-                $('#country_label_txt').html(reports[50]);
-                $('#state_label_txt').html(reports[49]);
-
-                var body_damage = '';
-                if (reports[33] == "MN,Yes," || reports[33] == "Yes,MN,"){
-                    var body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
-                }else if(reports[33] == "Yes," || reports[33] == "Yes"){
-                    var body_damage = "Yes, my vehicle has some damage or rust";
-                }else if(reports[33] == "MN," || reports[33] == "MN"){
-                    var body_damage = "No, my vehicle is in good shape!";
+    
+                    if (reports[34] == "Y,N," || reports[34] == "N,Y," ){
+                        var airbag_value = " Yes, the airbags are deployed, No, the airbags are not deployed";
+                    }else if(reports[34] == "Y," || reports[34] == "Y"){
+                        var airbag_value = " Yes, the airbags are deployed"
+                    }else if(reports[34] == "N," || reports[34] == "N"){
+                        var airbag_value = " No, the airbags are not deployed"
+                    }else{
+                        var airbag_value = ""
+                    }
+    
+                    if(reports[35] == "D,S,N," || reports[35] == "S,N,D," || reports[35] == "N,D,S,"){
+                        var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive, No, it does not start";
+                    }else if(reports[35] == "D,S,"){
+                        var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive";
+                    }else if(reports[35] == "S,N,"){
+                        var start_and_drive = "No, it starts but does not drive, No, it does not start";
+                    }else if(reports[35] == "D,N,"){
+                        var start_and_drive = "Yes, it starts and drives, No, it does not start";
+                    }else if(reports[35] == "D," || reports[35] == "D"){
+                        var start_and_drive = "Yes, it starts and drives";
+                    }else if(reports[35] == "N," || reports[35] == "N"){
+                        var start_and_drive = "No, it does not start";
+                    }else if(reports[35] == "S," || reports[35] == "S"){
+                        var start_and_drive = "No, it starts but does not drive";
+                    }else{
+                        var start_and_drive = ""
+                    }
+    
+                    if (reports[37] == "Y,N," || reports[37] == "N,Y,"){
+                        var key_value = "Yes, I have the key, No, I do not have a key";
+                    }else if(reports[37] == "Y," || reports[37] == "Y"){
+                        var key_value = "Yes, I have the key";
+                    }else if(reports[37] == "N," || reports[37] == "N"){
+                        var key_value = "No, I do not have a key";
+                    }else{
+                        var key_value = "";
+                    }
+    
+                    if(reports[38] == "clean title,Salvage Rebuilt,Unknown," || reports[38] == "Salvage Rebuilt,Unknown,clean title," || reports[38] == ",Unknown,clean title,Salvage Rebuilt,"){
+                        var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
+                    }else if (reports[38] == "clean title,Salvage Rebuilt,"){
+                        var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
+                    }else if (reports[38] == "Salvage Rebuilt,Unknown,"){
+                        var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
+                    }else if(reports[38] == "clean title,Unknown,"){
+                        var title_type = "Yes, I have a clean title, No, I don’t have a title";
+                    }else if(reports[38] == "clean title" || reports[38] == "clean title,"){
+                        var title_type = "Yes, I have a clean title";
+                    }else if(reports[38] == "Salvage Rebuilt" || reports[38] == "Salvage Rebuilt,"){
+                        var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
+                    }else if(reports[38] == "Unknown," || reports[38] == "Unknown"){
+                        var title_type = "No, I don’t have a title"; 
+                    }else{
+                        var title_type = "";
+                    }
+                    
+                    if (reports[39] == "no,W," || reports[39] == "W,no,"){
+                        var water_and_fire_value = "No, it has never had any fire or water damage, Yes, it had fire or water damage";
+                    }else if(reports[39] == "W," || reports[39] == "W"){
+                        var water_and_fire_value = "Yes, it had fire or water damage";
+                    }else if(reports[39] == "no," || reports[39] == "no"){
+                        var water_and_fire_value = "No, it has never had any fire or water damage,";
+                    }else{
+                        var water_and_fire_value = "";
+                    }
+    
+                    $('#bodydamage_label_txt').html(body_damage);
+                    $('#airbag_label_txt').html(airbag_value);
+                    $('#drive_label_txt').html(start_and_drive);
+                    $('#mechanical_label_txt').html(reports[36]);
+                    $('#key_label_txt').html(key_value);
+                    $('#titletype_label_txt').html(title_type);
+                    $('#firedamage_label_txt').html(water_and_fire_value);
+                    $('.notification_pubnub').html(response.count);
+    
+                    if(reports[20] == "plus"){
+                        var buyingruletype = "+";
+                    }else{
+                        var buyingruletype = "-";
+                    }
+                    $('#buyingruletype_label_txt').html(buyingruletype + ' %'+ reports[22] );
+                    $('#nottoexceed_label_txt').html(reports[23]);
                 }
-
-                if (reports[34] == "Y,N," || reports[34] == "N,Y," ){
-                    var airbag_value = " Yes, the airbags are deployed, No, the airbags are not deployed";
-                }else if(reports[34] == "Y,"){
-                    var airbag_value = " Yes, the airbags are deployed"
-                }else if(reports[34] == "N,"){
-                    var airbag_value = " No, the airbags are not deployed"
-                }else{
-                    var airbag_value = ""
-                }
-
-                if(reports[35] == "D,S,N," || reports[35] == "S,N,D," || reports[35] == "N,D,S,"){
-                    var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive, No, it does not start";
-                }else if(reports[35] == "D,S,"){
-                    var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive";
-                }else if(reports[35] == "S,N,"){
-                    var start_and_drive = "No, it starts but does not drive, No, it does not start";
-                }else if(reports[35] == "D,N,"){
-                    var start_and_drive = "Yes, it starts and drives, No, it does not start";
-                }else if(reports[35] == "D,"){
-                    var start_and_drive = "Yes, it starts and drives";
-                }else if(reports[35] == "N,"){
-                    var start_and_drive = "No, it does not start";
-                }else if(reports[35] == "S,"){
-                    var start_and_drive = "No, it starts but does not drive";
-                }else{
-                    var start_and_drive = ""
-                }
-
-                if (reports[37] == "Y,N," || reports[37] == "N,Y,"){
-                    var key_value = "Yes, I have the key, No, I do not have a key";
-                }else if(reports[37] == "Y,"){
-                    var key_value = "Yes, I have the key";
-                }else if(reports[37] == "N,"){
-                    var key_value = "No, I do not have a key";
-                }else{
-                    var key_value = "";
-                }
-
-                if(reports[38] == "clean title,Salvage Rebuilt,Unknown," || reports[38] == "Salvage Rebuilt,Unknown,clean title," || reports[38] == ",Unknown,clean title,Salvage Rebuilt,"){
-                    var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
-                }else if (reports[38] == "clean title,Salvage Rebuilt,"){
-                    var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
-                }else if (reports[38] == "Salvage Rebuilt,Unknown,"){
-                    var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
-                }else if(reports[38] == "clean title,Unknown,"){
-                    var title_type = "Yes, I have a clean title, No, I don’t have a title";
-                }else if(reports[38] == "clean title" || reports[38] == "clean title,"){
-                    var title_type = "Yes, I have a clean title,";
-                }else if(reports[38] == "Salvage Rebuilt"){
-                    var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
-                }else if(reports[38] == "Unknown,"){
-                    var title_type = "No, I don’t have a title"; 
-                }else{
-                    var title_type = "";
-                }
-                
-                if (reports[39] == "no,W," || reports[39] == "W,no,"){
-                    var water_and_fire_value = "No, it has never had any fire or water damage, Yes, it had fire or water damage";
-                }else if(reports[39] == "W,"){
-                    var water_and_fire_value = "Yes, it had fire or water damage";
-                }else if(reports[39] == "no,"){
-                    var water_and_fire_value = "No, it has never had any fire or water damage,";
-                }else{
-                    var water_and_fire_value = "";
-                }
-
-                $('#bodydamage_label_txt').html(body_damage);
-                $('#airbag_label_txt').html(airbag_value);
-                $('#drive_label_txt').html(start_and_drive);
-                $('#mechanical_label_txt').html(reports[36]);
-                $('#key_label_txt').html(key_value);
-                $('#titletype_label_txt').html(title_type);
-                $('#firedamage_label_txt').html(water_and_fire_value);
-                $('.notification_pubnub').html(response.count);
-
-                if(reports[20] == "plus"){
-                    var buyingruletype = "+";
-                }else{
-                    var buyingruletype = "-";
-                }
-                $('#buyingruletype_label_txt').html(buyingruletype + ' %'+ reports[22] );
-                $('#nottoexceed_label_txt').html(reports[23]);
-                
+                $("#loadingdieditvvehicle").hide();
                 // auctiondata(selectedConditionReportId);
             },
             error: function(xhr, status, error) {
@@ -771,7 +776,7 @@ function time_left(date, id) {
             clearInterval(timerInterval);
             $(".hours_" + id).html('Auction Ended');
         } else {
-            console.log('else timeDifference',timeDifference);
+            // console.log('else timeDifference',timeDifference);
             var days = Math.floor(timeDifference / (24 * 60 * 60));
             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
             var minutes = Math.floor((timeDifference % (60 * 60)) / 60);

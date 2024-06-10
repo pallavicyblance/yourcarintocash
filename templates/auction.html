@@ -1,4 +1,70 @@
 {% include "header.html" %}
+<style type="text/css">
+    .loadingdiv{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        background: rgb(255 255 255 / 65%);
+    }
+    .tcaloader {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background-image: url({{url_for('static' , filename ='images/car-logo.png')}});
+        background-size: 92px;
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        background-color: #fff;
+        background-color: rgb(255 255 255 / 90%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+    }
+    .load-icon {
+        width: 55px;
+        height: 20px;
+        margin-top: 130px;
+        position: relative;
+    }
+    .load-icon span {
+        animation-name: loading;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
+        animation-fill-mode: both;
+        position: absolute;
+        display: inline-block;
+        background: #222;
+        width: 12px;
+        height: 12px;
+        border-radius: 100px;
+    }
+    .load-icon span:nth-of-type(1) {
+        left: 0;
+    }
+    .load-icon span:nth-of-type(2) {
+        animation-delay: .2s;
+        left: 40%;
+    }
+    .load-icon span:nth-of-type(3) {
+        animation-delay: .4s;
+        right: 0;
+    }
+    @keyframes loading {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+</style>
 
 <div class="content-wrapper aev_buying_page">
     <div class="container_full">
@@ -31,23 +97,15 @@
                         <a href="won-auction">Won</a>
                     </li>
                 
-                    <!-- <li class="active" {% if status == None :  %} active {% endif %}>
-                        <a href="auction">Active</a>
-                    </li>
-                    <li {% if status == upcoming :  %} active {% endif %}  >
-                        <a href="upcoming-auction">Upcoming</a>
-                    </li>
-                    <li {% if status == missed :  %} active {% endif %}>
-                        <a href="missed-auction">Missed</a>
-                    </li>
-                    <li {% if status == lost :  %} active {% endif %}>
-                        <a href="lost-auction">Lost</a>
-                    </li>
-                    <li {% if status == won :  %} active {% endif %}>
-                        <a href="won-auction">Won</a>
-                    </li> -->
                 </ul>
             </div>
+            <div id="loadingdieditvvehicle" class="tcaloader" style="display: none">
+                <div class="load-icon center">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
             <div class="col-md-4">
                 <div class="search_filter">
                     <input type="input" plasholder="search" id="searchauction"  class="form-control input-sm" placeholder="Search by VIN, Auction ID,  Year, Make, Model" aria-controls="dataphone">
@@ -92,7 +150,7 @@
                                                 <span class="tag label-info"><b>Mileage</b><span id="mileage_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>State:</b><span id="state_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
                                                 <span class="tag label-info"><b>Country: </b><span id="country_label_txt">: </span> <a href="javascript:void(0)" onclick="resetLabel('mileage','mileage_label_txt','mileage')" id="mileage_close" style=""><i class="ti-close"></i></a></span>
-
+                                                
                                                 <span class="tag label-info"><span id="zip_label_txt"></span> <a href="javascript:void(0)" onclick="resetLabel('zip','zip_label_txt','zip')" id="zip_close" style=""><i class="ti-close"></i></a></span>
 
                                             </div>

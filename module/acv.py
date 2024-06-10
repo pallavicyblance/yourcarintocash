@@ -1065,18 +1065,18 @@ class ACV:
             
             title_type = ""
             # if sold on bill sale is true
-            if data['conditionReport']['sections'][7]['questions'][10]['selected'] == 1:
-                title_type = "Unknown"
-            else:
-                # if branded title is true
-                if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
-                    title_type = 'Salvage Rebuilt'
-                else:
-                    # hail damage is true
-                    if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
-                        title_type = 'Salvage Rebuilt'
-                    else:
-                        title_type = 'Clean Title'
+            # if data['conditionReport']['sections'][7]['questions'][10]['selected'] == 1:
+            #     title_type = "Unknown"
+            # else:
+            #     # if branded title is true
+            #     if data['conditionReport']['sections'][7]['questions'][1]['selected'] == 1:
+            #         title_type = 'Salvage Rebuilt'
+            #     else:
+            #         # hail damage is true
+            #         if data['conditionReport']['sections'][0]['questions'][9]['selected'] == 1:
+            #             title_type = 'Salvage Rebuilt'
+            #         else:
+            #             title_type = 'Clean Title'
             
             fire_water_damage = 'no'
             if data['conditionReport']['sections'][7]['questions'][3]['selected'] == 1:
@@ -2069,6 +2069,16 @@ class ACV:
             return False
         
     def checkconditonwithauction(self, auctiondata, conditionreport = ""):
+        """
+        This function checks the condition of an auction based on the given auction data and condition report.
+        
+        Parameters:
+        - auctiondata: A list containing the auction data.
+        - conditionreport: The ID of the condition report (optional).
+        
+        Returns:
+        - A list of condition reports that match the given auction data and condition report ID.
+        """
         con = ACV.connect(self)
         cursor = con.cursor()
         try: 
@@ -2096,24 +2106,22 @@ class ACV:
 
             if len(body_damage) > 0:
                 checkcondition = ' AND '.join(["FIND_IN_SET('{}', sdamageImg_s)".format(body) for body in body_damage])
-                abc = 'getSDamageComma'
+                abc = 'damageComma'
             else:
                 checkcondition = 'sdamageImg_s = ""'
                 abc = 'sdamageImg_s'
 
             if id_value == "":
                 query = """
-                    SELECT * FROM condition_report
+                    SELECT is_deleted, condition_type, make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, airbagComma, driveComma, getSDamageComma, titleComma, firDamageComma FROM condition_report
                     WHERE is_deleted = 'no'
+                    AND condition_type IN ('ACV','both')
                     AND (
                         (FIND_IN_SET('{}', make_name) OR FIND_IN_SET('all', make_name))
                         AND (FIND_IN_SET('{}', model_name) OR FIND_IN_SET('all', model_name))
                         AND (max_year >= {} AND min_year <= {})
                         AND (max_mileage >= {} AND min_mileage <= {})
                         AND (final_zip = '' OR FIND_IN_SET({}, final_zip))
-                        AND (
-                            FIND_IN_SET('{}', state) OR state = '' OR FIND_IN_SET('all', make_name)
-                        )
                         AND (
                             {} OR {} = ''
                         )
@@ -2125,28 +2133,25 @@ class ACV:
                     )
                     ORDER BY id DESC;
                 """.format(
-                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, 
+                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip,
                     checkcondition, abc, airbagComma, 
                     ' OR '.join(["FIND_IN_SET('{}', driveComma)".format(drive) for drive in driveComma]),
                     ' OR '.join(["FIND_IN_SET('{}', getSDamageComma)".format(mechnical_issue) for mechnical_issue in mechnicalComma]),
                     ' OR '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
                     fireWaterDame
                 )
-                
                 cursor.execute(query)
             else:
                 query = """
-                    SELECT * FROM condition_report
+                    SELECT id, is_deleted, condition_type, make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, airbagComma, driveComma, getSDamageComma, titleComma, firDamageComma FROM condition_report
                     WHERE is_deleted = 'no'
+                    AND condition_type IN ('ACV','both')
                     AND (
                         (FIND_IN_SET('{}', make_name) OR FIND_IN_SET('all', make_name))
                         AND (FIND_IN_SET('{}', model_name) OR FIND_IN_SET('all', model_name))
                         AND (max_year >= {} AND min_year <= {})
                         AND (max_mileage >= {} AND min_mileage <= {})
                         AND (final_zip = '' OR FIND_IN_SET({}, final_zip))
-                        AND (
-                            FIND_IN_SET('{}', state) OR state = '' OR FIND_IN_SET('all', make_name)
-                        )
                         AND (
                             {} OR {} = ''
                         )
@@ -2159,14 +2164,14 @@ class ACV:
                     AND id = {}
                     ORDER BY id DESC;
                 """.format(
-                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip, state, 
+                    make_name, model_name, max_year, min_year, max_mileage, min_mileage, final_zip,
                     checkcondition, abc, airbagComma, 
                     ' OR '.join(["FIND_IN_SET('{}', driveComma)".format(drive) for drive in driveComma]),
                     ' OR '.join(["FIND_IN_SET('{}', getSDamageComma)".format(mechnical_issue) for mechnical_issue in mechnicalComma]),
                     ' OR '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
                     fireWaterDame, id_value
                 )
-                print('else')
+                print('query', query)
                 cursor.execute(query)
             return cursor.fetchall()
             

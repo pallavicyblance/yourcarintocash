@@ -43,7 +43,7 @@ def latest_auctions():
             todaydatestr = todaydatetime.strftime("%Y-%m-%d %H:%M:%S")
             for auction in auctions:
                 print(f"Processing auction ID: {auction['id']}, Status: {auction['status']}")
-                auction_data = fetch_auction_details(auction['id'], headers['Authorization'])
+                auction_data = fetch_auction_details(auction['id'], getjwttoken[0])
                 acv.insertauctiondata(auction_data)
                 acv.auctionconditionreport(auction_data)
                 acv.countslights(auction['id'])

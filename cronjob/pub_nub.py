@@ -51,20 +51,15 @@ class PubNubNotification:
                             auctionId = message_data['data']['id']
                             auction_data = PubNubNotification.fetch_auction_details(auctionId, getjwttoken[0])
                             
-                            todaydatetime = datetime.now()
-                            todaydatestr = todaydatetime.strftime("%Y-%m-%d %H:%M:%S")
-
                             if isinstance(auction_data, dict):
                                 auction_end_date = auction_data['endTime']
                                 print('end_date', auction_end_date)
 
-                                auctiondate = datetime.strptime(auction_end_date[:-1], "%Y-%m-%dT%H:%M:%S")
-                                auctionenddatestr = auctiondate.strftime("%Y-%m-%d %H:%M:%S")
+                                # auctiondate = datetime.strptime(auction_end_date[:-1], "%Y-%m-%dT%H:%M:%S")
+                                # auctionenddatestr = auctiondate.strftime("%Y-%m-%d %H:%M:%S")
 
-                                if auctionenddatestr > todaydatestr and auction_data['status'] == 'active':    
+                                if auction_data['status'] == 'active':    
                                     acv.insertAuctionsUsingPubnub(auction_data) 
-                                    acv.insertConditionreportUsingPubnub(auction_data)
-                                    acv.countslights(auctionId)
                             else:
                                 print('Unexpected data type for auction_data:', type(auction_data))
 

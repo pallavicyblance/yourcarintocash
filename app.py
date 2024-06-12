@@ -94,11 +94,15 @@ qoute = Qoute()
 offer = Offer()
 
 
+@app.route('/google', methods=['GET'])
+def referal():
+    return render_template('referal.html')
 
 
 @app.route('/')
 
 def index():
+
     sharing = request.args.get('amt')
     lang = request.args.get('lang')
 
@@ -209,14 +213,14 @@ def index():
         year_1 = request.args.get('year')
         skip_1 = 'yes'
 
-
     sharing = request.args.get('amt')
 
+    referrer = request.referrer
     utm_source = request.args.get('utm_source')
     utm_medium = request.args.get('utm_medium')
     utm_campaign = request.args.get('utm_campaign')
 
-    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=u1 ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign )
+    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=referrer ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign)
 
 # darshan added for sharing
 
@@ -233,8 +237,6 @@ def sharing_genrate_id():
 
 
 def login():
-
-
     return render_template('login.html')
 
 
@@ -1188,12 +1190,13 @@ def getInquiryData():
                 else:
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
-            tracked_form = ""
 
-            if data[15] is not None:
-                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            else:
+
+            tracked_form = ''
+            if data[13] != None and data[13] != " " and data[13] != "None":
                 tracked_form = data[13]
+            elif data[15] != " ":
+                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             
             # if data[13] == 'https://t.co/' :
             #     tracked_form = 'https://www.twitter.com/'
@@ -1287,12 +1290,12 @@ def getDispatchData():
                 else:
                     btn += '<br><span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
-            tracked_form = ""
             
-            if data[15] is not None:
-                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            else:
+            tracked_form = ''
+            if data[13] != None and data[13] != " " and data[13] != "None":
                 tracked_form = data[13]
+            elif data[15] != " ":
+                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
                 
 
             # if data[13] == 'https://t.co/' :
@@ -1913,13 +1916,20 @@ def get_decline_data():
                     btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
                 else:
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
+
             
-            tracked_form = ""
-            
-            if data[13] == 'https://t.co/' :
-                tracked_form = 'https://www.twitter.com/'
-            else:
+            tracked_form = ''
+            if data[13] != None and data[13] != " " and data[13] != "None":
                 tracked_form = data[13]
+            elif data[15] != " ":
+                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            
+            # tracked_form = ""
+            
+            # if data[13] == 'https://t.co/' :
+            #     tracked_form = 'https://www.twitter.com/'
+            # else:
+            #     tracked_form = data[13]
 
             data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
 
@@ -1987,8 +1997,12 @@ def conditionfilter():
         if not session.get('sessionid'):
             session['sessionid'] = sessionidgenerator()
         sessionid = session['sessionid']
+        
+        idssss = session['admin_logged_id']
+        role = admin.role(idssss)
         #new code value added end here country
-        return render_template('condition-filter.html',modelresult=modelresult,data=data,states=states)
+        return render_template('condition-filter.html',modelresult=modelresult,data=data,states=states,role=role)
+    
 #11-1-2024 start
 @app.route('/condition-filter-softdeleted')
 def conditionfiltersoftdeleted():

@@ -162,7 +162,7 @@ class Acceptedaps:
                     # cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
             else:
                 query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign
                             FROM accepted_aps
                             WHERE where id = %s AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -789,7 +789,7 @@ class Acceptedaps:
             concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
 
             query = """
-                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update 
+                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
                 FROM accepted_aps 
                 WHERE status = %s AND created_at BETWEEN %s AND %s
                 AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -1142,11 +1142,7 @@ class Acceptedaps:
             condition_id = cursor.lastrowid
             #print(condition_id)
         else:
-            #cursor.execute("UPDATE condition_report set title = %s, estimate = %s, not_to_exceed_type_action = %s, not_to_exceed_type = %s , not_to_exceed_per = %s , not_to_exceed = %s, fixed_amt_txt = %s , make_model = %s, min_mileage = %s, max_mileage=%s,  zip=%s , damage=%s , damageimg=%s , make_name=%s , model_name=%s ,  make1=%s , model1=%s,sdamageImg_s=%s ,min_year=%s ,max_year=%s,distance_amt=%s,range_zip=%s,final_zip=%s,damageComma=%s,airbagComma=%s,driveComma=%s,getSDamageComma=%s,keyComma=%s,titleComma=%s,firDamageComma=%s,unable_to_verify=%s,distance_amt1=%s,range_zip1=%s,distance_amt2=%s,range_zip2=%s,final_zip1=%s,final_zip2=%s,final_zip3=%s,final_zip5=%s,state=%s,country=%s    where id = %s",(data['filter_title'], estimate,data['not_to_exceed_type_action'], data['not_to_exceed_type'],data['not_to_exceed_per'], data['not_to_exceed'] , data['fixed_amt_txt'],adcostrray,data['mileage_min'],data['mileage_max'],data['zip'],getDamage1,abc1,make_name1,model_name1,make_id_s,model_id_s,sdamageImg_s,data['year_min'],data['year_max'],data['distance_amt'],data['range_zip'],allZip,damageComma,airbagComma,driveComma,getSDamageComma,keyComma,titleComma,firDamageComma,unable_to_verify_data,data['distance_amt1'],data['range_zip1'],data['distance_amt2'],data['range_zip2'],allZip1,allZip2,allZip3,allZip5,stateComma,usa_data,data['condition_report_id']))
-            #cursor.execute("UPDATE condition_report set title = %s, estimate = %s, not_to_exceed_type_action = %s, not_to_exceed_type = %s , not_to_exceed_per = %s , not_to_exceed = %s, fixed_amt_txt = %s , make_model = %s, min_mileage = %s, max_mileage=%s,  zip=%s , damage=%s , damageimg=%s , make_name=%s , model_name=%s ,  make1=%s , model1=%s,sdamageImg_s=%s ,min_year=%s ,max_year=%s,distance_amt=%s,range_zip=%s,final_zip=%s,damageComma=%s,airbagComma=%s,driveComma=%s,getSDamageComma=%s,keyComma=%s,titleComma=%s,firDamageComma=%s,unable_to_verify=%s,distance_amt1=%s,range_zip1=%s,distance_amt2=%s,range_zip2=%s,final_zip1=%s,final_zip2=%s,final_zip3=%s,final_zip5=%s,state=%s,country=%s    where id = %s",(data['filter_title'], estimate,data['not_to_exceed_type_action'], data['not_to_exceed_type'],data['not_to_exceed_per'], data['not_to_exceed'] , data['fixed_amt_txt'],adcostrray,data['mileage_min'],data['mileage_max'],data['zip'],getDamage1,abc1,make_name1,model_name1,make_id_s,model_id_s,sdamageImg_s,data['year_min'],data['year_max'],data['distance_amt'],data['range_zip'],allZip,damageComma,airbagComma,driveComma,getSDamageComma,keyComma,titleComma,firDamageComma,unable_to_verify_data,data['distance_amt1'],data['range_zip1'],data['distance_amt2'],data['range_zip2'],allZip1,allZip2,allZip3,allZip5,stateComma,usa_data,data['condition_report_id']))
-            #con.commit()
-            #condition_id = data['condition_report_id']
-            cursor.execute("UPDATE condition_report set title = %s, condition_type = %s, estimate = %s, not_to_exceed_type_action = %s, not_to_exceed_type = %s, not_to_exceed_per = %s, not_to_exceed = %s, fixed_amt_txt = %s , make_model = %s, min_year = %s, max_year = %s, min_mileage = %s, max_mileage = %s, zip = %s, damage = %s, damageimg = %s, make_name = %s, model_name=%s, make1=%s, model1 = %s, sdamageImg_s = %s, range_zip = %s, damageComma = %s, airbagComma = %s, driveComma = %s, getSDamageComma = %s, keyComma = %s, titleComma = %s, firDamageComma = %s, unable_to_verify = %s , state  = %s, country = %s, final_zip = %s where id = %s", (data['filter_title'],condition_type, estimate,data['not_to_exceed_type_action'], data['not_to_exceed_type'], data['not_to_exceed_per'], data['not_to_exceed'] , data['fixed_amt_txt'], abc, data['year_min'],data['year_max'],data['mileage_min'],data['mileage_max'],data['zip'],getDamage1,abc1,make_name1,model_name1,make_id_s,model_id_s,sdamageImg_s,rangearray,damageComma,airbagComma,driveComma,getSDamageComma,keyComma,titleComma,firDamageComma,unable_to_verify_data, stateComma, usa_data, allZip, data['condition_report_id']))
+            cursor.execute("UPDATE condition_report set title = %s, condition_type = %s, estimate = %s, not_to_exceed_type_action = %s, not_to_exceed_type = %s, not_to_exceed_per = %s, not_to_exceed = %s, fixed_amt_txt = %s , make_model = %s, min_year = %s, max_year = %s, min_mileage = %s, max_mileage = %s, zip = %s, damage = %s, damageimg = %s, make_name = %s, model_name=%s, make1=%s, model1 = %s, sdamageImg_s = %s, range_zip = %s, damageComma = %s, airbagComma = %s, driveComma = %s, getSDamageComma = %s, keyComma = %s, titleComma = %s, firDamageComma = %s, unable_to_verify = %s , state  = %s, country = %s, final_zip = %s , sessionid = %s where id = %s", (data['filter_title'], condition_type, estimate,data['not_to_exceed_type_action'], data['not_to_exceed_type'], data['not_to_exceed_per'], data['not_to_exceed'] , data['fixed_amt_txt'], abc, data['year_min'],data['year_max'],data['mileage_min'],data['mileage_max'],data['zip'],getDamage1,abc1,make_name1,model_name1,make_id_s,model_id_s,sdamageImg_s,rangearray,damageComma,airbagComma,driveComma,getSDamageComma,keyComma,titleComma,firDamageComma,unable_to_verify_data, stateComma, usa_data, allZip, sessionid,data['condition_report_id']))
             con.commit()
             condition_id = data['condition_report_id']
         return condition_id
@@ -1242,18 +1238,21 @@ class Acceptedaps:
             estimate = 'Proquote Estimate'
         else:
             estimate = 'Fixed Amount'
-            
+
         if data['make_name']=='':
             make_name1 = 'all'
             model_name1 = 'all'
         else:
             make_name1 = data['make_name']
             model_name1 = data['model_name']
-            
+
         q1 = "SELECT * FROM zipcode where zipcode='"+data['range_zip']+"'"
         cursor1.execute(q1)
-        getRecord = cursor1.fetchone() 
-        
+        getRecord = cursor1.fetchone()
+        allZip = ',';
+        allZip1 = '';
+        allZip2 = '';
+
         if getRecord:
             q2 = "SELECT `zipcode`, ( 3959 * ACOS( COS( RADIANS(" + str(getRecord[4]) + ") ) * COS( RADIANS(`latitude`) ) * COS( RADIANS(`longitude`) - RADIANS(" + str(getRecord[5]) + ") ) + SIN( RADIANS(" + str(getRecord[4]) + ") ) * SIN( RADIANS(`latitude`) ) ) ) AS distance FROM zipcode HAVING distance <= " + str(data['distance_amt']) + " ORDER BY distance"
             cursor2.execute(q2)

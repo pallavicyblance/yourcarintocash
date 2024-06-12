@@ -215,10 +215,23 @@ def index():
 
     sharing = request.args.get('amt')
 
-    referrer = request.referrer
-    utm_source = request.args.get('utm_source')
-    utm_medium = request.args.get('utm_medium')
-    utm_campaign = request.args.get('utm_campaign')
+    # pallavi changes 12-06-24
+    referrer = ''
+    if request.referrer:
+        referrer = request.referrer
+
+    utm_source = ''
+    if request.args.get('utm_source'):
+        utm_source = request.args.get('utm_source')
+    
+    utm_medium = ''
+    if request.args.get('utm_medium'):
+        utm_medium = request.args.get('utm_medium')
+    
+    utm_campaign = ''
+    if request.args.get('utm_campaign'):
+        utm_campaign = request.args.get('utm_campaign')
+    # pallavi changes 12-06-24 close
 
     return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=referrer ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign)
 
@@ -1190,14 +1203,17 @@ def getInquiryData():
                 else:
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
-
-
+            #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] != None and data[13] != " " and data[13] != "None":
+            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
+                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
                 tracked_form = data[13]
-            elif data[15] != " ":
+            elif data[15] != "":
                 tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            
+   
+            #end pallavi code 12-06-24
+
             # if data[13] == 'https://t.co/' :
             #     tracked_form = 'https://www.twitter.com/'
             # else:
@@ -1290,12 +1306,15 @@ def getDispatchData():
                 else:
                     btn += '<br><span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
             
-            
+            #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] != None and data[13] != " " and data[13] != "None":
+            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
+                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
                 tracked_form = data[13]
-            elif data[15] != " ":
+            elif data[15] != "":
                 tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            #end pallavi code 12-06-24
                 
 
             # if data[13] == 'https://t.co/' :
@@ -1917,12 +1936,15 @@ def get_decline_data():
                 else:
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
 
-            
+            #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] != None and data[13] != " " and data[13] != "None":
+            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
+                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
                 tracked_form = data[13]
-            elif data[15] != " ":
+            elif data[15] != "":
                 tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            #end pallavi code 12-06-24
             
             # tracked_form = ""
             
@@ -2471,8 +2493,8 @@ scheduler = BackgroundScheduler()
 start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
-scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+# scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
+# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
 # scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
 # scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)

@@ -2171,7 +2171,6 @@ class ACV:
                     ' OR '.join(["FIND_IN_SET('{}', titleComma)".format(title) for title in titleComma]),
                     fireWaterDame, id_value
                 )
-                print('query', query)
                 cursor.execute(query)
             return cursor.fetchall()
             

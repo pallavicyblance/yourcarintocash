@@ -1165,6 +1165,19 @@ function getzipcode(id){
 
         distance_counter = parseInt(distance_counter) - 1;
         $('#distance_counter').val(distance_counter);
+        
+        // pallavi changes 12-06-24
+        $.ajax({
+            url: WS_PATH+'remove-zipcode',
+            data: { id : id, sessionid : $('#sessionid').val() }, 
+            type: 'POST',
+            success: function(response){
+            },
+            error: function(error){
+                console.log(error);
+            }
+        })
+        // code end
     }
     
     function checkUnable(){
@@ -1297,13 +1310,16 @@ function getzipcode(id){
                 }
 
                 $('#country_close').hide();
-                if(data1[50]!=''){
+                // if(data1[50]!=''){
+                if(data1[50]!='' && data1[50]!=null){
                     $('#country_label_txt').text(': USA');
                     $('#country_close').show();
                     $('#state-div-hide').hide();
                 }
 
-                if(data1[49]!=''){
+                // if(data1[49]!=''){
+                if(data1[49]!='' && data1[49]!=null){
+
 
                     //new code value added start here country
 
@@ -1328,8 +1344,8 @@ function getzipcode(id){
                     //new code value added end here country
                 }
 
-                if(data1[50]!=''){
-
+                // if(data1[50]!=''){
+                if(data1[50]!='' && data1[50]!=null){
                     //new code value added start here country
                     $('.country-chk').prop('checked', true);
                     $('.state-chk').prop('checked', false);
@@ -1401,7 +1417,6 @@ function getzipcode(id){
                     driveArr.forEach(driveArrData => {
                         
                         if(driveArrData!=''){
-                            
                             $("input[name='drive[]'][value='" + driveArrData + "']").attr('checked', false).trigger('click');
                         }
                     });

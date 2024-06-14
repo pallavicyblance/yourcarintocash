@@ -86,7 +86,7 @@ class Acceptedaps:
                 if param:
                     if status=='monthly':
                         query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign, currunt_url	
                             FROM accepted_aps
                             WHERE MONTH(`created_at`) = MONTH(now()) AND YEAR(`created_at`) = YEAR(now()) AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -96,7 +96,7 @@ class Acceptedaps:
                         cursor.execute(query, (start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                     elif status=='weekly':
                         query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign, currunt_url
                             FROM accepted_aps
                             WHERE week(`created_at`) = week(now()) AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -107,7 +107,7 @@ class Acceptedaps:
 
                     elif status=='today':
                         query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign, currunt_url
                             FROM accepted_aps
                             WHERE DATE_FORMAT(`created_at`, '%Y-%m-%d') = CURDATE() AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -118,7 +118,7 @@ class Acceptedaps:
                     elif status=='userfrom':
 
                         query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign, currunt_url
                             FROM accepted_aps
                             WHERE WHERE `ref_id` !='' AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -129,7 +129,7 @@ class Acceptedaps:
                     else:
                         if param1:
                             query = """
-                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign	
+                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign, currunt_url
                                 FROM accepted_aps
                                 WHERE status = %s AND created_at BETWEEN %s AND %s
                                 AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -139,7 +139,7 @@ class Acceptedaps:
                             cursor.execute(query, (status, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                         else:
                             query = """
-                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign	
+                                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign , currunt_url
                                 FROM accepted_aps
                                 WHERE status = %s AND created_at BETWEEN %s AND %s
                                 AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -149,7 +149,7 @@ class Acceptedaps:
                             cursor.execute(query, (status, start_date, end_date, '%' + search_value + '%', search_value, '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', '%' + search_value + '%', int(length), int(start)))
                 else:
                     query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign	
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign, currunt_url	
                             FROM accepted_aps
                             WHERE created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -162,7 +162,7 @@ class Acceptedaps:
                     # cursor.execute("SELECT id,year,model,make,zip,original_price,status,user_city,user_state,created_at,revised_price,offer_id,dispatched,ref_id,status_update FROM accepted_aps WHERE created_at BETWEEN %s AND %s AND (offer_id LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s ) ORDER BY {} {}  LIMIT %s OFFSET %s".format(column, order),(start_date, end_date, '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', '%' + searchData + '%', int(length), int(start)))
             else:
                 query = """
-                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign
+                            SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update , utm_source, utm_medium, utm_campaign, currunt_url
                             FROM accepted_aps
                             WHERE where id = %s AND created_at BETWEEN %s AND %s
                             AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -474,7 +474,7 @@ class Acceptedaps:
                 else:
                     aaa = data['ref_id']
                 
-                cursor.execute("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id,utm_source,utm_medium, utm_campaign) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s,  %s, %s,%s,%s,%s, %s, %s, %s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,data['utm_source'],data['utm_medium'],data['utm_campaign']))
+                cursor.execute("INSERT INTO accepted_aps(year, makeid, modelid, make, model, make_code, vin, ipaddr, hostname,created_at,user_city,user_state,user_country,ref_id,utm_source,utm_medium, utm_campaign,currunt_url) VALUES(%s, %s, %s, %s, %s, %s, %s, %s,  %s,  %s, %s,%s,%s,%s, %s, %s, %s, %s)", (data['year'], data['make_id'], data['model_id'], data['make'], data['model'],  data['make_code'], data['vin'],  data['ipaddr'], data['hostname'],datetime.now(),data['user_city'],data['user_state'],data['user_country'],aaa,data['utm_source'],data['utm_medium'],data['utm_campaign'],data['currunt_url']))
                 con.commit()
                
                 inquiry_id = int(cursor.lastrowid)
@@ -789,7 +789,7 @@ class Acceptedaps:
             concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
 
             query = """
-                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign,currunt_url
                 FROM accepted_aps 
                 WHERE status = %s AND created_at BETWEEN %s AND %s
                 AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
@@ -3163,6 +3163,28 @@ class Acceptedaps:
         try:
             cursor.execute('SELECT * FROM auctions WHERE status = "run_list" and action_start_datetime > %s',datetime.datetime.now())
             return cursor.fetchall()
+        except:
+            return ()
+        finally:
+            con.close()
+
+    #pallavi changes 12-06-24
+    def remove_zipcode(self, data):
+        """
+        This function removes a zipcode from the condition_zipcode table based on the sessionid and id provided in the data parameter.
+        
+        Parameters:
+        - data: A dictionary containing the sessionid and id of the zipcode to be removed.
+        
+        Returns:
+        - None if the deletion is successful.
+        - An empty tuple () if an exception occurs during the deletion.
+        """
+        con = Acceptedaps.connect(self)
+        cursor = con.cursor()
+        try:
+            cursor.execute('DELETE FROM condition_zipcode WHERE sessionid = %s AND 	numbers = %s', (data['sessionid'],data['id']))
+            con.commit()
         except:
             return ()
         finally:

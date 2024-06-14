@@ -518,10 +518,9 @@ class Setting:
             elif status == 'canceled':
                 status_condition = "status_update = 'Canceled'"
             else:
-                status_condition = "1"
-
+                status_condition = "status != 'Decline'"
             query = """
-                SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign	
+                SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign, currunt_url
                 FROM accepted_aps
                 WHERE created_at BETWEEN %s AND %s
                 AND ({})

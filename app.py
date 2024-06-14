@@ -216,8 +216,11 @@ def index():
     sharing = request.args.get('amt')
 
     # pallavi changes 12-06-24
+    param1 = request.args.get('args')
     referrer = ''
-    if request.referrer:
+    if param1:
+        referrer = param1
+    else:
         referrer = request.referrer
 
     utm_source = ''
@@ -231,9 +234,17 @@ def index():
     utm_campaign = ''
     if request.args.get('utm_campaign'):
         utm_campaign = request.args.get('utm_campaign')
+    
+    currunt_param = request.args.get('currunt_url')
+    currunt_url = ''
+    if currunt_param:
+        currunt_url = currunt_param
+    else:
+        currunt_url = request.url
+        
     # pallavi changes 12-06-24 close
 
-    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=referrer ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign)
+    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=referrer ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign,currunt_url=currunt_url)
 
 # darshan added for sharing
 
@@ -1205,12 +1216,24 @@ def getInquiryData():
             
             #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
-                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
-                tracked_form = data[13]
-            elif data[15] != "":
-                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            url = data[13]
+            source = data[15]
+            medium = data[16]
+            campaign = data[17]
+
+            if url and url.strip() != "" and url != "None":
+                if url == 'https://t.co/':
+                    url = 'https://www.twitter.com/'
+                if source != "":
+                    tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+                else:
+                    tracked_form = url
+            elif source != "":
+                tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+
+            currunt_url = ''
+            if data[18]:
+                currunt_url = data[18]
    
             #end pallavi code 12-06-24
 
@@ -1219,7 +1242,7 @@ def getInquiryData():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
         response = {
             "draw": int(draw),
@@ -1308,12 +1331,32 @@ def getDispatchData():
             
             #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
-                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
-                tracked_form = data[13]
-            elif data[15] != "":
-                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            url = data[13]
+            source = data[15]
+            medium = data[16]
+            campaign = data[17]
+
+            if url and url.strip() != "" and url != "None":
+                if url == 'https://t.co/':
+                    url = 'https://www.twitter.com/'
+                if source != "":
+                    tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+                else:
+                    tracked_form = url
+            elif source != "":
+                tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+
+            currunt_url = ''
+            if data[18]:
+                currunt_url = data[18]
+
+            # tracked_form = ''
+            # if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
+            #     tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            # elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
+            #     tracked_form = data[13]
+            # elif data[15] != "":
+            #     tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             #end pallavi code 12-06-24
                 
 
@@ -1322,7 +1365,7 @@ def getDispatchData():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
 
         response = {
@@ -1938,12 +1981,32 @@ def get_decline_data():
 
             #pallavi changes 12-06-24
             tracked_form = ''
-            if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
-                tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
-            elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
-                tracked_form = data[13]
-            elif data[15] != "":
-                tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            url = data[13]
+            source = data[15]
+            medium = data[16]
+            campaign = data[17]
+
+            if url and url.strip() != "" and url != "None":
+                if url == 'https://t.co/':
+                    url = 'https://www.twitter.com/'
+                if source != "":
+                    tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+                else:
+                    tracked_form = url
+            elif source != "":
+                tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
+
+            currunt_url = ''
+            if request.args.get('currunt_url'):
+                currunt_url = request.args.get('currunt_url')
+
+            # tracked_form = ''
+            # if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
+            #     tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
+            # elif data[13] is not None and data[13].strip() != "" and data[13] != "None":
+            #     tracked_form = data[13]
+            # elif data[15] != "":
+            #     tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             #end pallavi code 12-06-24
             
             # tracked_form = ""
@@ -1953,7 +2016,7 @@ def get_decline_data():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
 
             data_list.append(data_dict)
         response = {
@@ -2467,6 +2530,21 @@ def changeUSDateFormat(date,input_format='%Y-%m-%d %H%M%S',time_format='%H%M%S')
     time_obj = datetime.strptime(time_str, time_format)
     return date_obj.strftime('%m/%d/%Y') + ' ' + time_obj.strftime('%H:%M:%S')
 
+#pallavi changes 12-06-24
+@app.route('/remove-zipcode', methods=['POST'])
+def remove_zipcode():
+    """
+    Removes a zipcode from the accepted applications.
+
+    Returns:
+        str: JSON response containing the removed zipcode.
+    """
+    if request.method == 'POST':
+        data = acceptedaps.remove_zipcode(request.form)
+        return json.dumps({'model':data})
+#end pallavi code 12-06-24
+
+
 # def simulate_task(scheduler):
 
 #     scheduler.enter(40, 1, acv_login, (scheduler))
@@ -2493,8 +2571,8 @@ scheduler = BackgroundScheduler()
 start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-# scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
-# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
+scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
 # scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
 # scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)

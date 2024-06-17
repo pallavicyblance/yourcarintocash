@@ -23,86 +23,62 @@ from cronjob.remove_auction import remove_auction
 from cronjob.pub_nub import PubNubNotification
 from cronjob.out_bid import OutBid
 from cronjob.generate_proqoute import Proqoute
-
 from module.database import Database
 from module.admin import Admin
-
-
 from module.setting import Setting
-
-
-
 from module.acceptedaps import Acceptedaps
 from module.notes import Notes
-
 from pubnub.pubnub import PubNub
 from pubnub.callbacks import SubscribeCallback
 from pubnub.pnconfiguration import PNConfiguration
-
 from module.commonarray import Commonarray
-
-
-
 from module.qoute import Qoute
-
 from module.offer import Offer
-
 from module.acv import ACV
-
 import smtplib
 import logging
-
 from email.message import EmailMessage
-
-
-
 from flask import request, g
-
 # from werkzeug.urls import url_parse
-
 logging.basicConfig(filename='cron.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-
 app = Flask(__name__)
-
 path = os.getcwd()
 UPLOAD_FOLDER = os.path.join(path, 'static/images')
 if not os.path.isdir(UPLOAD_FOLDER): os.mkdir(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
 app.secret_key = "345t345345343"
-
 db = Database()
-
 admin = Admin()
-
 setting = Setting()
-
-
 acv = ACV()
-
 acceptedaps = Acceptedaps()
 notes= Notes()
-
-
 commonarray = Commonarray()
-
 qoute = Qoute()
-
 offer = Offer()
+#Added By Nigam For Caching 
+from flask import request, g
+from flask_caching import Cache
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+#Added By Nigam For Caching end
 
+#Added By Nigam For Caching 
+app.config['CACHE_TYPE'] = 'SimpleCache'  # Use SimpleCache for in-memory caching
+app.config['CACHE_DEFAULT_TIMEOUT'] = 60  # Cache timeout in seconds
+
+cache = Cache(app)
+
+def make_cache_key(*args, **kwargs):
+    return f"{session.get('admin_logged_id')}"
+
+#Added By Nigam For Caching end
 
 @app.route('/google', methods=['GET'])
 def referal():
     return render_template('referal.html')
 
-
 @app.route('/')
-
 def index():
-
     sharing = request.args.get('amt')
     lang = request.args.get('lang')
 
@@ -568,6 +544,7 @@ def place_proxy_bid():
         return jsonify({'error': response.text})
 
 @app.route('/auction/', methods=['GET'])
+@cache.cached(timeout=60, key_prefix=make_cache_key)
 def auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -776,6 +753,7 @@ def getliveauctioncondition():
     return jsonify(conditions)
     
 @app.route('/match-condition/', methods = ['POST','GET'])
+@cache.cached(timeout=60, key_prefix=make_cache_key)
 def meets_condition(auction_data, condition_flter):
     # for condition in condition_flter:
         if acv.checkconditonwithauction(auction_data, condition_flter):
@@ -2559,8 +2537,8 @@ scheduler = BackgroundScheduler()
 start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
-scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+#scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
+#scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
 # scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
 # scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
@@ -2568,6 +2546,8 @@ scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', se
 # scheduler.add_job(func=PubNubNotification.auction_pub_nub_notification, trigger='cron', hour='*', minute='*',second='*/1')
 # scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
 # scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
+
+
 scheduler.start()
     
 # @app.route('/run-crone-job/')

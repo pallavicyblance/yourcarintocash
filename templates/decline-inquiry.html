@@ -278,8 +278,6 @@
 
                                             <th width="150px">User Tracked From</th>
 
-                                            <th> Currunt url</th>
-
                                             <th width="37px">Revised Price</th>
 
                                             <th width="80px">Offer</th>
@@ -861,7 +859,7 @@
             $('#dataphone4').DataTable().destroy();
             if(role1=='Super Admin'){
                 $('#dataphone4').DataTable({
-                    order: [[8, 'desc']],
+                    order: [[7, 'desc']],
                     "processing": true,
                     "pageLength": 50, 
                     "language": {
@@ -888,7 +886,6 @@
                         { "data": "offerif" },
                         { "data":"location"},
                         { "data": "form" },
-                        { "data": 'currunt_url'},
                         { "data": "revisedprice" },
                         { "data": "offer" },
                         { "data": "date" },
@@ -905,10 +902,10 @@
                             "className": "dt-word-break" 
                         },
                         {
-                            "targets": 9, 
+                            "targets": 8, 
                             "className": "dt-align-center" 
                         },
-                        { "orderable": false, "targets": [0,1,3,4,5,9] }
+                        { "orderable": false, "targets": [0,1,3,4,8] }
                     ],
                     "initComplete": function(settings, json) {
                         $('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()" 	style="margin-left:15px;">');
@@ -916,7 +913,7 @@
                 });
             }else{
                 $('#dataphone4').DataTable({
-                order: [[7, 'desc']],
+                order: [[6, 'desc']],
                 "processing": true,
                 "pageLength": 50, 
                 "language": {
@@ -955,10 +952,10 @@
                         "className": "dt-word-break" 
                     },
                     {
-                        "targets": 8, 
+                        "targets": 7, 
                         "className": "dt-align-center" 
                     },
-                    { "orderable": false, "targets": [0,2,3,4,8] }
+                    { "orderable": false, "targets": [0,1,3,4] }
                 ],
                 // "initComplete": function(settings, json) {
                 //     $('.dataTables_length').append('<input type="submit" class="btn btn-lg btn-primary" value="Delete" onclick="inquiryDelete()"    style="margin-left:15px;">');

@@ -235,7 +235,7 @@ def index():
     if request.args.get('utm_campaign'):
         utm_campaign = request.args.get('utm_campaign')
     
-    currunt_param = request.args.get('currunt_url')
+    currunt_param = request.args.get('current_url')
     currunt_url = ''
     if currunt_param:
         currunt_url = currunt_param
@@ -1230,10 +1230,6 @@ def getInquiryData():
                     tracked_form = url
             elif source != "":
                 tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
-
-            currunt_url = ''
-            if data[18]:
-                currunt_url = data[18]
    
             #end pallavi code 12-06-24
 
@@ -1242,7 +1238,7 @@ def getInquiryData():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
         response = {
             "draw": int(draw),
@@ -1346,10 +1342,6 @@ def getDispatchData():
             elif source != "":
                 tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
 
-            currunt_url = ''
-            if data[18]:
-                currunt_url = data[18]
-
             # tracked_form = ''
             # if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
             #     tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
@@ -1365,7 +1357,7 @@ def getDispatchData():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
             data_list.append(data_dict)
 
         response = {
@@ -1996,10 +1988,6 @@ def get_decline_data():
             elif source != "":
                 tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
 
-            currunt_url = ''
-            if request.args.get('currunt_url'):
-                currunt_url = request.args.get('currunt_url')
-
             # tracked_form = ''
             # if data[13] is not None and data[13].strip() != "" and data[13] != "None" and  data[15] != "":
             #     tracked_form = f'<b>{data[13]}</b><br /> <b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
@@ -2016,7 +2004,7 @@ def get_decline_data():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form, 'currunt_url':currunt_url,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
 
             data_list.append(data_dict)
         response = {

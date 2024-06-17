@@ -481,7 +481,7 @@
                             <table class="table inquiry-log-table">
                                <h3>Inquiry Log</h3>
                                 <tr>
-                                    <th colspan="3">User Tracked From:</th>
+                                    <th>User Tracked From:</th>
                                     <td colspan="3">
 
                                         {% if row[43] == 'https://t.co/' :  %}
@@ -490,6 +490,10 @@
 								            {{ row[43] }}
 								        {% endif %}
                                     </td>
+                                </tr>
+                                <tr>
+                                    <th>Currunt URl:</th>
+                                    <td style="word-break: break-word;" >{{ row[74]}}</td>
                                 </tr>
                                 <tr>
                                     <th>IP Address:</th>
@@ -506,7 +510,7 @@
                             </table>
                             
                             
-                        
+                      
                         </form>
                         
                         <table class="table inquiry-log-table">

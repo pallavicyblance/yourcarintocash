@@ -148,7 +148,6 @@
 						  <th width="10%">Offer ID</th>
 						  <th width="10%">User's Geolocation</th>
 						  <th width="16%">User Tracked From</th>
-						  <th> Currunt url</th>
 						  <th width="8%">Price</th>
 						  <th width="8%">Status</th>
 						  <th width="10%">Created Date</th>
@@ -462,7 +461,6 @@
 						{ "data": "offerif" },
 						{ "data":"location"},
 						{ "data": "form" },
-						{ "data": 'currunt_url'},
 						{ "data": "revisedprice" },
 						{ "data": "offer" },
 						{ "data": "date" },
@@ -478,9 +476,9 @@
 							"targets": 4, 
 							"className": "dt-word-break" 
 						},
-						{ "orderable": false, "targets": [0,1,3,4,5,9] },
+						{ "orderable": false, "targets": [0,1,3,4,8] },
 						{
-							"targets": 9,
+							"targets": 8,
 							"className": "align-center"
 						}
 					],
@@ -512,7 +510,6 @@
 					{ "data": "offerif" },
 					{ "data":"location"},
 					{ "data": "form" },
-					{ "data": 'currunt_url'},
 					{ "data": "revisedprice" },
 					{ "data": "offer" },
 					{ "data": "date" },
@@ -529,10 +526,10 @@
 						"className": "dt-word-break" 
 					},
 					{
-						"targets": 8,
+						"targets": 7,
 						"className": "align-center"
 					},
-					{ "orderable": false, "targets": [0,2,3,4,8] },
+					{ "orderable": false, "targets": [0,1,3,4] },
 				],
 			});
 			}

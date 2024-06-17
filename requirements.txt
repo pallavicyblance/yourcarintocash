@@ -11,3 +11,10 @@ Flask-JSON
 requests==2.25.0
 Flask-Mail==0.9.1
 pytz
+numpy
+apscheduler
+schedule
+pubnub
+jwt
+flask_caching
+flask_login

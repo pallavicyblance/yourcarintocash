@@ -217,6 +217,34 @@ def index():
         currunt_url = currunt_param
     else:
         currunt_url = request.url
+
+    if referrer == 'https://www.google.com/':
+        utm_source = 'Google'
+        utm_medium = 'Organic'
+        utm_campaign = currunt_url
+
+    if referrer == 'https://www.bing.com/':
+        utm_source = 'Bing'
+        utm_medium = 'Organic'
+        utm_campaign = currunt_url
+    
+    if referrer == 'https://in.search.yahoo.com/':
+        utm_source = 'Yahoo'
+        utm_medium = 'Organic'
+        utm_campaign = currunt_url
+    
+    if referrer == 'https://duckduckgo.com/':
+        utm_source = 'DuckDuckGo'
+        utm_medium = 'Organic'
+        utm_campaign = currunt_url
+    
+    if referrer == 'https://search.aol.com/':
+        utm_source = 'AOL'
+        utm_medium = 'Organic'
+        utm_campaign = currunt_url
+    
+    if referrer == "" or referrer == None or referrer == "None":
+        referrer = currunt_url
         
     # pallavi changes 12-06-24 close
 
@@ -1157,7 +1185,7 @@ def getInquiryData():
             else:
                 offerif = data[11]
             
-            car_info = str(data[1]) + ' ' + str(data[2]) + ' ' + str(data[3])
+            car_info = str(data[1]) + ' ' + str(data[3]) + ' ' + str(data[2])
 
             location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
 
@@ -1200,8 +1228,6 @@ def getInquiryData():
             campaign = data[17]
 
             if url and url.strip() != "" and url != "None":
-                if url == 'https://t.co/':
-                    url = 'https://www.twitter.com/'
                 if source != "":
                     tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
                 else:
@@ -1311,8 +1337,6 @@ def getDispatchData():
             campaign = data[17]
 
             if url and url.strip() != "" and url != "None":
-                if url == 'https://t.co/':
-                    url = 'https://www.twitter.com/'
                 if source != "":
                     tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
                 else:
@@ -1957,8 +1981,6 @@ def get_decline_data():
             campaign = data[17]
 
             if url and url.strip() != "" and url != "None":
-                if url == 'https://t.co/':
-                    url = 'https://www.twitter.com/'
                 if source != "":
                     tracked_form = f'<b>{url}</b><br /> <b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
                 else:
@@ -2537,8 +2559,8 @@ scheduler = BackgroundScheduler()
 start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-#scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
-#scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
+scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
+scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
 # scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
 # scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)

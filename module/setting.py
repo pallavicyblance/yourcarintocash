@@ -505,7 +505,7 @@ class Setting:
             search_terms = search_value.split()
             search_value = '%' + '%'.join(search_terms) + '%'
 
-            concat_columns = "CONCAT(year, ' ', model, ' ', make_code, ' ')"
+            concat_columns = "CONCAT(year, ' ', make, ' ', model, ' ')"
 
             if status == 'accept':
                 status_condition = "status = 'accept'"
@@ -519,12 +519,13 @@ class Setting:
                 status_condition = "status_update = 'Canceled'"
             else:
                 status_condition = "status != 'Decline'"
+                        
             query = """
-                SELECT id, year, model, make_code, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign
+                SELECT id, year, model, make, zip, original_price, status, user_city, user_state, created_at, revised_price, offer_id, dispatched, ref_id, status_update, utm_source, utm_medium, utm_campaign
                 FROM accepted_aps
                 WHERE created_at BETWEEN %s AND %s
                 AND ({})
-                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make_code LIKE %s OR model LIKE %s OR revised_price LIKE %s)
+                AND (offer_id LIKE %s OR {} LIKE %s OR year LIKE %s OR make LIKE %s OR model LIKE %s OR revised_price LIKE %s)
                 ORDER BY {} {}
                 LIMIT %s OFFSET %s
             """.format(status_condition, concat_columns, column, direction)

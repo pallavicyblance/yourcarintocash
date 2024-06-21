@@ -2,7 +2,6 @@ from flask import Flask ,jsonify, request, session
 import pymysql
 import requests
 import logging
-from cronjob.latest_auctions import latest_auctions
 from module.acceptedaps import Acceptedaps
 from module.admin import Admin
 from Misc.functions import *

@@ -15,7 +15,7 @@ admin = Admin()
 acceptedaps = Acceptedaps()
 
 
-def upcomming_auction():
+def upcoming_auction():
     print('-----cron job upcoming auction data started-----')
     getjwttoken = acv.getjwttoken(acv_user()[0])
 
@@ -39,7 +39,6 @@ def upcomming_auction():
             if auctionstartdatestr > todaydatestr:
                 auction_data = fetch_auction_details(auction['id'], getjwttoken[0])
                 acv.insertauctiondata(auction_data)
-                acv.auctionconditionreport(auction_data)
 
         print('-----cron job upcoming auction data ended-----')
         return 'success'
@@ -53,7 +52,7 @@ def upcomming_auction():
             return None
 
 
-def latest_auctions():
+def live_auctions():
     todaydatetime = datetime.now()
     print('-----cron job latest auction data started-----', todaydatetime)
     getjwttoken = acv.getjwttoken(acv_user()[0])
@@ -83,7 +82,6 @@ def latest_auctions():
                 print(f"Processing auction ID: {auction['id']}, Status: {auction['status']}")
                 auction_data = fetch_auction_details(auction['id'], getjwttoken[0])
                 acv.insertauctiondata(auction_data)
-                acv.auctionconditionreport(auction_data)
 
             start += rows_per_page
             print(f"Next start: {start}")

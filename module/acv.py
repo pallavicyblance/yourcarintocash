@@ -1,13 +1,13 @@
 import pymysql
 import datetime
 import json
+import requests
 import http.client
 import traceback
 import os
 from datetime import date
 from cronjob.generate_proqoute import Proqoute
-
-# from Misc.dbconnect import *
+from Misc.functions import *
 proqoute = Proqoute()
 
 
@@ -250,7 +250,7 @@ class ACV:
             fetchone = cursor.fetchone()
 
             if fetchone is None:
-                print('insert auction JJJJ')
+                print('insert auction')
 
                 mysql_datetime_startdate = ''
                 if data['endTime'] is not None:
@@ -317,6 +317,7 @@ class ACV:
                      fire_water_damage
                      )),
                 con.commit()
+                self.auctionconditionreport(data)
             else:
                 print('update auction')
                 cursor.execute(
@@ -3975,7 +3976,7 @@ class ACV:
         finally:
             con.close()
 
-    def getlivewonauction(self, ):
+    def getlivewonauction(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -4013,7 +4014,7 @@ class ACV:
         finally:
             con.close()
 
-    def getLiveUpcomingauction(self, ):
+    def getLiveUpcomingauction(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -4025,7 +4026,7 @@ class ACV:
         finally:
             con.close()
 
-    def getNotificationCount(self, ):
+    def getNotificationCount(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -4037,7 +4038,7 @@ class ACV:
         finally:
             con.close()
 
-    def getNotificationList(self, ):
+    def getNotificationList(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -4050,3 +4051,14 @@ class ACV:
 
     def handle_pubnub_notification(self, notification):
         print(notification)
+        auction_id = notification.id
+        auction_data = self.fetch_auction_details(auction_id)
+        self.insertauctiondata(auction_data)
+
+    def fetch_auction_details(self, auction_id):
+        jwttoken = self.getjwttoken(acv_user()[0])
+        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
+        headers = {'Authorization': jwttoken[0]}
+        auction_details = requests.get(url, headers=headers)
+        auction_details.raise_for_status()
+        return auction_details.json()

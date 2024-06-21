@@ -9,7 +9,7 @@ import socket
 from datetime import datetime, timedelta
 from cronjob.acv_login import acv_login
 from cronjob.generate_proqoute import Proqoute
-from cronjob.latest_auctions import latest_auctions, bidding_status
+from cronjob.latest_auctions import live_auctions, bidding_status, upcoming_auction
 from cronjob.won_auction import won_auction
 from cronjob.place_bid import auction_place_bid
 from cronjob.pub_nub_client import PubNubClient
@@ -2206,7 +2206,8 @@ start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
 scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*', second='*/5')
-# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/30')
+scheduler.add_job(func=live_auctions, trigger='cron', hour='*', minute='*', second='*/30')
+# scheduler.add_job(func=upcoming_auction, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/6')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
 # scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
@@ -2237,23 +2238,22 @@ def update_value():
     return jsonify({"status": "Value updated", "new_value": new_value})
 
 
-#
-# def update_auctions():
-#     while True:
-#         time.sleep(5)
-#         auctions = bidding_status()
-#         socketio.emit('update', auctions)
-#
-#
-# @socketio.on('connect')
-# def handle_connect(auctions=None):
-#     emit('update', auctions)
-#
-#
-# # Start the update thread
-# thread = threading.Thread(target=update_auctions)
-# thread.daemon = True
-# thread.start()
+def update_auctions():
+    while True:
+        time.sleep(5)
+        auctions = bidding_status()
+        socketio.emit('update', auctions)
+
+
+@socketio.on('connect')
+def handle_connect(auctions=None):
+    emit('update', auctions)
+
+
+# Start the update thread
+thread = threading.Thread(target=update_auctions)
+thread.daemon = True
+thread.start()
 
 if __name__ == "__main__":
     # app.run(debug=True, use_reloader=False, host='192.168.1.176', port=9020)

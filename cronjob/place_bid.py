@@ -19,7 +19,7 @@ class auction_place_bid:
     def connect(self):
         # return connect()
          # return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
-        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4') 
+        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
 
     def acv_auction_place_bid():
         logging.info('-----------cron job place bid started -----------')
@@ -31,7 +31,7 @@ class auction_place_bid:
         for auction in getauctions:
             if auction[38] is not None:
                 if auction[38] > auction[36]:
-                    auction_place_bid.place_auction_proxy_bid(auction[4],auction[36],getjwttoken[0])
+                    auction_place_bid.place_auction_proxy_bid(auction[4], auction[36], getjwttoken[0])
                     auction_place_bid.update_auction(auction[4])
                 elif auction[38] == auction[36] or auction[38] < auction[36]:
                     auction_place_bid.update_data(auction[4])

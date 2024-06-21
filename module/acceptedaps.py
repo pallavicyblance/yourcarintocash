@@ -27,7 +27,7 @@ class Acceptedaps:
 
     def connect(self):
         #return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
-        return pymysql.connect(host="localhost", user="root", password="", database="carcash", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
     
     def read(self, id,param,param1,start,length, column, order, searchData, start_date, end_date):
         # Reads data from the 'accepted_aps' table based on the provided parameters.

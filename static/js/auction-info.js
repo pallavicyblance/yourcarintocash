@@ -1,6 +1,17 @@
 
 $(document).ready(function(){
 
+    var socket = io();
+
+    socket.on('update', function(data) {
+        console.log(data);
+        if(data != undefined) {
+            data.forEach(function(auction) {
+                console.log(auction);
+            });
+        }
+    });
+
     var windowHeight = $(window).height();
     var topSpace = $("#tab1").offset();
     var topOffset = topSpace.top +50;
@@ -13,11 +24,15 @@ $(document).ready(function(){
         var tableHeight = windowHeight - topOffset;
         $('div.tab-content-scroll div.dataTables_scrollBody').css('height', tableHeight+ 'px');
     };
+
     windowHeight();
+
     $(window).resize(function(){
         windowHeight();
     });
+
     var loader_call = true;
+
     auctiondata();
 
     $(document).on('dblclick', '.dblclick_td', function() {
@@ -91,7 +106,7 @@ $(document).ready(function(){
     $('#searchauction').on('input', function() {
         if ($(this).val() == '') {
             console.log("Search cleared. Starting intervals.");
-            startIntervals();
+            //startIntervals();
         } else {
             console.log('User is searching. Stopping intervals.');
             stopIntervals();
@@ -99,7 +114,7 @@ $(document).ready(function(){
     });
     
     if ($('#searchauction').val() == '') {
-        startIntervals();
+        //startIntervals();
     } else {
         console.log('User is searching. Intervals not started initially.');
     }
@@ -108,7 +123,7 @@ $(document).ready(function(){
         var auctionId = $('#auction_id').val();
         var bidAmount = $('#place_bid_amount').text();
         console.log(auctionId,bidAmount);
-        url = WS_PATH + '/place-bid/';    
+        url = WS_PATH + '/place-bid/';
         params = {'auctionId':auctionId,'bidamount': bidAmount};
         $.ajax({
             url: url,
@@ -117,8 +132,10 @@ $(document).ready(function(){
             contentType: 'application/json',
             success: function(response) {
                 if (response.error){
+                    let errors = jQuery.parseJSON(response.error);
+                    console.log(errors);
                     $('#inquiry_msg_error').show(); 
-                    $('#inquiry_msg_error').html('ACV Auction Ended! You can only bid on auctions that are live or on run list'); 
+                    $('#inquiry_msg_error').html(errors.errorDescription);
                     setTimeout(function() { 
                         $('#inquiry_msg_error').hide(); 
                     }, 3000);
@@ -308,11 +325,11 @@ $(document).ready(function(){
 
                         str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
 
-                        str += '<td>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
+                        str += '<td id=currentBid_'+auction[4]+'>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
 
-                        str += '<td>' + number_formatchanger(auction[35]) + '</td>';
+                        str += '<td id=ourMaxBid_'+auction[4]+'>' + number_formatchanger(auction[35]) + '</td>';
 
-                        str += '<td class="dblclick_td">';
+                        str += '<td class="dblclick_td" id=proqouteAmount_'+auction[4]+'>';
 
                         str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
 
@@ -705,7 +722,7 @@ $(document).ready(function(){
                     str += '<tr>';
                         str += '<td colspan="11" align="center">No data found</td>';
                     str += '</tr>';
-                }else{
+                } else {
                     data.forEach(auction => {
                         str += '<tr>';
 
@@ -788,36 +805,6 @@ function time_left(date, id) {
         }
     }, 1000); // Update every second
 }
-
-
-// function time_left(date,id){
-//     // var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'America/New_York' });
-//     var inputDate = new Date(date).toLocaleString('en-US', { timeZone: 'GMT',});
-//     // var inputDate = new Date(date).toISOString();
-//     var targetDatestr2 = new Date(inputDate)
-//     var timerInterval = setInterval(function() {
-//         var currentDate = new Date();
-//         var cstFormattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-//         var cstcurdate = new Date(cstFormattedDate)
-//         var timeDifference = Math.floor((targetDatestr2 - cstcurdate) / 1000);
-//         var timeDifference = Math.floor((targetDatestr2 - currentDate) / 1000);
-//         if (timeDifference <= 0) {
-//             clearInterval(timerInterval);
-//             $(".hours_"+id).html('Auction Ended');  
-//         } else {
-//             var days = Math.floor(timeDifference / (24 * 60 * 60));
-//             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
-//             var minutes = Math.floor((timeDifference % (60 * 60)) / 60);
-//             var seconds = timeDifference % 60;
-//             $(".days_"+id).html(days+"<span>:</span>");  
-//             $(".hours_"+id).html(hours+"<span>:</span>");  
-//             $(".minutes_"+id).html(minutes+"<span>:</span>");  
-//             $(".seconds_"+id).html(seconds+"<span></span>"); 
-//             // console.log('Time remaining:', days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds');
-//         }
-//     });
-// }
-
 
 function number_formatchanger(inputValue, id){
     if (inputValue !== null && inputValue !== undefined) {

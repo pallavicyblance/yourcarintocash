@@ -1,36 +1,23 @@
-from flask import Flask, flash, render_template, redirect, url_for, request, session, json,jsonify 
+from flask import Flask, flash, render_template, redirect, url_for, request, session, json, jsonify
+from flask_socketio import SocketIO, emit
+import threading
 from apscheduler.schedulers.background import BackgroundScheduler
-from werkzeug.utils import secure_filename
 import os
-
 import requests
-
 from Misc.functions import *
 import socket
 from datetime import datetime, timedelta
-import schedule
-import threading
-import sched
-import time
-import pubnub
 from cronjob.acv_login import acv_login
-from cronjob.latest_auctions import latest_auctions
-from cronjob.place_bid import auction_place_bid
-from cronjob.won_auction import won_auction
-from cronjob.auction_10_min_left import auction_10_min_left
-from cronjob.auction_1_min_left import auction_1_min_left
-from cronjob.remove_auction import remove_auction
-from cronjob.pub_nub import PubNubNotification
-from cronjob.out_bid import OutBid
 from cronjob.generate_proqoute import Proqoute
+from cronjob.latest_auctions import latest_auctions, bidding_status
+from cronjob.won_auction import won_auction
+from cronjob.place_bid import auction_place_bid
+from cronjob.pub_nub_client import PubNubClient
 from module.database import Database
 from module.admin import Admin
 from module.setting import Setting
 from module.acceptedaps import Acceptedaps
 from module.notes import Notes
-from pubnub.pubnub import PubNub
-from pubnub.callbacks import SubscribeCallback
-from pubnub.pnconfiguration import PNConfiguration
 from module.commonarray import Commonarray
 from module.qoute import Qoute
 from module.offer import Offer
@@ -39,6 +26,7 @@ import smtplib
 import logging
 from email.message import EmailMessage
 from flask import request, g
+
 # from werkzeug.urls import url_parse
 logging.basicConfig(filename='cron.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
@@ -51,31 +39,37 @@ db = Database()
 admin = Admin()
 setting = Setting()
 acv = ACV()
+pubnub_client = PubNubClient()
 acceptedaps = Acceptedaps()
-notes= Notes()
+notes = Notes()
 commonarray = Commonarray()
 qoute = Qoute()
 offer = Offer()
-#Added By Nigam For Caching 
+# Added By Nigam For Caching
 from flask import request, g
 from flask_caching import Cache
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-#Added By Nigam For Caching end
 
-#Added By Nigam For Caching 
+# Added By Nigam For Caching end
+
+# Added By Nigam For Caching
 app.config['CACHE_TYPE'] = 'SimpleCache'  # Use SimpleCache for in-memory caching
 app.config['CACHE_DEFAULT_TIMEOUT'] = 60  # Cache timeout in seconds
 
 cache = Cache(app)
+socketio = SocketIO(app)
+
 
 def make_cache_key(*args, **kwargs):
     return f"{session.get('admin_logged_id')}"
+
 
 #Added By Nigam For Caching end
 
 @app.route('/google', methods=['GET'])
 def referal():
     return render_template('referal.html')
+
 
 @app.route('/')
 def index():
@@ -89,68 +83,39 @@ def index():
 
     year = setting.getyears(None)
 
-
-
     bodydamage = commonarray.getbodydamage()
 
     sbodydamage = commonarray.getbodydamagesecondary(current_lan)
     typeoftitle = commonarray.gettypeoftitle(current_lan)
 
-
-
     doeskey = commonarray.getdoeskey(current_lan)
-
-
 
     drive = commonarray.getdrive(current_lan)
 
-
-
     firedamage = commonarray.getfiredamage(current_lan)
-
-
 
     deployedbags = commonarray.getdeployedbags(current_lan)
 
-
-
     state = commonarray.getstate()
-
-
 
     proquotesget = setting.read(1)
 
-
-
     hostname = socket.gethostname()
-
-
 
     #IPAddr = socket.gethostbyname(hostname)
 
     IPAddr = request.environ['REMOTE_ADDR']
 
-
-
-
-
     #flash(location_data)
 
     locationInfo = acceptedaps.getLocationInfo(IPAddr)
 
-    inquiryget = acceptedaps.autoinquiryget(IPAddr,hostname)
-
-
+    inquiryget = acceptedaps.autoinquiryget(IPAddr, hostname)
 
     #datasss = qoute.getqoute()
 
-    if inquiryget :
-
-
-
+    if inquiryget:
         inquiryget = inquiryget[0]
-
-
 
     url = request.referrer
     u1 = ''
@@ -166,13 +131,13 @@ def index():
     if param1:
         u1 = param1
 
-    if u1=='http://192.168.1.19:9000/' :
+    if u1 == 'http://192.168.1.19:9000/':
         u1 = ''
 
-    if u1=='http://192.168.1.19:9000' :
+    if u1 == 'http://192.168.1.19:9000':
         u1 = ''
 
-    if u1=='http://192.168.1.19:9000/?args=' :
+    if u1 == 'http://192.168.1.19:9000/?args=':
         u1 = ''
 
     if lang:
@@ -202,77 +167,61 @@ def index():
     utm_source = ''
     if request.args.get('utm_source'):
         utm_source = request.args.get('utm_source')
-    
+
     utm_medium = ''
     if request.args.get('utm_medium'):
         utm_medium = request.args.get('utm_medium')
-    
+
     utm_campaign = ''
     if request.args.get('utm_campaign'):
         utm_campaign = request.args.get('utm_campaign')
-    
+
     currunt_param = request.args.get('current_url')
     currunt_url = ''
     if currunt_param:
         currunt_url = currunt_param
     else:
         currunt_url = request.url
-        
+
     # pallavi changes 12-06-24 close
 
-    return render_template('index.html',lang=lang,labelArr=labelArr[0], u1=referrer ,inquiryget= inquiryget, hostname= hostname, IPAddr= IPAddr, year = year, bodydamage = bodydamage, typeoftitle = typeoftitle, doeskey = doeskey, drives = drive, firedamage = firedamage, deployedbags = deployedbags, states = state, proquotesget =proquotesget , locationInfo=locationInfo,sbodydamage=sbodydamage,skip_1=skip_1,year_1=year_1,make_1=make_1,model_1=model_1 , sharing = sharing, utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign,currunt_url=currunt_url)
+    return render_template('index.html', lang=lang, labelArr=labelArr[0], u1=referrer, inquiryget=inquiryget,
+                           hostname=hostname, IPAddr=IPAddr, year=year, bodydamage=bodydamage, typeoftitle=typeoftitle,
+                           doeskey=doeskey, drives=drive, firedamage=firedamage, deployedbags=deployedbags,
+                           states=state, proquotesget=proquotesget, locationInfo=locationInfo, sbodydamage=sbodydamage,
+                           skip_1=skip_1, year_1=year_1, make_1=make_1, model_1=model_1, sharing=sharing,
+                           utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign,
+                           currunt_url=currunt_url)
+
 
 # darshan added for sharing
 
-@app.route('/sharing_genrate_id' , methods = ['POST', 'GET'])
+@app.route('/sharing_genrate_id', methods=['POST', 'GET'])
 def sharing_genrate_id():
     if request.method == 'POST':
-        sharing =request.args.get('amt')
+        sharing = request.args.get('amt')
         data = acceptedaps.insert_sharing(sharing)
-        return json.dumps({'data':data});
+        return json.dumps({'data': data});
 
 
 @app.route('/login/')
-
-
-
 def login():
     return render_template('login.html')
 
 
-
-
-@app.route('/signin', methods = ['POST', 'GET'])
-
-
-
+@app.route('/signin', methods=['POST', 'GET'])
 def signin():
-
-
-
     if request.method == 'POST' and request.form['login']:
-
-
 
         if admin.adminlogin(request.form):
 
-
-
             data = admin.adminlogin(request.form)
-
-
 
             session['admin_logged_in'] = True
 
-
-
             session['admin_logged_id'] = data[0][0]
 
-
-
             session['admin_logged_username'] = data[0][1]
-
-
 
             session['admin_logged_lastname'] = data[0][2]
 
@@ -281,7 +230,7 @@ def signin():
             session['acv_user_id'] = data[0][9]
 
             session['acv_user_email'] = data[0][10]
-            
+
             session['acv_user_password'] = data[0][11]
 
             return redirect(url_for('dashboard'))
@@ -290,11 +239,7 @@ def signin():
 
         else:
 
-
-
             flash("Username and password is wrong.")
-
-
 
         return redirect(url_for('login'))
 
@@ -302,40 +247,20 @@ def signin():
 
     else:
 
-
-
         flash("Username and password is wrong.")
-
-
 
         return redirect(url_for('login'))
 
 
-
 @app.route('/signout')
-
-
-
 def signout():
+    session.clear()
 
-
-
-     session.clear()
-
-
-
-     return redirect(url_for('login'))
-
+    return redirect(url_for('login'))
 
 
 @app.route('/discountmanagement/')
-
-
-
 def discountmanagement():
-
-
-
     if not session.get('admin_logged_in'):
 
         return redirect(url_for('login'))
@@ -344,53 +269,18 @@ def discountmanagement():
         data = setting.read(1);
         id = session['admin_logged_id']
         role = admin.role(id)
-        return render_template('dashboard.html', data = data,role=role)
+        return render_template('dashboard.html', data=data, role=role)
 
-
-# @app.route('/dashboard-old/')
-
-
-
-# def dashboardold():
-
-
-
-#     if not session.get('admin_logged_in'):
-
-
-
-#         return redirect(url_for('login'))
-
-
-
-#     else:
-
-
-
-#         data1 = setting.getKip();
-#         data2 = setting.getKipWeek();
-#         data3 = setting.getKipMonth();
-
-#         data5 = setting.getCompleteInquiry();
-#         data6 = setting.getInCompleteInquiry();
-#         data7 = setting.getAcceptInquiry();
-#         data8 = setting.userComesFrom();
-#         data9 = setting.userComesFromAll();
-
-#         id = session['admin_logged_id']
-#         role = admin.role(id)
-
-#         return render_template('dashboard-new.html', currentDay = data1,currentWeek = data2, currentMonth = data3 , completeInquiry=data5, inCompleteInquiry=data6, acceptInquiry=data7,userfrom=data8,userfromTotal=data9,role=role)
 
 # code added by pallavi
-@app.route('/dashboard/',methods = ['POST', 'GET'])
-    # This function handles the '/dashboard-new' route.
-    # If the user is not logged in as an admin, it redirects to the login page.
-    # If the request method is POST, it retrieves the start and end dates from the form,
-    # calls the 'getCount' function from the 'setting' module, and returns the result as JSON.
-    # If the request method is GET, it sets the start and end dates to the first and last day of the current month,
-    # calls the 'getCount' function from the 'setting' module, and renders the 'kpi-dashboard.html' template
-    # with the count, start date, and end date as template variables.
+@app.route('/dashboard/', methods=['POST', 'GET'])
+# This function handles the '/dashboard-new' route.
+# If the user is not logged in as an admin, it redirects to the login page.
+# If the request method is POST, it retrieves the start and end dates from the form,
+# calls the 'getCount' function from the 'setting' module, and returns the result as JSON.
+# If the request method is GET, it sets the start and end dates to the first and last day of the current month,
+# calls the 'getCount' function from the 'setting' module, and renders the 'kpi-dashboard.html' template
+# with the count, start date, and end date as template variables.
 def dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -398,8 +288,8 @@ def dashboard():
         if request.method == 'POST':
             start_date = request.form['start_date']
             end_date = request.form['end_date']
-            
-            dashboard_count = setting.getCount(start_date,end_date)
+
+            dashboard_count = setting.getCount(start_date, end_date)
             return jsonify(dashboard_count)
         else:
             today = date.today()
@@ -412,14 +302,16 @@ def dashboard():
             usa_format_end_date = last_day_of_month.strftime("%m-%d-%Y")
             id = session['admin_logged_id']
             role = admin.role(id)
-            dashboard_count = setting.getCount(usa_format_start_date,usa_format_end_date)
-            return render_template('kpi-dashboard.html',count = dashboard_count, start_date = usa_format_start_date, end_date = usa_format_end_date, role = role)
+            dashboard_count = setting.getCount(usa_format_start_date, usa_format_end_date)
+            return render_template('kpi-dashboard.html', count=dashboard_count, start_date=usa_format_start_date,
+                                   end_date=usa_format_end_date, role=role)
 
-@app.route('/auction-new-user-bid/', methods = ['POST', 'GET'])
+
+@app.route('/auction-new-user-bid/', methods=['POST', 'GET'])
 def acvnewuserbid():
     loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
     data = {
-        'email': 'twincitytest2@twincity.com',  
+        'email': 'twincitytest2@twincity.com',
         'password': 'TwinCityTest2!'
     }
     response = requests.post(loginurl, json=data)
@@ -427,7 +319,7 @@ def acvnewuserbid():
 
     refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
     data = {
-        'refreshToken' : refresh_token
+        'refreshToken': refresh_token
     }
     response = requests.post(refreshTokenurl, json=data)
 
@@ -442,12 +334,12 @@ def acvnewuserbid():
     # response_data = response.json()
 
     # for auction in response_data.get("auctions", []):
-        # if auction['status'] == 'active':
+    # if auction['status'] == 'active':
     auction_data = fetch_auction_details(4422216, jwtToken)
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/4422216/bid'
     json_data_bid = {
         'amount': auction_data['nextProxyAmount'],
-        'proxy': True, 
+        'proxy': True,
         'persistent': False
     }
     headers = {
@@ -457,13 +349,14 @@ def acvnewuserbid():
 
     try:
         response = requests.post(url, json=json_data_bid, headers=headers)
-        acv.updateproxydata(auction_data['id'],auction_data['nextProxyAmount'])
-        print('add bid',auction_data['id'],'bid',auction_data['nextProxyAmount'])
-        response.raise_for_status()  
+        acv.updateproxydata(auction_data['id'], auction_data['nextProxyAmount'])
+        print('add bid', auction_data['id'], 'bid', auction_data['nextProxyAmount'])
+        response.raise_for_status()
     except requests.exceptions.RequestException as e:
         return ''
-                
+
     return 'success'
+
 
 def fetch_auction_details(auction, jwttoken):
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction}'
@@ -472,26 +365,26 @@ def fetch_auction_details(auction, jwttoken):
     auctiondetails = requests.get(url, params=params, headers=headers)
     auctiondetails.raise_for_status()
     return auctiondetails.json()
-        
-@app.route('/place-bid/',methods = ['POST','GET'])
+
+
+@app.route('/place-bid/', methods=['POST', 'GET'])
 def place_bid():
-    
     data = request.json
     auctionId = data['auctionId']
-    bidamount = data['bidamount']   
+    bidamount = data['bidamount']
 
     getjwttoken = acv.getjwttoken(acv_user()[0])
 
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
     params = {'amount': bidamount}
 
-    headers = {'Authorization': getjwttoken[0],'Content-Type': 'application/json'}
+    headers = {'Authorization': getjwttoken[0], 'Content-Type': 'application/json'}
 
     try:
-        
-        response = requests.post(url, json=params,headers=headers)
-        response.raise_for_status()  
-        response_data = response.json() 
+
+        response = requests.post(url, json=params, headers=headers)
+        response.raise_for_status()
+        response_data = response.json()
 
         acv.place_bid(auctionId, response_data['amount'])
 
@@ -506,7 +399,7 @@ def place_bid():
         nextProxyAmount = auctiondetails.json().get('nextProxyAmount')
         bidCount = auctiondetails.json().get('bidCount')
         if ishighbidder:
-            acv.update(auctionId,ishighbidder,nextbidamount,bidAmount,nextProxyAmount,bidCount)
+            acv.update(auctionId, ishighbidder, nextbidamount, bidAmount, nextProxyAmount, bidCount)
 
         return response_data
     except requests.exceptions.RequestException as e:
@@ -514,18 +407,19 @@ def place_bid():
         print("Response:", response.text)
         return jsonify({'error': response.text})
 
-@app.route('/place-proxy-bid/', methods = ['POST','GET'])
+
+@app.route('/place-proxy-bid/', methods=['POST', 'GET'])
 def place_proxy_bid():
     data = request.json
     auctionId = data['auctionId']
-    bidamount = data['proxyBidAmount']   
+    bidamount = data['proxyBidAmount']
 
     getjwttoken = acv.getjwttoken(acv_user()[0])
 
     url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
     json_data_bid = {
         'amount': bidamount,
-        'proxy': True, 
+        'proxy': True,
         'persistent': False
     }
     headers = {
@@ -535,13 +429,14 @@ def place_proxy_bid():
 
     try:
         response = requests.post(url, json=json_data_bid, headers=headers)
-        response.raise_for_status()  
-        acv.updateproxydata(auctionId,bidamount)
-        return 'success'       
+        response.raise_for_status()
+        acv.updateproxydata(auctionId, bidamount)
+        return 'success'
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         print("Response:", response.text)
         return jsonify({'error': response.text})
+
 
 @app.route('/auction/', methods=['GET'])
 @cache.cached(timeout=60, key_prefix=make_cache_key)
@@ -558,34 +453,49 @@ def auction():
         id = session['admin_logged_id']
         role = admin.role(id)
 
-        return render_template('auction.html', condition_flter=condition_flter,user_name=user_name, role=role)
-        
-@app.route('/condition-report-details/',methods = ['POST','GET'])
+    return render_template('auction.html', condition_flter=condition_flter, user_name=user_name, role=role)
+
+
+@app.route('/condition-report-details/', methods=['POST', 'GET'])
 def conditionReportDetails():
+    # Check if 'id' is provided in the form data
+    if 'id' not in request.form:
+        return jsonify({"error": "ID not provided"}), 400
+
     selected_report_id = request.form['id']
-    reportfetched = acv.getconditionReport(selected_report_id)
-    auctionsfetched = acv.getauctions()
-    wonauctions = acv.getwonauction()
-    lostauctions = acv.getlostauction()
-    countNotificaton = acv.getNotificationCount()
 
-    final_action = {'auctions': [], 'reports': [], 'won_auction': [], 'lost_auction': [], 'count': countNotificaton}
+    # Fetch data
+    reportfetched = acv.getconditionReport(selected_report_id) or []
+    auctionsfetched = acv.getauctions() or []
+    wonauctions = acv.getwonauction() or []
+    lostauctions = acv.getlostauction() or []
+    countNotificaton = acv.getNotificationCount() or 0
 
+    final_action = {
+        'auctions': [],
+        'reports': reportfetched,
+        'won_auction': [],
+        'lost_auction': [],
+        'count': countNotificaton
+    }
+
+    # Filter auctions
     for auction in auctionsfetched:
         if meets_condition(auction, selected_report_id):
-                final_action['auctions'].append(auction)
+            final_action['auctions'].append(auction)
 
+    # Filter won auctions
     for wonauction in wonauctions:
         if meets_condition(wonauction, selected_report_id):
             final_action['won_auction'].append(wonauction)
 
+    # Filter lost auctions
     for lostauction in lostauctions:
         if meets_condition(lostauction, selected_report_id):
             final_action['lost_auction'].append(lostauction)
 
-    final_action['reports'] = reportfetched
-    
     return jsonify(final_action)
+
 
 @app.route('/liveauction/', methods=['GET'])
 def liveauction():
@@ -593,9 +503,10 @@ def liveauction():
         return redirect(url_for('login'))
     else:
         condition_flter = acv.getconditionReport('')
-        return render_template('live-auction.html',condition_flter=condition_flter)
+        return render_template('live-auction.html', condition_flter=condition_flter)
 
-@app.route('/live-details/',methods = ['POST','GET'])
+
+@app.route('/live-details/', methods=['POST', 'GET'])
 def liveconditionReportDetails():
     selected_report_id = request.form['id']
     reportfetched = acv.getconditionReport(selected_report_id)
@@ -607,7 +518,7 @@ def liveconditionReportDetails():
 
     for auction in auctionsfetched:
         if meets_condition(auction, reportfetched):
-                final_action['auctions'].append(auction)
+            final_action['auctions'].append(auction)
 
     for wonauction in wonauctions:
         if meets_condition(wonauction, reportfetched):
@@ -618,10 +529,11 @@ def liveconditionReportDetails():
             final_action['lost_auction'].append(lostauction)
 
     final_action['reports'] = reportfetched
-    
+
     return jsonify(final_action)
 
-@app.route('/save-live-auction',methods = ['POST','GET'])
+
+@app.route('/save-live-auction', methods=['POST', 'GET'])
 def saveliveauction():
     loginurl = 'https://buy-api.gateway.acvauctions.com/v2/login'
 
@@ -633,15 +545,15 @@ def saveliveauction():
     try:
         response = requests.post(loginurl, json=data)
         refresh_token = response.json().get('refreshToken')
-        
+
         if refresh_token:
             refreshTokenurl = 'https://buy-api.gateway.acvauctions.com/v2/login/refresh'
             data = {
-                'refreshToken' : refresh_token
+                'refreshToken': refresh_token
             }
             try:
                 response = requests.post(refreshTokenurl, json=data)
-        
+
                 jwtToken = response.json().get('jwt')
 
                 url = 'https://buy-api.gateway.acvauctions.com/v2/auction'
@@ -651,12 +563,12 @@ def saveliveauction():
                 try:
                     response = requests.get(url, params=params, headers=headers)
                     response_data = response.json()
-                    
+
                     if response_data.get("auctions", []):
                         for auction in response_data.get("auctions", []):
                             auction_data = fetch_live_auction_details(auction, jwtToken)
-                            
-                            acv.liveinsertauctiondata(auction_data) 
+
+                            acv.liveinsertauctiondata(auction_data)
                             acv.liveauctionconditionreport(auction_data)
                             acv.livecountslights(auction['id'])
                         return 'success'
@@ -675,7 +587,8 @@ def saveliveauction():
         print("Error:", e)
         return None
 
-@app.route('/save-live-upcoming-auction',methods = ['POST','GET'])
+
+@app.route('/save-live-upcoming-auction', methods=['POST', 'GET'])
 def saveliveupcomingauction():
     loginurl = 'https://buy-api.gateway.acvauctions.com/v2/login'
 
@@ -687,15 +600,15 @@ def saveliveupcomingauction():
     try:
         response = requests.post(loginurl, json=data)
         refresh_token = response.json().get('refreshToken')
-        
+
         if refresh_token:
             refreshTokenurl = 'https://buy-api.gateway.acvauctions.com/v2/login/refresh'
             data = {
-                'refreshToken' : refresh_token
+                'refreshToken': refresh_token
             }
             try:
                 response = requests.post(refreshTokenurl, json=data)
-        
+
                 jwtToken = response.json().get('jwt')
 
                 url = 'https://buy-api.gateway.acvauctions.com/v2/auction/runlist'
@@ -705,12 +618,12 @@ def saveliveupcomingauction():
                 try:
                     response = requests.get(url, params=params, headers=headers)
                     response_data = response.json()
-                    
+
                     if response_data.get("auctions", []):
                         for auction in response_data.get("auctions", []):
                             auction_data = fetch_live_auction_details(auction, jwtToken)
 
-                            acv.liveinsertauctiondata(auction_data) 
+                            acv.liveinsertauctiondata(auction_data)
                             acv.liveauctionconditionreport(auction_data)
                             acv.livecountslights(auction['id'])
                         return 'success'
@@ -728,7 +641,8 @@ def saveliveupcomingauction():
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         return None
-    
+
+
 def fetch_live_auction_details(auction, jwttoken):
     auction_id = auction['id']
     url = f'https://buy-api.gateway.acvauctions.com/v2/auction/{auction_id}'
@@ -738,7 +652,8 @@ def fetch_live_auction_details(auction, jwttoken):
     auctiondetails.raise_for_status()
     return auctiondetails.json()
 
-@app.route('/upcoming-live-auction-data/', methods=['GET','POST'])
+
+@app.route('/upcoming-live-auction-data/', methods=['GET', 'POST'])
 def upcoming_live_auction_data():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -746,48 +661,54 @@ def upcoming_live_auction_data():
         response_upcoming_data = acv.getLiveUpcomingauction()
         return jsonify(response_upcoming_data)
 
-@app.route('/get-live-auction-condition/',methods=['GET','POST'])
+
+@app.route('/get-live-auction-condition/', methods=['GET', 'POST'])
 def getliveauctioncondition():
     auction_id = request.form['auction_id']
     conditions = acv.getliveauctioncondition(auction_id)
     return jsonify(conditions)
-    
-@app.route('/match-condition/', methods = ['POST','GET'])
-@cache.cached(timeout=60, key_prefix=make_cache_key)
+
+
+@app.route('/match-condition/', methods=['POST', 'GET'])
+#@cache.cached(timeout=60, key_prefix=make_cache_key)
 def meets_condition(auction_data, condition_flter):
     # for condition in condition_flter:
-        if acv.checkconditonwithauction(auction_data, condition_flter):
-            acv.matchauction(auction_data[4],is_match=True)
-            return True
-        else:
-            acv.matchauction(auction_data[4],is_match=False)
-            return False
+    if acv.checkconditonwithauction(auction_data, condition_flter):
+        acv.matchauction(auction_data[4], is_match=True)
+        return True
+    else:
+        acv.matchauction(auction_data[4], is_match=False)
+        return False
 
-@app.route('/upcoming-auction-data/', methods=['GET','POST'])
+
+@app.route('/upcoming-auction-data/', methods=['GET', 'POST'])
 def upcoming_auction_data():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         response_upcoming_data = acv.getUpcomingauction()
         return jsonify(response_upcoming_data)
-      
-@app.route('/missed-auction/', methods=['GET','POST'])
+
+
+@app.route('/missed-auction/', methods=['GET', 'POST'])
 def missed_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         response_missed_data = acv.getMisseauction()
         return jsonify(response_missed_data)
-    
-@app.route('/lost-auction/', methods=['GET','POST'])
+
+
+@app.route('/lost-auction/', methods=['GET', 'POST'])
 def lost_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         lostauction = acv.getlostauction()
         return jsonify(lostauction)
-    
-@app.route('/won-auction/', methods=['GET','POST'])
+
+
+@app.route('/won-auction/', methods=['GET', 'POST'])
 def get_won_auction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -795,7 +716,8 @@ def get_won_auction():
         wonauction = acv.getwonauction()
         return jsonify(wonauction)
 
-@app.route('/search-auction/',methods=['GET','POST'])
+
+@app.route('/search-auction/', methods=['GET', 'POST'])
 def searchauction():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -803,24 +725,29 @@ def searchauction():
         auctions = acv.searchauction(request.form['searchval'], request.form['status'])
         return jsonify(auctions)
 
-@app.route('/win-lost-auction/',methods=['GET','POST'])
+
+@app.route('/win-lost-auction/', methods=['GET', 'POST'])
 def winlostauction():
     acv.winlostauctions()
     return 'success'
 
-@app.route('/get-notification-list/', methods=['GET','POST'])
+
+@app.route('/get-notification-list/', methods=['GET', 'POST'])
 def getNotification():
     notifications = acv.getNotificationList()
     return jsonify(notifications)
 
-@app.route('/get-auction-condition/',methods=['GET','POST'])
+
+@app.route('/get-auction-condition/', methods=['GET', 'POST'])
 def getauctioncondition():
     auction_id = request.form['auction_id']
     conditions = acv.getauctioncondition(auction_id)
     return jsonify(conditions)
+
+
 # code end by pallavi
 
-@app.route('/settingupdate/', methods = ['POST'])
+@app.route('/settingupdate/', methods=['POST'])
 def settingupdate():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
@@ -831,270 +758,173 @@ def settingupdate():
             else:
                 flash('Discount Percentage has not been updated.')
 
-
-
             return redirect(url_for('discountmanagement'))
 
 
 
         else:
 
-
-
             return redirect(url_for('discountmanagement'))
 
 
-
 @app.route('/profile-edit/')
-
-
-
 def profileEdit():
-
-
-
     if not session.get('admin_logged_in'):
 
         return redirect(url_for('login'))
     else:
 
-        id  = session['admin_logged_id']
+        id = session['admin_logged_id']
         data = admin.read(id);
         role = admin.role(id)
-        return render_template('profileedit.html', data = data,role=role)
+        return render_template('profileedit.html', data=data, role=role)
+
 
 @app.route('/change-password/')
-
-
-
 def changePassword():
-
-
-
     if not session.get('admin_logged_in'):
-
-
 
         return redirect(url_for('login'))
 
 
 
     else:
-
-
 
         id = session['admin_logged_id']
         data = admin.read(id);
         role = admin.role(id)
 
-        return render_template('change_password.html', data = data,role=role)
-
+        return render_template('change_password.html', data=data, role=role)
 
 
 @app.route('/getmakes', methods=['POST'])
-
-
-
 def getmakes():
+    if request.method == 'POST' and request.form['makes']:
+
+        data = setting.getmakes(request.form);
+
+        return json.dumps({'makes': data});
 
 
 
-        if request.method == 'POST' and request.form['makes']:
+    else:
 
-
-
-            data = setting.getmakes(request.form);
-
-
-
-            return json.dumps({'makes':data});
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
-
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/getmodel', methods=['POST'])
-
-
-
 def getmodel():
+    if request.method == 'POST' and request.form['models']:
+
+        data = setting.getmodels(request.form);
+
+        return json.dumps({'model': data});
 
 
 
-        if request.method == 'POST' and request.form['models']:
+    else:
 
-
-
-            data = setting.getmodels(request.form);
-
-
-
-            return json.dumps({'model':data});
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
-
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/getqoute', methods=['POST'])
-
-
-
 def getqoute():
+    if request.method == 'POST':
+
+        data = qoute.getqoute(request.form)
+        proquotesget1 = setting.read(1)
+        return json.dumps({'data': data, 'proquotesget1': proquotesget1})
 
 
 
-        if request.method == 'POST' :
+    else:
 
+        return redirect(url_for('dashboard'))
 
-
-            data = qoute.getqoute(request.form)
-            proquotesget1 = setting.read(1)
-            return json.dumps({'data':data,'proquotesget1':proquotesget1})
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
 
 @app.route('/get-offer', methods=['POST'])
 def getoffer():
-        if request.method == 'POST' :
-            data = offer.getoffer(request.form);
-            return json.dumps({'data':data});
-        else:
-            return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        data = offer.getoffer(request.form);
+        return json.dumps({'data': data});
+    else:
+        return redirect(url_for('dashboard'))
+
 
 @app.route('/useracceptbid', methods=['POST'])
-
-
-
 def useracceptbid():
+    if request.method == 'POST':
+
+        data = acceptedaps.acceptbidsave(request.form);
+
+        return json.dumps({'data': data});
 
 
 
-        if request.method == 'POST' :
+    else:
 
-
-
-            data = acceptedaps.acceptbidsave(request.form);
-
-
-
-            return json.dumps({'data':data});
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
-
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/autoinquirysave', methods=['POST'])
-
-
-
 def autoinquirysave():
+    if request.method == 'POST':
+
+        data = acceptedaps.autoinquirysave(request.form);
+
+        return json.dumps({'data': data});
 
 
 
-        if request.method == 'POST' :
+    else:
 
-
-
-            data = acceptedaps.autoinquirysave(request.form);
-
-
-
-            return json.dumps({'data':data});
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
-
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/inquiryautoupdate', methods=['POST'])
-
-
-
 def inquiryautoupdate():
+    if request.method == 'POST':
+
+        model = request.form.getlist("model")
+        data = acceptedaps.autoinquirysave(request.form);
+
+        return json.dumps({'data': data});
 
 
 
-        if request.method == 'POST' :
+    else:
+
+        return redirect(url_for('dashboard'))
 
 
-            model = request.form.getlist("model")
-            data = acceptedaps.autoinquirysave(request.form);
-
-
-
-            return json.dumps({'data': data});
-
-
-
-        else:
-
-
-
-            return redirect(url_for('dashboard'))
-
-
-
-@app.route('/updateprofile/', methods = ['POST'])
+@app.route('/updateprofile/', methods=['POST'])
 def updateprofile():
     # darshan chnages 31-08-2023 1
-    if request.method == 'POST' :
-            email_noti = request.form.get("email_noti")
-            email_noti_data = 'no';
-            if email_noti:
-                email_noti_data = 'yes'
-                
-            result = admin.update(session['admin_logged_id'], request.form,email_noti_data)
-            # return [result]
-            # flash('profile has been updated')
-            if result:
-                 response = {'status': 'success', 'message': 'Profile has been updated'}
-            else:
-                response = {'status': 'error', 'message': 'Failed to update profile'}
+    if request.method == 'POST':
+        email_noti = request.form.get("email_noti")
+        email_noti_data = 'no';
+        if email_noti:
+            email_noti_data = 'yes'
 
-            return jsonify(response)
-        # darshan chnages 31-08-2023 1 close
-        #session.pop('update', None)
+        result = admin.update(session['admin_logged_id'], request.form, email_noti_data)
+        # return [result]
+        # flash('profile has been updated')
+        if result:
+            response = {'status': 'success', 'message': 'Profile has been updated'}
+        else:
+            response = {'status': 'error', 'message': 'Failed to update profile'}
+
+        return jsonify(response)
+    # darshan chnages 31-08-2023 1 close
+    #session.pop('update', None)
     else:
         return redirect(url_for('profileEdit'))
 
 
-@app.route('/inquiry-list')
-
-
-
-# inquiry page route 
+# inquiry page route
 @app.route('/inquiry-list')
 def inquirylist():
-    if not session.get('admin_logged_in'):  
+    if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         param = request.args.get('status')
@@ -1112,12 +942,15 @@ def inquirylist():
         usa_format_end_date = current_date.strftime("%m-%d-%Y")
 
         if param1:
-            return render_template('inquiry-dispatch.html',role=role, role_name = role_name, start_date = usa_format_start_date, end_date = usa_format_end_date )
-        else :
-            return render_template('inquiry-new.html',  role=role ,  role_name=role_name,start_date = usa_format_start_date, end_date = usa_format_end_date)
+            return render_template('inquiry-dispatch.html', role=role, role_name=role_name,
+                                   start_date=usa_format_start_date, end_date=usa_format_end_date)
+        else:
+            return render_template('inquiry-new.html', role=role, role_name=role_name, start_date=usa_format_start_date,
+                                   end_date=usa_format_end_date)
+
 
 # inquiry data fetch with datatable route for inquiry
-@app.route('/get-inquiry-data', methods = ['POST', 'GET'])
+@app.route('/get-inquiry-data', methods=['POST', 'GET'])
 def getInquiryData():
     if request.method == 'POST':
         start_date = request.form['start_date']
@@ -1137,7 +970,8 @@ def getInquiryData():
 
         searchValue = request.form['search[value]']
 
-        inquiry_data = setting.getInquiryData(start_date,end_date,status,start, length, orderByColumnName, orderByColumnDirection, searchValue)
+        inquiry_data = setting.getInquiryData(start_date, end_date, status, start, length, orderByColumnName,
+                                              orderByColumnDirection, searchValue)
 
         total_records = setting.get_total_records(start_date, end_date, status, searchValue)
 
@@ -1148,33 +982,32 @@ def getInquiryData():
             abc = ''
             if data[6] != 'Decline':
                 if role == (('Super Admin',),):
-                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(data[0]) + '" onchange="singleSelect()">'
-            
+                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(
+                        data[0]) + '" onchange="singleSelect()">'
+
             if data[10] == "NaN":
                 offerif = ''
             elif data[10] == "none":
                 offerif = ''
             else:
                 offerif = data[11]
-            
+
             car_info = str(data[1]) + ' ' + str(data[2]) + ' ' + str(data[3])
 
-            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
-
-
+            location = str(data[7]) + ',' + ' ' + str(data[8]) + ' ' + str(data[4])
 
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
             elif data[10] == None:
                 revisedprice = 'Not Finished'
             elif data[10] != "":
-               revisedprice = '$' + str(data[10]) 
+                revisedprice = '$' + str(data[10])
             else:
                 revisedprice = '$0.00'
 
             if data[6] == 'accept':
                 if data[14] != None:
-                    offer = data[14] 
+                    offer = data[14]
                 else:
                     offer = 'Accepted'
             else:
@@ -1184,14 +1017,15 @@ def getInquiryData():
 
             btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
-                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
-                            
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(
+                    data[0])
+
             if data[6] == 'accept':
                 if data[12] == 'yes':
                     btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
                 else:
                     btn += '<span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
-            
+
             #pallavi changes 12-06-24
             tracked_form = ''
             url = data[13]
@@ -1208,7 +1042,7 @@ def getInquiryData():
                     tracked_form = url
             elif source != "":
                 tracked_form = f'<b>Src:</b> {source} <br /> <b>Med:</b> {medium} <br /> <b>Cpn:</b> {campaign}'
-   
+
             #end pallavi code 12-06-24
 
             # if data[13] == 'https://t.co/' :
@@ -1216,7 +1050,8 @@ def getInquiryData():
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk": abc, "offerif": offerif, "car": car_info, 'location': location, 'form': tracked_form,
+                         'revisedprice': revisedprice, 'offer': offer, 'date': created_date, "btn": btn}
             data_list.append(data_dict)
         response = {
             "draw": int(draw),
@@ -1224,13 +1059,13 @@ def getInquiryData():
             "recordsFiltered": total_records,
             "data": data_list
         }
-        
+
         return jsonify(response)
 
-# inquiry data fetch with datatable route for inquiry dispatch
-@app.route('/get-dispatch-data', methods = ['POST', 'GET'])
-def getDispatchData():
 
+# inquiry data fetch with datatable route for inquiry dispatch
+@app.route('/get-dispatch-data', methods=['POST', 'GET'])
+def getDispatchData():
     if request.method == 'POST':
         draw = request.form['draw']
         start_date = request.form['start_date']
@@ -1252,8 +1087,9 @@ def getDispatchData():
         param1 = 'no'
         id = session.get('admin_logged_id')
         role = admin.role(id)
-        decline_data = acceptedaps.read(None,param,param1,start, length, orderByColumnName, orderByColumnDirection, searchData, start_date, end_date)
-        total_records = acceptedaps.total_record(None,param,param1,start_date, end_date, searchData)
+        decline_data = acceptedaps.read(None, param, param1, start, length, orderByColumnName, orderByColumnDirection,
+                                        searchData, start_date, end_date)
+        total_records = acceptedaps.total_record(None, param, param1, start_date, end_date, searchData)
         data_list = []
 
         for data in decline_data:
@@ -1261,31 +1097,32 @@ def getDispatchData():
             abc = ''
             if data[6] != 'Decline':
                 if role == (('Super Admin',),):
-                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(data[0]) + '" onchange="singleSelect()">'
-            
+                    abc = '<input type="checkbox" name="chkArr[]" class="selectChk" value="' + str(
+                        data[0]) + '" onchange="singleSelect()">'
+
             if data[10] == "NaN":
                 offerif = ''
             elif data[10] == "none":
                 offerif = ''
             else:
                 offerif = data[11]
-            
+
             car_info = str(data[1]) + ' ' + str(data[3]) + ' ' + str(data[2])
 
-            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
+            location = str(data[7]) + ',' + ' ' + str(data[8]) + ' ' + str(data[4])
 
             if data[10] == "NaN":
                 revisedprice = 'Not Finished'
             elif data[10] == None:
                 revisedprice = 'Not Finished'
             elif data[10] != "":
-               revisedprice = '$' + str(data[10]) 
+                revisedprice = '$' + str(data[10])
             else:
                 revisedprice = '$0.00'
 
             if data[6] == 'accept':
                 if data[14] != None:
-                    offer = data[14] 
+                    offer = data[14]
                 else:
                     offer = 'Accepted'
             else:
@@ -1295,14 +1132,15 @@ def getDispatchData():
 
             btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
-                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
-                            
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(
+                    data[0])
+
             if data[6] == 'accept':
                 if data[12] == 'yes':
                     btn += '<br><span class="dispatch-btn2">Dispatched to Copart</span>'
                 else:
                     btn += '<br><span class="dispatch-btn3">Awaiting Action to Dispatch</span>'
-            
+
             #pallavi changes 12-06-24
             tracked_form = ''
             url = data[13]
@@ -1328,14 +1166,14 @@ def getDispatchData():
             # elif data[15] != "":
             #     tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             #end pallavi code 12-06-24
-                
 
             # if data[13] == 'https://t.co/' :
             #     tracked_form = 'https://www.twitter.com/'
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk": abc, "offerif": offerif, "car": car_info, 'location': location, 'form': tracked_form,
+                         'revisedprice': revisedprice, 'offer': offer, 'date': created_date, "btn": btn}
             data_list.append(data_dict)
 
         response = {
@@ -1344,11 +1182,12 @@ def getDispatchData():
             "recordsFiltered": total_records,
             "data": data_list
         }
-        
+
         return jsonify(response)
+
+
 @app.route('/inquiry-fetch/<int:id>/')
 def inquiryFetch(id):
-    
     data = acceptedaps.readnew(id)
     state = commonarray.getstate()
     back = request.args.get('back')
@@ -1356,58 +1195,29 @@ def inquiryFetch(id):
     id = session['admin_logged_id']
     role = admin.role(id)
     for number in state:
-        if number['id']==data[0][21] :
+        if number['id'] == data[0][21]:
             state_n = number['name']
 
-    return render_template('inquiry-fetch.html',data=data,state_n=state_n,role=role , user_id =id,back=back)
+    return render_template('inquiry-fetch.html', data=data, state_n=state_n, role=role, user_id=id, back=back)
+
 
 @app.route('/book')
-
-
-
 def book():
-
-
-
     data = db.read(None)
 
-
-
-    return render_template('book.html', data = data)
-
+    return render_template('book.html', data=data)
 
 
 @app.route('/add/')
-
-
-
 def add():
-
-
-
     return render_template('add.html')
 
 
-
-
-
-
-
-@app.route('/addphone', methods = ['POST', 'GET'])
-
-
-
+@app.route('/addphone', methods=['POST', 'GET'])
 def addphone():
-
-
-
     if request.method == 'POST' and request.form['save']:
 
-
-
         if db.insert(request.form):
-
-
 
             flash("A new phone number has been added")
 
@@ -1415,15 +1225,7 @@ def addphone():
 
         else:
 
-
-
             flash("A new phone number can not be added")
-
-
-
-
-
-
 
         return redirect(url_for('book'))
 
@@ -1431,35 +1233,14 @@ def addphone():
 
     else:
 
-
-
         return redirect(url_for('book'))
-
-
-
-
-
 
 
 @app.route('/update/<int:id>/')
-
-
-
 def update(id):
-
-
-
     data = db.read(id);
 
-
-
-
-
-
-
     if len(data) == 0:
-
-
 
         return redirect(url_for('book'))
 
@@ -1467,39 +1248,16 @@ def update(id):
 
     else:
 
-
-
         session['update'] = id
 
+        return render_template('update.html', data=data)
 
 
-        return render_template('update.html', data = data)
-
-
-
-
-
-
-
-@app.route('/updatephone', methods = ['POST'])
-
-
-
+@app.route('/updatephone', methods=['POST'])
 def updatephone():
-
-
-
     if request.method == 'POST' and request.form['update']:
 
-
-
-
-
-
-
         if db.update(session['update'], request.form):
-
-
 
             flash('A phone number has been updated')
 
@@ -1507,55 +1265,24 @@ def updatephone():
 
         else:
 
-
-
             flash('A phone number can not be updated')
-
-
 
         session.pop('update', None)
 
-
-
-
-
-
-
         return redirect(url_for('book'))
 
 
 
     else:
 
-
-
         return redirect(url_for('book'))
-
-
-
-
-
 
 
 @app.route('/delete/<int:id>/')
-
-
-
 def delete(id):
-
-
-
     data = db.read(id);
 
-
-
-
-
-
-
     if len(data) == 0:
-
-
 
         return redirect(url_for('book'))
 
@@ -1563,39 +1290,16 @@ def delete(id):
 
     else:
 
-
-
         session['delete'] = id
 
+        return render_template('delete.html', data=data)
 
 
-        return render_template('delete.html', data = data)
-
-
-
-
-
-
-
-@app.route('/deletephone', methods = ['POST'])
-
-
-
+@app.route('/deletephone', methods=['POST'])
 def deletephone():
-
-
-
     if request.method == 'POST' and request.form['delete']:
 
-
-
-
-
-
-
         if db.delete(session['delete']):
-
-
 
             flash('A phone number has been deleted')
 
@@ -1603,19 +1307,9 @@ def deletephone():
 
         else:
 
-
-
             flash('A phone number can not be deleted')
 
-
-
         session.pop('delete', None)
-
-
-
-
-
-
 
         return redirect(url_for('book'))
 
@@ -1623,69 +1317,63 @@ def deletephone():
 
     else:
 
-
-
         return redirect(url_for('book'))
 
 
-
 @app.route('/deleteinquiry', methods=['POST'])
-
 def deleteinquiry():
+    if request.method == 'POST':
 
-        if request.method == 'POST':
+        data = acceptedaps.deleteinquiry(request.form);
 
-            data = acceptedaps.deleteinquiry(request.form);
+        return json.dumps({'model': data});
 
-            return json.dumps({'model':data});
+    else:
 
-        else:
+        return redirect(url_for('dashboard'))
 
-            return redirect(url_for('dashboard'))
 
 @app.route('/getnotificationcounter', methods=['POST'])
-
 def getnotificationcounter():
+    if request.method == 'POST':
 
-        if request.method == 'POST':
+        data = acceptedaps.getnotificationcounter();
 
-            data = acceptedaps.getnotificationcounter();
+        return json.dumps({'model': data});
 
-            return json.dumps({'model':data});
+    else:
 
-        else:
+        return redirect(url_for('dashboard'))
 
-            return redirect(url_for('dashboard'))
 
 @app.route('/vehicleinfocheck', methods=['POST'])
 def vehicleinfocheck():
-    if request.method == 'POST' and request.form['vehicle'] :
+    if request.method == 'POST' and request.form['vehicle']:
         if request.form:
             year_check = acceptedaps.modelYearcheck(request.form)
             make_check = acceptedaps.makecheck(request.form)
             makeID = acceptedaps.getmakeID(request.form)
-            year_id = acceptedaps.make_year_check(request.form,makeID)
-            model_check = acceptedaps.modelcheck(request.form,year_id)
+            year_id = acceptedaps.make_year_check(request.form, makeID)
+            model_check = acceptedaps.modelcheck(request.form, year_id)
             return json.dumps({'status': True})
         else:
             return json.dumps({'status': False})
+
 
 @app.route('/all-delete-inquiry', methods=['POST'])
 def deleteinquiryall():
     if request.method == 'POST':
 
-            data = acceptedaps.deleteinquiryall(request.form)
+        data = acceptedaps.deleteinquiryall(request.form)
 
-            return json.dumps({'model':data})
+        return json.dumps({'model': data})
 
     else:
-            return redirect(url_for('dashboard'))
-
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/emailsent')
 def emailsent():
-
     # msg = Message('Hello from the other side!', sender =   'cyblance.nigam@gmail.com', recipients = ['shadab.cyblance@gmail.com'])
     # msg.body = "Hey Paul, sending you this email from my Flask app, lmk if it works"
     # a= mail.send(msg)
@@ -1697,7 +1385,6 @@ def emailsent():
     to = ["cyblance.nigam@gmail.com"]
 
     with smtplib.SMTP_SSL('mail.yourcarintocash.com', 465) as smtp:
-
         smtp.login(email, password)
 
         subject = "testing mail sending"
@@ -1708,41 +1395,32 @@ def emailsent():
         smtp.sendmail(email, to, msg)
 
 
-
-
-
 @app.errorhandler(404)
-
-
-
 def page_not_found(error):
-
-
-
     return render_template('error.html')
 
 
 @app.route('/setvinmake', methods=['POST'])
 def setvinmake():
+    data1 = request.form
+    if request.method == 'POST':
 
-        data1 = request.form
-        if request.method == 'POST' :
+        data = acceptedaps.getvinmake(data1);
+        return json.dumps({'data': data});
+    else:
+        return redirect(url_for('dashboard'))
 
-            data = acceptedaps.getvinmake(data1);
-            return json.dumps({'data':data});
-        else:
-            return redirect(url_for('dashboard'))
 
 @app.route('/setvinmodel', methods=['POST'])
 def setvinmodel():
+    data1 = request.form
+    if request.method == 'POST':
 
-        data1 = request.form
-        if request.method == 'POST' :
+        data = acceptedaps.getvinmodel(data1);
+        return json.dumps({'data': data});
+    else:
+        return redirect(url_for('dashboard'))
 
-            data = acceptedaps.getvinmodel(data1);
-            return json.dumps({'data':data});
-        else:
-            return redirect(url_for('dashboard'))
 
 @app.route('/add-admin/')
 def add_admin():
@@ -1755,18 +1433,19 @@ def add_admin():
             id = session['admin_logged_id']
             role = admin.role(id)
             data = admin.listing()
-            return render_template('add_admin.html',data=data,role=role)
+            return render_template('add_admin.html', data=data, role=role)
         else:
             return redirect(url_for('dashboard'))
 
-@app.route("/admin_insert/" ,methods=['POST'])
+
+@app.route("/admin_insert/", methods=['POST'])
 def admin_insert():
-    if request.method == 'POST' :
+    if request.method == 'POST':
         email_noti = request.form.get("email_noti")
         email_noti_data = 'no';
         if email_noti:
             email_noti_data = 'yes'
-        data = admin.insert(request.form,email_noti_data)
+        data = admin.insert(request.form, email_noti_data)
         return [data]
         flash("inserted succesfulyy")
         return "insertd succees"
@@ -1774,74 +1453,84 @@ def admin_insert():
         flash("not inserted")
         return redirect(url_for("add-admin"))
 
-@app.route("/removedata/<int:id>/" , methods = ['POST'])
+
+@app.route("/removedata/<int:id>/", methods=['POST'])
 def removebtn(id):
     data = admin.remove(id)
     return [data]
 
-@app.route("/editdata/<int:id>",methods=['GET'])
+
+@app.route("/editdata/<int:id>", methods=['GET'])
 def editdata(id):
     data = admin.editdata(id)
     return [data]
 
-@app.route("/validation_email/" , methods=['POST'])
+
+@app.route("/validation_email/", methods=['POST'])
 def validation_email():
     if request.method == 'POST':
         data = admin.valid(request.form)
         return [data]
 
+
 @app.route("/role/")
 def role():
     id = session['admin_logged_id']
     role = session['role']
-    return render_template("header.html" , role=role)
+    return render_template("header.html", role=role)
 
-@app.route("/addusertyps"  , methods=['POST'])
+
+@app.route("/addusertyps", methods=['POST'])
 def addusertyps():
     if request.method == 'POST':
-        data =admin.updatepass(request.form)
+        data = admin.updatepass(request.form)
         return [data]
+
 
 @app.route('/getofferid', methods=['POST'])
 def getofferid():
-
     data1 = request.form
     #return data1
-    if request.method == 'POST' :
+    if request.method == 'POST':
         data = acceptedaps.getofferid(data1);
-        return json.dumps({'data':data});
+        return json.dumps({'data': data});
     else:
         return redirect(url_for('dashboard'))
-        
+
+
 @app.route('/updateofferid', methods=['POST'])
 def updateofferid():
-
     data1 = request.form
-    if request.method == 'POST' :
+    if request.method == 'POST':
         data = acceptedaps.updateofferid(data1);
-        return json.dumps({'data':data});
+        return json.dumps({'data': data});
     else:
         return redirect(url_for('dashboard'))
-        
+
+
 @app.route('/updateofferidcondition', methods=['POST'])
 def updateofferidcondition():
-
     data1 = request.form
-    if request.method == 'POST' :
+    if request.method == 'POST':
         data = acceptedaps.updateofferidcondition(data1);
-        if data1['fetch_type1']=='condition report':    
-            fetchPrice = acceptedaps.fetchPriceFrom(data1['id'],'condition report',data1['fet_confition_id1'],data1['condition_title1'])
+        if data1['fetch_type1'] == 'condition report':
+            fetchPrice = acceptedaps.fetchPriceFrom(data1['id'], 'condition report', data1['fet_confition_id1'],
+                                                    data1['condition_title1'])
         else:
-            fetchPrice = acceptedaps.fetchPriceFrom(data1['id'],'copart','','')
-        return json.dumps({'data':data});
+            fetchPrice = acceptedaps.fetchPriceFrom(data1['id'], 'copart', '', '')
+        return json.dumps({'data': data});
     else:
         return redirect(url_for('dashboard'))
 
+
 ALLOWED_EXTENSIONS = set(['txt', 'png', 'jpg', 'jpeg', 'gif'])
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route("/declineinsert" , methods = ['POST'])
+
+@app.route("/declineinsert", methods=['POST'])
 def declineinsert():
     if request.method == 'POST':
         data = acceptedaps.d_insert(request.form)
@@ -1849,7 +1538,8 @@ def declineinsert():
     else:
         return "error"
 
-@app.route("/decline-offer-data/<int:id>" , methods=['Get'])
+
+@app.route("/decline-offer-data/<int:id>", methods=['Get'])
 def decline_offer_data(id):
     decline_data = acceptedaps.decline_data(id)
     return [decline_data]
@@ -1878,9 +1568,11 @@ def declinelist():
         # last_day_of_month = today.replace(day=1, month=today.month % 12 + 1) - timedelta(days=1)
         # start_date = first_day_of_month.strftime("%Y-%m-%d")
         # end_date = last_day_of_month.strftime("%Y-%m-%d")
-        return render_template('decline-inquiry.html', role=role, role_name = role_name, start_date= usa_format_start_date, end_date= usa_format_end_date)
+        return render_template('decline-inquiry.html', role=role, role_name=role_name, start_date=usa_format_start_date,
+                               end_date=usa_format_end_date)
 
-@app.route('/get-decline-data' , methods = ['POST'])
+
+@app.route('/get-decline-data', methods=['POST'])
 def get_decline_data():
     if request.method == 'POST':
         draw = request.form['draw']
@@ -1899,7 +1591,8 @@ def get_decline_data():
         orderByColumnDirection = request.form['order[0][dir]']
         searchDate = request.form['search[value]']
 
-        decline_data = acceptedaps.getdeclineoffer(start, length, start_date, end_date, orderByColumnName, orderByColumnDirection, searchDate)
+        decline_data = acceptedaps.getdeclineoffer(start, length, start_date, end_date, orderByColumnName,
+                                                   orderByColumnDirection, searchDate)
         total_records = acceptedaps.get_total_records_decline(start_date, end_date, searchDate)
         id = session.get('admin_logged_id')
         role = admin.role(id)
@@ -1907,15 +1600,16 @@ def get_decline_data():
         for data in decline_data:
             abc = ''
             if role == (('Super Admin',),):
-                abc = '<input type="checkbox" name="chkArr[]" class="selectChk1" value="' + str(data[0]) + '" onchange="singleSelect()">'
+                abc = '<input type="checkbox" name="chkArr[]" class="selectChk1" value="' + str(
+                    data[0]) + '" onchange="singleSelect()">'
 
             offerif = ''
             if data[6] != 'incomplete':
-                offerif = data[11] 
-            
+                offerif = data[11]
+
             car_info = str(data[1]) + ' ' + str(data[3]) + ' ' + str(data[2])
 
-            location = str(data[7])+','+' '+ str(data[8])+' '+str(data[4])
+            location = str(data[7]) + ',' + ' ' + str(data[8]) + ' ' + str(data[4])
 
             # if data[5] == "NaN":
             #     originalprice = 'Not Finished'
@@ -1931,18 +1625,19 @@ def get_decline_data():
             elif data[10] == None:
                 revisedprice = 'Not Finished'
             elif data[10] != "":
-               revisedprice = str(data[10]) 
+                revisedprice = str(data[10])
             else:
                 revisedprice = '$0.00'
 
             offer = 'Declined'
-            
+
             created_date = changeUSDateFormat(data[9])
 
             btn = '<a class="btn btn-sm btn-primary" href="/inquiry-fetch/{}/?back=inquiry">View</a>'.format(data[0])
             if role == (('Super Admin',),):
-                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(data[0])
-                            
+                btn += ' <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="deleteInquiry({})">Delete</a>'.format(
+                    data[0])
+
             if data[6] == 'accept':
                 if data[12] == 'yes':
                     btn += '<span class="dispatch-btn2">Dispatched to Copart</span>'
@@ -1974,15 +1669,16 @@ def get_decline_data():
             # elif data[15] != "":
             #     tracked_form = f'<b>Src:</b> {data[15]} <br /> <b>Med:</b> {data[16]} <br /> <b>Cpn:</b> {data[17]}'
             #end pallavi code 12-06-24
-            
+
             # tracked_form = ""
-            
+
             # if data[13] == 'https://t.co/' :
             #     tracked_form = 'https://www.twitter.com/'
             # else:
             #     tracked_form = data[13]
 
-            data_dict = {"chk":abc,"offerif": offerif, "car": car_info,'location':location,'form':tracked_form,'revisedprice':revisedprice, 'offer':offer, 'date':created_date, "btn":btn}
+            data_dict = {"chk": abc, "offerif": offerif, "car": car_info, 'location': location, 'form': tracked_form,
+                         'revisedprice': revisedprice, 'offer': offer, 'date': created_date, "btn": btn}
 
             data_list.append(data_dict)
         response = {
@@ -1991,56 +1687,62 @@ def get_decline_data():
             "recordsFiltered": total_records,
             "data": data_list
         }
-        
+
         return jsonify(response)
+
 
 @app.route('/ajax-image-upload', methods=['POST'])
 def ajax_upload_image():
-	if 'files[]' not in request.files:
-		resp = jsonify({'message' : 'No file part in the request'})
-		resp.status_code = 400
-		return resp
-	files = request.files.getlist('files[]')
-	errors = {}
-	success = False
-	for file in files:
-		if file and allowed_file(file.filename):
-			#filename = secure_filename(file.filename)
-			filename = filenamegenerator(file.filename)
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-			errors[filename] = '1'
-			success = True
-		else:
-			errors[file.filename] = '2'
+    if 'files[]' not in request.files:
+        resp = jsonify({'message': 'No file part in the request'})
+        resp.status_code = 400
+        return resp
+    files = request.files.getlist('files[]')
+    errors = {}
+    success = False
+    for file in files:
+        if file and allowed_file(file.filename):
+            #filename = secure_filename(file.filename)
+            filename = filenamegenerator(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            errors[filename] = '1'
+            success = True
+        else:
+            errors[file.filename] = '2'
 
-	if success and errors:
-		#errors['message'] = 'File(s) successfully uploaded'
-		resp = jsonify(errors)
-		resp.status_code = 206
-		return resp
-	if success:
-		#resp = jsonify({'message' : 'Files successfully uploaded'})
-		resp.status_code = 201
-		return resp
-	else:
-		resp = jsonify(errors)
-		resp.status_code = 201
-		return resp
+    if success and errors:
+        #errors['message'] = 'File(s) successfully uploaded'
+        resp = jsonify(errors)
+        resp.status_code = 206
+        return resp
+    if success:
+        resp = jsonify({'message': 'Files successfully uploaded'})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify(errors)
+        resp.status_code = 201
+        return resp
+
+
 @app.template_filter('getjson')
 def getjson(data):
-   return json.loads(data);    
+    return json.loads(data);
+
+
 @app.route('/get-condition-sessionid', methods=['POST'])
 def getconditionsessionid():
     sessionid = sessionidgenerator()
     return [sessionid]
+
+
 @app.route('/condition-filter')
 def conditionfilter():
-
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         #return 'hi'
-        session.pop('sessionid',None)
+        session.pop('sessionid', None)
         modelresult = acceptedaps.getmakes1()
         data = acceptedaps.getConditionalFilter()
         #new code value added start here country
@@ -2048,21 +1750,21 @@ def conditionfilter():
         if not session.get('sessionid'):
             session['sessionid'] = sessionidgenerator()
         sessionid = session['sessionid']
-        
+
         idssss = session['admin_logged_id']
         role = admin.role(idssss)
         #new code value added end here country
-        return render_template('condition-filter.html',modelresult=modelresult,data=data,states=states,role=role)
-    
+        return render_template('condition-filter.html', modelresult=modelresult, data=data, states=states, role=role)
+
+
 #11-1-2024 start
 @app.route('/condition-filter-softdeleted')
 def conditionfiltersoftdeleted():
-
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     else:
         #return 'hi'
-        session.pop('sessionid',None)
+        session.pop('sessionid', None)
         modelresult = acceptedaps.getmakes1()
         data = acceptedaps.getConditionalFilterDeleted()
         #new code value added start here country
@@ -2071,11 +1773,12 @@ def conditionfiltersoftdeleted():
             session['sessionid'] = sessionidgenerator()
         sessionid = session['sessionid']
         #new code value added end here country
-        return render_template('condition-filter-deleted.html',modelresult=modelresult,data=data,states=states)
+        return render_template('condition-filter-deleted.html', modelresult=modelresult, data=data, states=states)
+
+
 #11-1-2024 end
 
 @app.route('/conditional-report-detail/<int:id>/')
-
 def conditionalReportDetail(id):
     data = acceptedaps.getconditional(id);
     #new code value added start here country
@@ -2084,17 +1787,17 @@ def conditionalReportDetail(id):
     stateComma = ''
     if stateData:
         for k1 in stateData:
-            stateComma = stateComma+k1[0]+','
-    length= len (stateComma)
-    stateComma=stateComma[ :length-1]
+            stateComma = stateComma + k1[0] + ','
+    length = len(stateComma)
+    stateComma = stateComma[:length - 1]
     #new code value added end here country
     print(data[0][31])
     allzipcode = json.loads(data[0][31])
     print(allzipcode)
-    return render_template('conditional-fetch.html',data=data,stateComma=stateComma, allzipcode = allzipcode)
+    return render_template('conditional-fetch.html', data=data, stateComma=stateComma, allzipcode=allzipcode)
+
 
 @app.route('/conditional-report-detail-softdeleted/<int:id>/')
-
 def conditionalReportDetailsoftdeleted(id):
     data = acceptedaps.getconditional(id);
     #new code value added start here country
@@ -2103,80 +1806,91 @@ def conditionalReportDetailsoftdeleted(id):
     stateComma = ''
     if stateData:
         for k1 in stateData:
-            stateComma = stateComma+k1[0]+','
-    length= len (stateComma)
-    stateComma=stateComma[ :length-1]
+            stateComma = stateComma + k1[0] + ','
+    length = len(stateComma)
+    stateComma = stateComma[:length - 1]
     #new code value added end here country
     print(data[0][31])
     allzipcode = json.loads(data[0][31])
     print(allzipcode)
-    return render_template('conditional-fetch-softdeleted.html',data=data,stateComma=stateComma, allzipcode = allzipcode)
-
-
+    return render_template('conditional-fetch-softdeleted.html', data=data, stateComma=stateComma,
+                           allzipcode=allzipcode)
 
 
 @app.route('/deleteconditionalreporthard', methods=['POST'])
 def deleteconditionalreporthard():
     if request.method == 'POST':
         data = acceptedaps.deleteconditionhard(request.form);
-        return json.dumps({'model':data});
+        return json.dumps({'model': data});
     else:
         return redirect(url_for('dashboard'))
-    
+
+
 @app.route('/deleteconditionalreport', methods=['POST'])
 def deleteconditionalreport():
     if request.method == 'POST':
-        data = acceptedaps.deletecondition(request.form);
-        return json.dumps({'model':data});
-    else:
-        return redirect(url_for('dashboard'))
-    
+        data = acceptedaps.deletecondition(request.form)
+        return json.dumps({'model': data})
+
+    return redirect(url_for('dashboard'))
+
+
 @app.route('/restoreconditionalreport', methods=['POST'])
 def restoreconditionalreport():
     print('hihihihihihihi')
     if request.method == 'POST':
         data = acceptedaps.restorecondition(request.form);
-        return json.dumps({'model':data});
-    else:
-        return redirect(url_for('dashboard'))
+        return json.dumps({'model': data})
+
+    return redirect(url_for('dashboard'))
 
 
-
-@app.route("/get-conditional-model/<int:id>" , methods=['Get'])
+@app.route("/get-conditional-model/<int:id>", methods=['Get'])
 def get_conditional_model(id):
     decline_data = acceptedaps.getmodels1(id)
     #return [decline_data]
-    return json.dumps({'data':decline_data});
+    return json.dumps({'data': decline_data});
 
-@app.route("/get-conditional-reoport-data/<int:id>" , methods=['Get'])
+
+@app.route("/get-conditional-reoport-data/<int:id>", methods=['Get'])
 def get_conditional_reoport_data(id):
     decline_data = acceptedaps.getConditionalData(id)
-    return json.dumps({'data':decline_data});
+    return json.dumps({'data': decline_data});
 
-@app.route("/get-conditional-list" , methods=['Get'])
+
+@app.route("/get-conditional-list", methods=['Get'])
 def get_conditional_list():
     data = acceptedaps.get_conditional_list()
-    return json.dumps({'data':data})
+    return json.dumps({'data': data})
+
 
 #11-1-2024 start
-@app.route("/get-conditional-list-deleted" , methods=['Get'])
+@app.route("/get-conditional-list-deleted", methods=['Get'])
 def get_conditional_list_deleted():
     data = acceptedaps.get_conditional_list_deleted()
-    return json.dumps({'data':data})
+    return json.dumps({'data': data})
+
+
 #11-1-2024 end
-@app.route('/get-zipcode-list' , methods = ['POST', 'GET'])
+@app.route('/get-zipcode-list', methods=['POST', 'GET'])
 def getzipcodelist():
-    if request.method == 'POST':      
-        data = acceptedaps.get_zipcode_list(request.form)   
-        return json.dumps({'status': True })
+    if request.method == 'POST':
+        data = acceptedaps.get_zipcode_list(request.form)
+
+    return json.dumps({'status': True})
+
+
 @app.route('/condition-filter-add', methods=['POST'])
 def conditionfilteradd():
-    if request.method == 'POST' :
+    if request.method == 'POST':
         modelresult = acceptedaps.saveConditionReportAdd(request.form)
-        return json.dumps({'result':modelresult});
+
+    return json.dumps({'result': modelresult});
+
+
 @app.route('/condition-filter-submit', methods=['POST'])
 def conditionfiltersubmit():
-    if request.method == 'POST' :
+    if request.method == 'POST':
 
         dataAll = request.form
         getFilterTitleData = request.form.getlist("filter_title")
@@ -2205,51 +1919,48 @@ def conditionfiltersubmit():
         stateComma = '';
         if getStateData:
             for k1 in getStateData:
-                stateComma = stateComma+k1+','
+                stateComma = stateComma + k1 + ','
         #new code value added end here country
-        
+
         unable_to_verify_data = 'no';
         if unable_to_verify:
             unable_to_verify_data = 'yes'
 
         #print(unable_to_verify_data+'unable_to_verify_data')
-        
+
         damageComma = '';
         if getBodyDamageData:
             for k1 in getBodyDamageData:
-                damageComma = damageComma+k1+','
+                damageComma = damageComma + k1 + ','
 
         airbagComma = '';
         if getAirBag:
             for k1 in getAirBag:
-                airbagComma = airbagComma+k1+','
-
+                airbagComma = airbagComma + k1 + ','
 
         driveComma = '';
         if getDrive:
             for k1 in getDrive:
-                driveComma = driveComma+k1+','
+                driveComma = driveComma + k1 + ','
 
         getSDamageComma = '';
         if getSDamage:
             for k1 in getSDamage:
-                getSDamageComma = getSDamageComma+k1+','
+                getSDamageComma = getSDamageComma + k1 + ','
 
         keyComma = '';
         if getKey:
             for k1 in getKey:
-                keyComma = keyComma+k1+','
+                keyComma = keyComma + k1 + ','
 
         titleComma = '';
         if getTitleType:
             for k1 in getTitleType:
-                titleComma = titleComma+k1+','
+                titleComma = titleComma + k1 + ','
         firDamageComma = '';
         if getFireDamage:
             for k1 in getFireDamage:
-                firDamageComma = firDamageComma+k1+','
-
-        
+                firDamageComma = firDamageComma + k1 + ','
 
         getDamageImg1 = []
         getDamage1 = ''
@@ -2258,7 +1969,7 @@ def conditionfiltersubmit():
             if getDamageImg:
                 getDamageImg1 = getDamageImg
                 for a11 in getDamageImg1:
-                    sdamageImg_s = sdamageImg_s+a11+','
+                    sdamageImg_s = sdamageImg_s + a11 + ','
                     #print(sdamageImg_s)
 
         abc1 = json.dumps(getDamageImg1)
@@ -2269,23 +1980,27 @@ def conditionfiltersubmit():
         if getMakeData:
             for k in getMakeData:
                 make_id = k
-                make_id_s = make_id_s+k+','
-                model_id = request.form.getlist("model["+k+"]")
+                make_id_s = make_id_s + k + ','
+                model_id = request.form.getlist("model[" + k + "]")
                 if model_id:
                     model_id1 = model_id
                     for k1 in model_id:
-                        model_id_s = model_id_s+k1+','  
+                        model_id_s = model_id_s + k1 + ','
                 else:
                     model_id1 = 'all'
-                adcostrray.append({'make_id' : make_id, 'model_id' : model_id1})
+                adcostrray.append({'make_id': make_id, 'model_id': model_id1})
         else:
-            adcostrray.append({'make_id' : 'all', 'model_id' : 'all'})
+            adcostrray.append({'make_id': 'all', 'model_id': 'all'})
 
         abc = json.dumps(adcostrray)
         #new code value added start here country
-        modelresult = acceptedaps.saveConditionReport(dataAll,getestimateData,abc,getDamage1,abc1,make_id_s,model_id_s,sdamageImg_s,damageComma,airbagComma,driveComma,getSDamageComma,keyComma,titleComma,firDamageComma,unable_to_verify_data,usa_data=usa_data,stateComma=stateComma,getStateData=getStateData)
+        modelresult = acceptedaps.saveConditionReport(dataAll, getestimateData, abc, getDamage1, abc1, make_id_s,
+                                                      model_id_s, sdamageImg_s, damageComma, airbagComma, driveComma,
+                                                      getSDamageComma, keyComma, titleComma, firDamageComma,
+                                                      unable_to_verify_data, usa_data=usa_data, stateComma=stateComma,
+                                                      getStateData=getStateData)
         #new code value added end here country
-        
+
         makeFlag = 'no'
         if getMakeData:
             makeFlag = 'yes'
@@ -2298,52 +2013,58 @@ def conditionfiltersubmit():
         if getBodyDamageData:
             damageFlag = 'yes'
 
-        return json.dumps({'result':modelresult,'getMakeData':getMakeData,'getModelData':getModelData,'dataAll':dataAll,'adcostrray':adcostrray});
+        return json.dumps(
+            {'result': modelresult, 'getMakeData': getMakeData, 'getModelData': getModelData, 'dataAll': dataAll,
+             'adcostrray': adcostrray});
+
 
 @app.route('/getqoute-conditional', methods=['POST'])
 def frontend1():
-    if request.method == 'POST' :
+    if request.method == 'POST':
         unable_to_verify = request.form.get("utv")
         unable_to_verify_data = '';
         if unable_to_verify:
             unable_to_verify_data = 'yes'
-            
+
         dataAll = request.form
         record_id = dataAll['record_id']
-        
-        conditionalLogic = qoute.frontend1(request.form,unable_to_verify_data)
-        return json.dumps({'conditionalLogic':conditionalLogic,'test':'test'});
+
+        conditionalLogic = qoute.frontend1(request.form, unable_to_verify_data)
+        return json.dumps({'conditionalLogic': conditionalLogic, 'test': 'test'});
     else:
         return redirect(url_for('dashboard'))
+
 
 @app.route('/share')
 def share():
     sharing_amt = request.args.get('amt')
     data = acceptedaps.get_price(sharing_amt)
-    return render_template('share.html' , data = data,sharing_amt=sharing_amt)
+    return render_template('share.html', data=data, sharing_amt=sharing_amt)
+
 
 @app.route("/admin/current_location")
 def current_location():
     return render_template("current_location.html")
 
-@app.route('/get_location_using_zip' ,methods=['POST','Get'])
+
+@app.route('/get_location_using_zip', methods=['POST', 'Get'])
 def get_location_using_zip():
     if request.method == 'POST':
-        data  =  acceptedaps.getzipcode(request.form)
+        data = acceptedaps.getzipcode(request.form)
         if data:
-            return json.dumps({'status': True , 'data' : data})
+            return json.dumps({'status': True, 'data': data})
         else:
             return json.dumps({'status': False})
 
 
-
-@app.route('/insert_location_using_zip' ,methods=['POST','Get'])
+@app.route('/insert_location_using_zip', methods=['POST', 'Get'])
 def insert_location_using_zip():
     if request.method == 'POST':
-        data  =  acceptedaps.insert_zip_code(request.form)
+        data = acceptedaps.insert_zip_code(request.form)
         return [data]
 
-@app.route("/get_location_value" ,methods=['POST','Get'] )
+
+@app.route("/get_location_value", methods=['POST', 'Get'])
 def get_location_value():
     if request.method == 'POST':
         sharing_amt = request.form
@@ -2353,7 +2074,8 @@ def get_location_value():
         # print(data)
         return [data]
 
-@app.route('/notesadd', methods=['POST','Get'])
+
+@app.route('/notesadd', methods=['POST', 'Get'])
 def notesadd():
     if request.method == 'POST':
         print(request.form)
@@ -2362,13 +2084,14 @@ def notesadd():
         else:
             return json.dumps({'status': False})
 
-@app.route('/get-notes/<id>', methods = ['POST', 'GET'])
+
+@app.route('/get-notes/<id>', methods=['POST', 'GET'])
 def getnotes(id):
     notefile = notes.get_notes(id)
-    return jsonify({'data':notefile})
+    return jsonify({'data': notefile})
 
 
-@app.route('/notes-delete/<id>', methods = ['POST', 'GET'])
+@app.route('/notes-delete/<id>', methods=['POST', 'GET'])
 def notesdelete(id):
     notefile = notes.delete_notes(id)
     if notefile:
@@ -2376,7 +2099,8 @@ def notesdelete(id):
     else:
         return json.dumps({'status': False})
 
-@app.route('/update_status/', methods=['POST','Get'])
+
+@app.route('/update_status/', methods=['POST', 'Get'])
 def update_status():
     if request.method == 'POST':
         # a = request.form
@@ -2387,10 +2111,11 @@ def update_status():
         else:
             return json.dumps({'status': False})
 
+
 @app.route('/file-upload', methods=['POST'])
 def ajax_upload_file():
     if 'files[]' not in request.files:
-        resp = jsonify({'message' : 'No file part in the request'})
+        resp = jsonify({'message': 'No file part in the request'})
         resp.status_code = 400
         return resp
     files = request.files.getlist('files[]')
@@ -2416,6 +2141,7 @@ def ajax_upload_file():
         resp = jsonify(errors)
         resp.status_code = 201
         return resp
+
 
 @app.route('/file-upload-test-test', methods=['POST', 'GET'])
 def ajax_upload_filerrtrtrtrtrtrt():
@@ -2447,54 +2173,19 @@ def ajax_upload_filerrtrtrtrtrtrt():
 
     return ''
 
-# code added by pallavi
-
-user_details = admin.getjwttoken(acv_user()[0])
-
-pubnub.set_stream_logger('pubnub', logging.DEBUG)
-
-PUBNUB_PUBLISH_KEY = user_details[2]
-PUBNUB_SUBSCRIBE_KEY = user_details[3]
-USER_ID = str(user_details[1])
-
-def configure_pubnub(auth_key):
-    pnconfig = PNConfiguration()
-    pnconfig.subscribe_key = PUBNUB_SUBSCRIBE_KEY
-    pnconfig.auth_key = auth_key
-    pnconfig.uuid = USER_ID  
-    return PubNub(pnconfig)
-
-class MyListener(SubscribeCallback):
-    def message(self, pubnub, message):
-        message_data = message.message
-        if 'type' in message_data and message_data['type'] == 'LAUNCHED':
-            auction_id = message_data['data']['id']
-            return f"Auction launched with ID: {auction_id}"
-
-@app.route('/listen-for-auctions')
-def listen_for_auctions():
-    pubnub_auth_key = PUBNUB_PUBLISH_KEY
-    if not pubnub_auth_key:
-        return "Failed to obtain PubNub authKey. Check ACV login API response."
-    
-    pubnub = configure_pubnub(pubnub_auth_key)
-
-    data = pubnub.add_listener(MyListener())
-    pubnub.subscribe().channels("auctions").execute()
-
-    return "Now listening for auction events...",data
 
 @app.template_filter('change_us_date_formate')
-def changeUSDateFormat(date,input_format='%Y-%m-%d %H%M%S',time_format='%H%M%S'):
-    if isinstance(date, datetime): 
+def changeUSDateFormat(date, input_format='%Y-%m-%d %H%M%S', time_format='%H%M%S'):
+    if isinstance(date, datetime):
         date_str = date.strftime(input_format)
-        time_str = date.strftime(time_format) 
+        time_str = date.strftime(time_format)
     else:
         date_str = date
         time_str = ''
     date_obj = datetime.strptime(date_str, input_format)
     time_obj = datetime.strptime(time_str, time_format)
     return date_obj.strftime('%m/%d/%Y') + ' ' + time_obj.strftime('%H:%M:%S')
+
 
 #pallavi changes 12-06-24
 @app.route('/remove-zipcode', methods=['POST'])
@@ -2507,75 +2198,63 @@ def remove_zipcode():
     """
     if request.method == 'POST':
         data = acceptedaps.remove_zipcode(request.form)
-        return json.dumps({'model':data})
-#end pallavi code 12-06-24
+        return json.dumps({'model': data})
 
-
-# def simulate_task(scheduler):
-
-#     scheduler.enter(40, 1, acv_login, (scheduler))
-
-#     scheduler.enter(60, 1, auction_save.latest_auctions,())
-
-# @app.route('/start_task/')
-# def start_task():
-#     scheduler = sched.scheduler(time.time, time.sleep)
-#     scheduler.enter(0, 1, simulate_task, (scheduler,))
-#     thread = threading.Thread(target=scheduler.run)
-#     thread.start()
-    
-#     return 'Task started successfully.'
-
-@app.route('/get-auction-proqoute', methods=['POST','GET'])
-def get_proqoute():
-    #return 'ninnininini'
-    data = acv.get_proqoute()
-    return 'dfdsfdfdsfddsffdsfds'
 
 scheduler = BackgroundScheduler()
-
 start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
-#scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*',second='*/5')
-#scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/10')
-# scheduler.add_job(func=Proqoute.generateproqoute, trigger='cron', hour='*', minute='*',second='*/50')
-# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
+scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*', second='*/5')
+# scheduler.add_job(func=latest_auctions, trigger='cron', hour='*', minute='*', second='*/30')
+# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/6')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
 # scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
-# scheduler.add_job(func=PubNubNotification.auction_pub_nub_notification, trigger='cron', hour='*', minute='*',second='*/1')
 # scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
 # scheduler.add_job(func=auction_10_min_left, trigger='cron', hour='*', minute='*', second='*/30')
 
-
 scheduler.start()
-    
-# @app.route('/run-crone-job/')
-# def schedule_cron_job():
-#     schedule.every(20).seconds.do(acv_login)
-#     schedule.every(30).seconds.do(latest_auctions)
-    # schedule.every(1).minutes.do(auction_pub_nub_notification)
-    # schedule.every(3).minutes.do(won_auction)
-    # schedule.every(45).seconds.do(auction_place_bid.acv_auction_place_bid)
-    # schedule.every(30).seconds.do(auction_10_min_left)
-    # schedule.every(5).seconds.do(auction_1_min_left)
-    # schedule.every(1).minutes.do(remove_auction)
-    # schedule.every(1).minutes.do(OutBid.auction_out_bid)
-    
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
 
-# code ended by pallavi
 
-@app.route('/get-light-count/', methods=['POST','GET'])
+@app.route('/get-light-count/', methods=['POST', 'GET'])
 def get_light_count():
-        data = acceptedaps.countslights(4417936)
-        return json.dumps({'data':data})
+    data = acceptedaps.countslights(4417936)
+    return json.dumps({'data': data})
+
+
+@app.route('/pubnub_last_value', methods=['GET'])
+def get_last_value():
+    last_value = pubnub_client.get_last_value()
+    if last_value is None:
+        return jsonify({"message": "No values received yet."})
+    return jsonify({"last_value": last_value})
+
+
+@app.route('/pubnub_update_value', methods=['GET'])
+def update_value():
+    new_value = 123
+    pubnub_client.publish_message(new_value)
+    return jsonify({"status": "Value updated", "new_value": new_value})
+
+
+#
+# def update_auctions():
+#     while True:
+#         time.sleep(5)
+#         auctions = bidding_status()
+#         socketio.emit('update', auctions)
+#
+#
+# @socketio.on('connect')
+# def handle_connect(auctions=None):
+#     emit('update', auctions)
+#
+#
+# # Start the update thread
+# thread = threading.Thread(target=update_auctions)
+# thread.daemon = True
+# thread.start()
 
 if __name__ == "__main__":
-    # code added by pallavi
-    # schedule_cron_job()
-    # scheduler.start()
-    # code ended by pallavi
-    app.run(host='192.168.1.179', port=9020)
+    # app.run(debug=True, use_reloader=False, host='192.168.1.176', port=9020)
+    socketio.run(app, debug=True, use_reloader=False, host='192.168.1.176', port=9020)

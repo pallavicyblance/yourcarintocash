@@ -11,6 +11,7 @@ acv = ACV()
 
 acceptedaps = Acceptedaps()
 
+
 def acv_login():
     loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
     data = {
@@ -25,18 +26,14 @@ def acv_login():
 
     refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
     data = {
-        'refreshToken' : refresh_token
+        'refreshToken': refresh_token
     }
     response = requests.post(refreshTokenurl, json=data)
     jwtToken = response.json().get('jwt')
-    
+
     refresh_token = response.json().get('refreshToken')
-    acv.storeToken(acv_user()[0],pubnub_auth_key,pubnub_expiration,pubnub_subscribe_key,refresh_token)
-    acv.storeRefreshToken(jwtToken,acv_user()[0])
+    acv.storeToken(acv_user()[0], pubnub_auth_key, pubnub_expiration, pubnub_subscribe_key, refresh_token)
+    acv.storeRefreshToken(jwtToken, acv_user()[0])
 
-    print('call')
+    print('acv_login')
 
-    # decoded_token = jwt.decode(jwtToken, options={"verify_signature": False}, algorithms=["HS256"])
-    # expiration_timestamp = decoded_token.get('exp')
-    # expiration_datetime = datetime.fromtimestamp(expiration_timestamp)
-    # print("Token1 expiration datetime:", expiration_datetime)

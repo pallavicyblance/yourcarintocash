@@ -1,5 +1,6 @@
 import pymysql
 import datetime
+import pytz
 import json
 import requests
 import http.client
@@ -7,17 +8,18 @@ import traceback
 import os
 from cronjob.generate_proqoute import Proqoute
 from Misc.functions import *
+
 proqoute = Proqoute()
 
 
 class ACV:
     def connect(self):
         # return connect()
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
+        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api",
                                charset='utf8mb4')
 
     def connect_index(self):
-        con = pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
+        con = pymysql.connect(host="localhost", user="root", password="", database="carintocash_api",
                               autocommit=True, charset='utf8mb4')
         return con.cursor(pymysql.cursors.DictCursor)
 
@@ -2441,8 +2443,15 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            cursor.execute('SELECT * from auctions Where is_match = %s AND status IN ("active", "run_list") AND action_end_datetime > %s ORDER BY action_end_datetime DESC', (1, current_datetime))
+            current_datetime = datetime.now()
+            # Convert local time to UTC
+            utc_time = current_datetime.astimezone(pytz.utc)
+            # Format the UTC time
+            formatted_utc_time = utc_time.strftime('%Y-%m-%d %H:%M:%S')
+
+            cursor.execute(
+                'SELECT * from auctions Where is_match = %s AND status IN ("active", "run_list") AND action_end_datetime > %s ORDER BY action_end_datetime DESC',
+                (1, formatted_utc_time))
             activeauctions = cursor.fetchall()
 
             return activeauctions
@@ -2579,7 +2588,8 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and status = "active"', (0))
+            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and status IN("active", "run_list", "ended")',
+                           (0))
             return cursor.fetchall()
         except:
             return ()
@@ -4055,8 +4065,17 @@ class ACV:
         con = self.connect()
         cursor = con.cursor()
         try:
-            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            cursor.execute('UPDATE auctions SET status = "ended" WHERE action_end_datetime <= %s', (current_datetime))
+            current_datetime = datetime.now()
+            print(current_datetime)
+
+            # Convert local time to UTC
+            utc_time = current_datetime.astimezone(pytz.utc)
+
+            # Format the UTC time
+            formatted_utc_time = utc_time.strftime('%Y-%m-%d %H:%M:%S')
+            print(formatted_utc_time)
+
+            cursor.execute('UPDATE auctions SET status = "ended" WHERE action_end_datetime <= %s', (formatted_utc_time))
             con.commit()
 
         except Exception as e:
@@ -4066,10 +4085,55 @@ class ACV:
             con.close()
 
     def update_bid_by_us(self, auction_id):
-        con = self.connect()
+        con = self.connect1()
         cursor = con.cursor()
         try:
             cursor.execute('UPDATE auctions SET bid_by_us = %s WHERE auction_id = %s', (1, auction_id))
+            con.commit()
+
+        except Exception as e:
+            print(e)
+            return ()
+        finally:
+            con.close()
+
+    def generate_auction_final_status(self):
+        cursor1 = self.connect_index()
+
+        try:
+            cursor1.execute(
+                'SELECT id, auction_id, status FROM auctions WHERE status = "ended" AND bid_by_us = %s AND final_status = %s',
+                (1, 0))
+            final_auction = cursor1.fetchall()
+
+            for auction in final_auction:
+                try:
+
+                    auction_data = self.fetch_auction_details(auction['auction_id'])
+                    is_win = 0
+
+                    if auction_data['isHighBidder'] and auction_data['reserveMet']:
+                        is_win = 1
+
+                    self.update_final_status(auction['auction_id'], is_win)
+
+                except Exception as e:
+                    print('ERROR IN FINAL STATUS')
+                    print(e)
+
+        except Exception as e:
+            print(e)
+
+    def update_final_status(self, auction_id, is_win):
+        con = self.connect()
+        cursor = con.cursor()
+        lost = 1
+
+        if is_win == 1:
+            lost = 0
+
+        try:
+            cursor.execute('UPDATE auctions SET final_status = %s, win = %s, lost = %s  WHERE auction_id = %s', (1, is_win, lost, auction_id))
             con.commit()
 
         except Exception as e:

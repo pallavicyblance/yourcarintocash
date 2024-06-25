@@ -11,7 +11,7 @@ acceptedaps = Acceptedaps()
 class Proqoute:
     def connect(self):
         # return connect()
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
+        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api",
                                charset='utf8mb4')
 
     def generateproqoute(self, auction_id):

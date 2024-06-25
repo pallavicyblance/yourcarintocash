@@ -5,8 +5,13 @@ from pubnub.enums import PNStatusCategory
 from module.acv import ACV
 from Misc.functions import *
 import threading
+import logging
 
 acv = ACV()
+logging.basicConfig(filename='pubnub.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a logger object
+logger = logging.getLogger(__name__)
 
 
 class MySubscribeCallback(SubscribeCallback):
@@ -22,6 +27,8 @@ class MySubscribeCallback(SubscribeCallback):
 
     def message(self, pubnub, message):
         print(f"New value: {message.message} on channel: {message.channel}")
+        logger.info('PUBNUB NOTIFICATION RECEIVE')
+        logger.info(message)
         self.parent.last_value = message.message
         self.parent.handle_notification(message.message)
 

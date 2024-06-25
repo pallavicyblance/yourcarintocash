@@ -18,7 +18,7 @@ class auction_place_bid:
     def connect(self):
         # return connect()
         # return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api", charset='utf8mb4')
 
     def acv_auction_place_bid():
         print('-----cron job place bid data started-----')

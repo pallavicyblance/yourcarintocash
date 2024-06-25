@@ -2256,4 +2256,4 @@ thread.start()
 
 if __name__ == "__main__":
     # app.run(debug=True, use_reloader=False, host='192.168.1.176', port=9020)
-    socketio.run(app, debug=True, use_reloader=False, host='192.168.1.176', port=9020)
+    socketio.run(app, debug=True, use_reloader=False, host='192.168.1.5', port=9010, allow_unsafe_werkzeug=True)

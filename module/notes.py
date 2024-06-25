@@ -23,7 +23,7 @@ class Notes:
         return location_data
 
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api", charset='utf8mb4')
 
     def noteadd(self , data):
         con =  Notes.connect(self)

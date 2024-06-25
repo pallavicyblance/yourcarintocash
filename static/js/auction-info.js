@@ -5,7 +5,7 @@ $(document).ready(function(){
 
     socket.on('update', function(data) {
         console.log(data);
-        if(data != undefined) {
+        if(data !== undefined) {
             data.forEach(function(auction) {
                 console.log(auction);
             });
@@ -309,14 +309,14 @@ $(document).ready(function(){
                     str += '<tr>';
                         str += '<td colspan="11" align="center">No data found</td>';
                     str += '</tr>';
-                }else{
+                } else {
                     data.forEach(auction => {
-                        if (auction[27] == 1){
-                            str += '<tr class="cell_green">';
-                        }else if(auction[10] == 0){
-                            str += '<tr>';
-                        }else if(auction[27] == 0){
-                            str += '<tr class="cell_red">';
+                        if (auction[27] == 1) {
+                            str += '<tr class="cell_green" id="auctionTr-'+auction[4]+'">';
+                        } else if(auction[10] == 0) {
+                            str += '<tr id="auctionTr-'+auction[4]+'">';
+                        } else if(auction[27] == 0) {
+                            str += '<tr class="cell_red" id="auctionTr-'+auction[4]+'">';
                         }
 
                         str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
@@ -364,6 +364,7 @@ $(document).ready(function(){
                         
                     });
                 }
+
                 $('#dataConditional tbody').html(str);
 
                 var str1 = '';
@@ -373,7 +374,7 @@ $(document).ready(function(){
                     str1 += '</tr>';
                 }else{
                     won_auction.forEach(auction => {
-                        str1 += '<tr>';
+                        str1 += '<tr id="auctionTr-'+auction[4]+'">';
 
                         str1 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
                         
@@ -423,7 +424,7 @@ $(document).ready(function(){
                     str2 += '</tr>';
                 }else{
                     lost_auction.forEach(auction => {
-                        str2 += '<tr>';
+                        str2 += '<tr id="auctionTr-'+auction[4]+'">';
 
                         str2 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
                         
@@ -782,7 +783,8 @@ $(document).ready(function(){
 
 
 function time_left(date, id) {
-    var targetDateUTC = new Date(date);
+
+    var targetDateUTC = new Date(new Date(date).toUTCString());
     
     var timerInterval = setInterval(function() {
         // Get the current time in UTC
@@ -794,6 +796,7 @@ function time_left(date, id) {
         if (timeDifference <= 0) {
             clearInterval(timerInterval);
             $(".hours_" + id).html('Auction Ended');
+            $("#auctionTr-" + id).fadeOut();
         } else {
             // console.log('else timeDifference',timeDifference);
             var days = Math.floor(timeDifference / (24 * 60 * 60));

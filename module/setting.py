@@ -6,7 +6,7 @@ from Misc.functions import *
 import traceback
 class Setting:
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api", charset='utf8mb4')
     def read(self, id):
         con = Setting.connect(self)
         cursor = con.cursor()

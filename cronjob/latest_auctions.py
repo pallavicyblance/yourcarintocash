@@ -156,3 +156,7 @@ def bidding_status():
 def close_auction():
     print('-----cron job close auction data-----')
     acv.close_auction()
+
+
+def generate_auction_final_status():
+    acv.generate_auction_final_status()

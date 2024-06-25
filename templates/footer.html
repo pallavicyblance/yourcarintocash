@@ -89,15 +89,19 @@
 				url: WS_PATH+'getnotificationcounter',
 				type: 'POST',				
 				success: function(response){
-					
-					var data = JSON.parse(response);
-					var data1 = data.model;
-					if(data1 && data1!=0){
-						$('.notification').html(data1);
-						$('.notification').show();
-					}else{
-					    $('.notification').hide();
-					}
+					//check if the response has json data
+					 try {
+                        var data = JSON.parse(response);
+                        var data1 = data.model;
+                        if(data1 && data1!=0){
+                            $('.notification').html(data1);
+                            $('.notification').show();
+                        }else{
+                            $('.notification').hide();
+                        }
+                     } catch (e) {
+                        console.log('error in get notification counter');
+                     }
 				},
 				error: function(error){
 					console.log(error);

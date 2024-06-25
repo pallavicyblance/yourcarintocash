@@ -106,7 +106,7 @@ $(document).ready(function(){
     $('#searchauction').on('input', function() {
         if ($(this).val() == '') {
             console.log("Search cleared. Starting intervals.");
-            //startIntervals();
+            startIntervals();
         } else {
             console.log('User is searching. Stopping intervals.');
             stopIntervals();
@@ -114,7 +114,7 @@ $(document).ready(function(){
     });
     
     if ($('#searchauction').val() == '') {
-        //startIntervals();
+        startIntervals();
     } else {
         console.log('User is searching. Intervals not started initially.');
     }
@@ -289,9 +289,11 @@ $(document).ready(function(){
     }
 
     function fetchData(selectedConditionReportId) {
+
         if (loader_call) {
             $('#loadingdieditvvehicle').show();
         }
+
         $.ajax({
             url: WS_PATH + '/condition-report-details/',
             type: 'POST',

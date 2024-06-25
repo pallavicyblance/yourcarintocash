@@ -17,13 +17,11 @@ class auction_place_bid:
 
     def connect(self):
         # return connect()
-         # return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
+        # return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
         return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
 
     def acv_auction_place_bid():
-        logging.info('-----------cron job place bid started -----------')
-        print('-----------cron job place bid started -----------')
-
+        print('-----cron job place bid data started-----')
         getjwttoken = acv.getjwttoken(acv_user()[0])
                 
         getauctions = acv.getauctionsforbid()
@@ -34,9 +32,7 @@ class auction_place_bid:
                     auction_place_bid.update_auction(auction[4])
                 elif auction[38] == auction[36] or auction[38] < auction[36]:
                     auction_place_bid.update_data(auction[4])
-
-        logging.info('-----------cron job place bid ended -----------')
-        print('-----------cron job place bid ended ------------')
+        print('-----cron job place bid data ended-----')
         return 'success'
 
     def update_data(auctionId):
@@ -52,7 +48,7 @@ class auction_place_bid:
             logging.info("%s Error:", e)
             return 'failure'
 
-    def place_auction_proxy_bid(auctionId,nextProxyAmount,jwttoken):  
+    def place_auction_proxy_bid(self, auctionId, nextProxyAmount, jwttoken):
         url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
         json_data_bid = {
             'amount': nextProxyAmount,
@@ -65,9 +61,12 @@ class auction_place_bid:
         }
 
         try:
+            logging.info('AUTO BID AUCTION:-'+auctionId)
+            print('AUTO BID AUCTION:===>', auctionId)
             response = requests.post(url, json=json_data_bid, headers=headers)
             response.raise_for_status()  
-            acv.updateproxydata(auctionId,nextProxyAmount)
+            acv.updateproxydata(auctionId, nextProxyAmount)
+            acv.update_bid_by_us(auctionId)
             print("Response for auction :" + str(auctionId), response.text)
             return 'success'
                     

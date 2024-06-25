@@ -58,7 +58,8 @@ def place_auction_proxy_bid(auctionId,nextProxyAmount,jwttoken):
         try:
             response = requests.post(url, json=json_data_bid, headers=headers)
             response.raise_for_status()  
-            acv.updateproxydata(auctionId,nextProxyAmount)
+            acv.updateproxydata(auctionId, nextProxyAmount)
+            acv.update_bid_by_us(auctionId)
             print("Response for auction :" + str(auctionId), response.text)
             return 'success'
                     

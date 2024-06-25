@@ -9,7 +9,10 @@ import socket
 from datetime import datetime, timedelta
 from cronjob.acv_login import acv_login
 from cronjob.generate_proqoute import Proqoute
-from cronjob.latest_auctions import live_auctions, bidding_status, upcoming_auction
+from cronjob.latest_auctions import live_auctions
+from cronjob.latest_auctions import bidding_status
+from cronjob.latest_auctions import upcoming_auction
+from cronjob.latest_auctions import close_auction
 from cronjob.won_auction import won_auction
 from cronjob.place_bid import auction_place_bid
 from cronjob.pub_nub_client import PubNubClient
@@ -387,6 +390,7 @@ def place_bid():
         response_data = response.json()
 
         acv.place_bid(auctionId, response_data['amount'])
+        acv.update_bid_by_us(auctionId)
 
         url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}'
         params = {'id': auctionId}
@@ -431,6 +435,7 @@ def place_proxy_bid():
         response = requests.post(url, json=json_data_bid, headers=headers)
         response.raise_for_status()
         acv.updateproxydata(auctionId, bidamount)
+        acv.update_bid_by_us(auctionId)
         return 'success'
     except requests.exceptions.RequestException as e:
         print("Error:", e)
@@ -1337,9 +1342,9 @@ def deleteinquiry():
 def getnotificationcounter():
     if request.method == 'POST':
 
-        data = acceptedaps.getnotificationcounter();
+        data = acceptedaps.getnotificationcounter()
 
-        return json.dumps({'model': data});
+        return json.dumps({'model': data})
 
     else:
 
@@ -2206,9 +2211,10 @@ start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
 scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*', second='*/5')
+scheduler.add_job(func=close_auction, trigger='cron', hour='*', minute='*', second='*/2')
 scheduler.add_job(func=live_auctions, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=upcoming_auction, trigger='cron', hour='*', minute='*', second='*/30')
-# scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/6')
+scheduler.add_job(func=auction_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/6')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
 # scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
 # scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
@@ -2231,16 +2237,9 @@ def get_last_value():
     return jsonify({"last_value": last_value})
 
 
-@app.route('/pubnub_update_value', methods=['GET'])
-def update_value():
-    new_value = 123
-    pubnub_client.publish_message(new_value)
-    return jsonify({"status": "Value updated", "new_value": new_value})
-
-
 def update_auctions():
     while True:
-        time.sleep(5)
+        time.sleep(2)
         auctions = bidding_status()
         socketio.emit('update', auctions)
 

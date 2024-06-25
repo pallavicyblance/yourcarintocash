@@ -56,6 +56,7 @@ class OutBid:
             response.raise_for_status()  
             if response.status_code == 200:
                 acv.place_bid(auctionId, bidamount)
+                acv.update_bid_by_us(auctionId)
                 logging.info("auction %s: placed bid with amount %s", auctionId, bidamount)
                 print('auction ' + str(auctionId) + ' placed bid with amount ' + str(bidamount))
                 return 'status'

@@ -119,8 +119,7 @@ def bidding_status():
         current_datetime = datetime.now()
         auction_end_time = current_datetime.strftime("%Y-%m-%d %H:%M:%S ")
 
-        cursor1.execute('SELECT * FROM auctions WHERE action_end_datetime < %s AND bid_amount != %s',
-                        (auction_end_time, 0))
+        cursor1.execute('SELECT * FROM auctions WHERE status = "active" AND bid_by_us = %s', (1))
         expire_auctions = cursor1.fetchall()
 
         for auction in expire_auctions:
@@ -152,3 +151,8 @@ def bidding_status():
         con.close()
 
     return response
+
+
+def close_auction():
+    print('-----cron job close auction data-----')
+    acv.close_auction()

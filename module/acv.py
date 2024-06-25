@@ -5,7 +5,6 @@ import requests
 import http.client
 import traceback
 import os
-from datetime import date
 from cronjob.generate_proqoute import Proqoute
 from Misc.functions import *
 proqoute = Proqoute()
@@ -255,14 +254,14 @@ class ACV:
                 mysql_datetime_startdate = ''
                 if data['endTime'] is not None:
                     # Convert to Python datetime object
-                    dt_object = datetime.datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
+                    dt_object = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
                     # Format to MySQL datetime string
                     mysql_datetime_startdate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
 
                 mysql_datetime_enddate = ''
                 if data['endTime'] is not None:
                     # Convert to Python datetime object
-                    dt_object = datetime.datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
+                    dt_object = datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
                     # Format to MySQL datetime string
                     mysql_datetime_enddate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -299,7 +298,7 @@ class ACV:
                      data['nextBidAmount'],
                      data['startPrice'],
                      data['isHighBidder'],
-                     datetime.datetime.now(),
+                     datetime.now(),
                      body_damage,
                      data['reserveMet'],
                      data['nextProxyAmount'],
@@ -1423,7 +1422,7 @@ class ACV:
                      data['nextBidAmount'],
                      data['startPrice'],
                      data['isHighBidder'],
-                     datetime.datetime.now(),
+                     datetime.now(),
                      body_damage,
                      data['reserveMet'],
                      data['nextProxyAmount'],
@@ -2428,7 +2427,7 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             cursor.execute('SELECT * from auctions WHERE status = "active" ORDER BY action_end_datetime ASC')
             # cursor.execute('SELECT * from auctions WHERE action_end_datetime > %s AND status = "active" ORDER BY action_end_datetime ASC', (current_datetime,))
 
@@ -2438,26 +2437,15 @@ class ACV:
         finally:
             con.close()
 
-    def getauctionsforbid(self, ):
+    def getauctionsforbid(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-
-            cursor.execute('SELECT * from auctions Where status = "run_list" ORDER BY action_start_datetime DESC')
-            upcomingauctions = cursor.fetchall()
-
-            cursor.execute(
-                'SELECT * from auctions Where is_match = %s AND status = "active" ORDER BY action_end_datetime DESC',
-                (1))
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('SELECT * from auctions Where is_match = %s AND status IN ("active", "run_list") AND action_end_datetime > %s ORDER BY action_end_datetime DESC', (1, current_datetime))
             activeauctions = cursor.fetchall()
 
-            # cursor.execute('SELECT * from auctions Where action_start_datetime > %s AND status = "run_list" ORDER BY action_start_datetime DESC', (datetime.datetime.now(),))
-            # upcomingauctions = cursor.fetchall()
-
-            # cursor.execute('SELECT * from auctions Where action_end_datetime > %s AND is_match = %s AND status = "active" ORDER BY action_end_datetime DESC', (datetime.datetime.now(),1))
-            # activeauctions = cursor.fetchall()
-
-            return upcomingauctions + activeauctions
+            return activeauctions
 
         except Exception as e:
             print(e)
@@ -2499,7 +2487,7 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             searchval = ' '.join(searchval.strip().split())
             if searchval != "":
                 if status == "active":
@@ -2556,7 +2544,7 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            current_datetime = datetime.datetime.now()
+            current_datetime = datetime.now()
             auction_end_time = current_datetime.strftime("%Y-%m-%d %H:%M:%S ")
             cursor.execute('SELECT * FROM auctions WHERE action_end_datetime < %s AND bid_amount != %s',
                            (auction_end_time, 0))
@@ -2906,7 +2894,7 @@ class ACV:
                      data['nextBidAmount'],
                      data['startPrice'],
                      data['isHighBidder'],
-                     datetime.datetime.now(),
+                     datetime.now(),
                      body_damage,
                      data['reserveMet'],
                      data['nextProxyAmount'],
@@ -2958,7 +2946,7 @@ class ACV:
                      data['nextBidAmount'],
                      data['startPrice'],
                      data['isHighBidder'],
-                     datetime.datetime.now(),
+                     datetime.now(),
                      body_damage,
                      data['reserveMet'],
                      data['nextProxyAmount'],
@@ -4019,7 +4007,7 @@ class ACV:
         cursor = con.cursor()
         try:
             cursor.execute('SELECT * FROM live_auctions WHERE status = "run_list" and action_start_datetime > %s',
-                           datetime.datetime.now())
+                           datetime.now())
             return cursor.fetchall()
         except:
             return ()
@@ -4062,3 +4050,30 @@ class ACV:
         auction_details = requests.get(url, headers=headers)
         auction_details.raise_for_status()
         return auction_details.json()
+
+    def close_auction(self):
+        con = self.connect()
+        cursor = con.cursor()
+        try:
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('UPDATE auctions SET status = "ended" WHERE action_end_datetime <= %s', (current_datetime))
+            con.commit()
+
+        except Exception as e:
+            print(e)
+            return ()
+        finally:
+            con.close()
+
+    def update_bid_by_us(self, auction_id):
+        con = self.connect()
+        cursor = con.cursor()
+        try:
+            cursor.execute('UPDATE auctions SET bid_by_us = %s WHERE auction_id = %s', (1, auction_id))
+            con.commit()
+
+        except Exception as e:
+            print(e)
+            return ()
+        finally:
+            con.close()

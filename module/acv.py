@@ -15,11 +15,11 @@ proqoute = Proqoute()
 class ACV:
     def connect(self):
         # return connect()
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api",
+        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
                                charset='utf8mb4')
 
     def connect_index(self):
-        con = pymysql.connect(host="localhost", user="root", password="", database="carintocash_api",
+        con = pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
                               autocommit=True, charset='utf8mb4')
         return con.cursor(pymysql.cursors.DictCursor)
 
@@ -4085,7 +4085,7 @@ class ACV:
             con.close()
 
     def update_bid_by_us(self, auction_id):
-        con = self.connect1()
+        con = self.connect()
         cursor = con.cursor()
         try:
             cursor.execute('UPDATE auctions SET bid_by_us = %s WHERE auction_id = %s', (1, auction_id))

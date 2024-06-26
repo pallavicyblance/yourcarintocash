@@ -6,7 +6,7 @@ import random
 class Offer:  
 
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="", database="carintocash_api", charset='utf8mb4')
+        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
     def getoffer(self,fdata):
             con = Offer.connect(self)
             cursor = con.cursor()

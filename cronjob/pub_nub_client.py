@@ -8,7 +8,7 @@ import threading
 import logging
 
 acv = ACV()
-logging.basicConfig(filename='pubnub.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='pubnub.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Create a logger object
 logger = logging.getLogger(__name__)

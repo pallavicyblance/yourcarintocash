@@ -590,30 +590,50 @@ def auction():
         
 @app.route('/condition-report-details/',methods = ['POST','GET'])
 def conditionReportDetails():
-    selected_report_id = request.form['id']
-    reportfetched = acv.getconditionReport(selected_report_id)
-    auctionsfetched = acv.getauctions()
-    wonauctions = acv.getwonauction()
-    lostauctions = acv.getlostauction()
-    countNotificaton = acv.getNotificationCount()
+    try:
+        # Check if 'id' is provided in the form data
+        if 'id' not in request.form:
+            return jsonify({"error": "ID not provided"}), 400
 
-    final_action = {'auctions': [], 'reports': [], 'won_auction': [], 'lost_auction': [], 'count': countNotificaton}
+        selected_report_id = request.form['id']
 
-    for auction in auctionsfetched:
-        if meets_condition(auction, selected_report_id):
+        # Fetch data
+        reportfetched = acv.getconditionReport(selected_report_id) or []
+        auctionsfetched = acv.getauctions() or []
+        wonauctions = acv.getwonauction() or []
+        lostauctions = acv.getlostauction() or []
+        countNotificaton = acv.getNotificationCount() or 0
+
+        final_action = {
+            'auctions': [],
+            'reports': reportfetched,
+            'won_auction': [],
+            'lost_auction': [],
+            'count': countNotificaton
+        }
+
+        # Filter auctions
+        for auction in auctionsfetched:
+            if meets_condition(auction, selected_report_id):
                 final_action['auctions'].append(auction)
 
-    for wonauction in wonauctions:
-        if meets_condition(wonauction, selected_report_id):
-            final_action['won_auction'].append(wonauction)
+        # Filter won auctions
+        for wonauction in wonauctions:
+            if meets_condition(wonauction, selected_report_id):
+                final_action['won_auction'].append(wonauction)
 
-    for lostauction in lostauctions:
-        if meets_condition(lostauction, selected_report_id):
-            final_action['lost_auction'].append(lostauction)
+        # Filter lost auctions
+        for lostauction in lostauctions:
+            if meets_condition(lostauction, selected_report_id):
+                final_action['lost_auction'].append(lostauction)
 
-    final_action['reports'] = reportfetched
+        return jsonify(final_action)
     
-    return jsonify(final_action)
+    except Exception as e:
+        # Print the exception for debugging purposes
+        print(f"Exception occurred: {e}")
+        return jsonify({"error": "An error occurred while processing your request."}), 500
+
 
 @app.route('/liveauction/', methods=['GET'])
 def liveauction():

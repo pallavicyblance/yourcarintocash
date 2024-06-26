@@ -1,12 +1,16 @@
-
 import pymysql
 
 
 class Database:
+
     def connect(self):
-       
 
         return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+
+    def connect_index(self):
+        con = pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
+                              autocommit=True, charset='utf8mb4')
+        return con.cursor(pymysql.cursors.DictCursor)
 
     def read(self, id):
         con = Database.connect(self)

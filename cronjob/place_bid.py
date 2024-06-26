@@ -8,6 +8,9 @@ from Misc.functions import *
 # from Misc.dbconnect import *
 from module.acv import ACV
 import http.client
+from module.database import Database
+
+db = Database()
 admin = Admin()
 
 acceptedaps = Acceptedaps()
@@ -16,9 +19,7 @@ acv = ACV()
 class auction_place_bid:
 
     def connect(self):
-        # return connect()
-        # return pymysql.connect(host="localhost", user="carintocash1", password="zkY$$}_vtXO=", database="carintocash1", charset='utf8mb4')
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+        return db.connect()
 
     def acv_auction_place_bid(self):
         print('-----cron job place bid data started-----')

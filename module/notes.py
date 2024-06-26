@@ -6,10 +6,12 @@ import requests
 from Misc.functions import *
 
 import requests
+from module.database import Database
+
+db = Database()
+
 
 class Notes:
-
-
 
     def getLocationInfo(self,ip):
 
@@ -23,7 +25,7 @@ class Notes:
         return location_data
 
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
+        return db.connect()
 
     def noteadd(self , data):
         con =  Notes.connect(self)

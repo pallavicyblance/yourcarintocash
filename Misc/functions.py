@@ -81,15 +81,15 @@ def changeEndDateFormat(date):
 def acv_user():
 
     # user_1:
-    # id  = 6422282
-    # email = 'twincitybuying@twincity.com'
-    # password = 'TwinCity123!'
+    id  = 6422282
+    email = 'twincitybuying@twincity.com'
+    password = 'TwinCity123!'
 
     # user_2:
-    id = 6748005
-    email = 'twincitytest2@twincity.com'
-    password = 'TwinCityTest2!'
-    
+    # id = 6748005
+    # email = 'twincitytest2@twincity.com'
+    # password = 'TwinCityTest2!'
+
     return id, email, password
 # code ended by pallavi
 

@@ -3,13 +3,16 @@ import smtplib
 import datetime
 
 import requests
+from module.database import Database
+
+db = Database()
+
 
 class Getzipcodefile:
 
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
-        #return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
-    
+        return db.connect()
+
     def getNewZipFunc(self,zipData):
         con = Getzipcodefile.connect(self)
         cursor = con.cursor()

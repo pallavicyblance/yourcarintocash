@@ -4,15 +4,16 @@ from module.acceptedaps import Acceptedaps
 # from Misc.dbconnect import *
 import http.client
 import json
+from module.database import Database
 
+db = Database()
 acceptedaps = Acceptedaps()
 
 
 class Proqoute:
     def connect(self):
         # return connect()
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
-                               charset='utf8mb4')
+        return db.connect()
 
     def generateproqoute(self, auction_id):
         proqoute_instance = Proqoute()

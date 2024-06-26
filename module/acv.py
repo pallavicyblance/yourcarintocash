@@ -8,20 +8,19 @@ import traceback
 import os
 from cronjob.generate_proqoute import Proqoute
 from Misc.functions import *
+from module.database import Database
 
+db = Database()
 proqoute = Proqoute()
 
 
 class ACV:
     def connect(self):
         # return connect()
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
-                               charset='utf8mb4')
+        return db.connect()
 
     def connect_index(self):
-        con = pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api",
-                              autocommit=True, charset='utf8mb4')
-        return con.cursor(pymysql.cursors.DictCursor)
+        return db.connect_index()
 
     def storeToken(self, id, pubnub_auth_key, pubnub_expiration, pubnub_subscribe_key, refresh_token):
         con = ACV.connect(self)
@@ -4133,7 +4132,8 @@ class ACV:
             lost = 0
 
         try:
-            cursor.execute('UPDATE auctions SET final_status = %s, win = %s, lost = %s  WHERE auction_id = %s', (1, is_win, lost, auction_id))
+            cursor.execute('UPDATE auctions SET final_status = %s, win = %s, lost = %s  WHERE auction_id = %s',
+                           (1, is_win, lost, auction_id))
             con.commit()
 
         except Exception as e:

@@ -4,11 +4,14 @@ import json
 import traceback
 
 import requests
+from module.database import Database
+
+db = Database()
+
 
 class Qoute:   
     def connect(self):
-        return pymysql.connect(host="localhost", user="root", password="root", database="carintocash_api", charset='utf8mb4')
-        #return pymysql.connect(host="localhost", user="root", password="", database="carintocash", charset='utf8mb4')
+        return db.connect()
 
     def frontend1(self, fdata,unable_to_verify_data):
         con = Qoute.connect(self)

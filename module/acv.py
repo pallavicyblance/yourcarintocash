@@ -2658,7 +2658,7 @@ class ACV:
             con.close()
 
     def matchauction(self, id, is_match):
-        print(f'AUCTION MATCH CONDITION REPORT: {id} ==>{is_match}')
+        # print(f'AUCTION MATCH CONDITION REPORT: {id} ==>{is_match}')
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -4083,11 +4083,11 @@ class ACV:
         finally:
             con.close()
 
-    def update_bid_by_us(self, auction_id):
+    def update_bid_by_us(self, auction_id, is_auto=0):
         con = self.connect()
         cursor = con.cursor()
         try:
-            cursor.execute('UPDATE auctions SET bid_by_us = %s WHERE auction_id = %s', (1, auction_id))
+            cursor.execute('UPDATE auctions SET bid_by_us = %s, is_auto_bid = %s WHERE auction_id = %s', (1, is_auto, auction_id))
             con.commit()
 
         except Exception as e:
@@ -4111,7 +4111,7 @@ class ACV:
                     auction_data = self.fetch_auction_details(auction['auction_id'])
                     is_win = 0
 
-                    if auction_data['isHighBidder'] and auction_data['reserveMet']:
+                    if auction_data['isHighBidder']:
                         is_win = 1
 
                     self.update_final_status(auction['auction_id'], is_win)

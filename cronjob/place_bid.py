@@ -66,7 +66,7 @@ class auction_place_bid:
             response = requests.post(url, json=params, headers=headers)
             response.raise_for_status()
             acv.updateproxydata(auctionId, nextProxyAmount)
-            acv.update_bid_by_us(auctionId)
+            acv.update_bid_by_us(auctionId, 1)
             print(f"Response for auction : {auctionId}")
             print(response.text)
             return 'success'

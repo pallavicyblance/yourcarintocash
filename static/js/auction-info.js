@@ -3,14 +3,13 @@ $(document).ready(function(){
 
     var socket = io();
 
-//    socket.on('update', function(data) {
-//        console.log(data);
-//        if(data !== undefined) {
-//            data.forEach(function(auction) {
-//                console.log(auction);
-//            });
-//        }
-//    });
+    socket.on('live-auction-update', function(data) {
+        if(data !== undefined) {
+            data.forEach(function(auction) {
+                console.log(auction);
+            });
+        }
+    });
 
     var windowHeight = $(window).height();
     var topSpace = $("#tab1").offset();
@@ -92,7 +91,7 @@ $(document).ready(function(){
 
 
     function startIntervals() {
-        auctionIntervalId = setInterval(auctiondata, 3000);
+        auctionIntervalId = setInterval(auctiondata, 2000);
         upcomingIntervalId = setInterval(upcomingauction, 10000);
         missedIntervalId = setInterval(missedauction, 10000);
     }
@@ -304,71 +303,7 @@ $(document).ready(function(){
                 var won_auction = response.won_auction;
                 var lost_auction = response.lost_auction;
 
-                var str = '';
-                if (data.length == 0) {
-                    str += '<tr>';
-                        str += '<td colspan="11" align="center">No data found</td>';
-                    str += '</tr>';
-                } else {
-                    data.forEach(auction => {
-                        var cls = '';
-
-                        if (auction[52] == 1) {
-                            if (auction[27] == 1) {
-                                cls = 'cell_green';
-                            } else {
-                                cls = 'cell_red';
-                            }
-                        }
-
-                        str += '<tr id="auctionTr-'+auction[4]+'" class="'+cls+'">';
-                        str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
-                        
-                        str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
-
-                        str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
-
-                        str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
-
-                        str += '<td id=currentBid_'+auction[4]+'>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
-
-                        str += '<td id=ourMaxBid_'+auction[4]+'>' + number_formatchanger(auction[35]) + '</td>';
-
-                        str += '<td class="dblclick_td" id=proqouteAmount_'+auction[4]+'>';
-
-                        str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
-
-                        str += '</td>';
-                
-                        str += '<td>' + auction[38] + '</td>';
-
-                        time_left(auction[7],auction[0])
-                        
-                        str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
-
-
-                        if (auction[41]) {
-                            var colorsData = JSON.parse(auction[41]);
-                            var htmlString = '<td><div class="lights-btn">';
-                        
-                            for (var color in colorsData) {
-                                if (colorsData.hasOwnProperty(color)) {
-                                    var count = colorsData[color];
-                                    htmlString += '<span class="' + color + '">' + count + '</span> ';
-                                }
-                            }
-                        
-                            htmlString += '</div></td>';
-                            str += htmlString;
-                        }
-
-                        str += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
-                        str += '</tr>';
-                        
-                    });
-                }
-
-                $('#dataConditional tbody').html(str);
+                updateLiveAuctionData(data);
 
                 var str1 = '';
                 if (won_auction.length == 0) {
@@ -477,7 +412,7 @@ $(document).ready(function(){
                 });
 
                 if (response.reports.length > 1) {
-                    console.log('111');
+
                 }else{
                     var reports = response.reports[0];
                     $('#make_p_43').html(reports[26] + ' ' + reports[27]);
@@ -601,6 +536,75 @@ $(document).ready(function(){
                 console.error(error);
             }
         });
+    }
+
+    function updateLiveAuctionData(data) {
+
+        var str = '';
+        if (data.length == 0) {
+            str += '<tr>';
+                str += '<td colspan="11" align="center">No data found</td>';
+            str += '</tr>';
+        } else {
+            data.forEach(auction => {
+                var cls = '';
+
+                if (auction[52] == 1) {
+                    if (auction[27] == 1) {
+                        cls = 'cell_green';
+                    } else {
+                        cls = 'cell_red';
+                    }
+                }
+
+                str += '<tr id="auctionTr-'+auction[4]+'" class="'+cls+'">';
+                str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+
+                str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
+
+                str += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
+                str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
+
+                str += '<td id=currentBid_'+auction[4]+'>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
+
+                str += '<td id=ourMaxBid_'+auction[4]+'>' + number_formatchanger(auction[35]) + '</td>';
+
+                str += '<td class="dblclick_td" id=proqouteAmount_'+auction[4]+'>';
+
+                str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
+
+                str += '</td>';
+
+                str += '<td>' + auction[38] + '</td>';
+
+                time_left(auction[7],auction[0])
+
+                str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+
+
+                if (auction[41]) {
+                    var colorsData = JSON.parse(auction[41]);
+                    var htmlString = '<td><div class="lights-btn">';
+
+                    for (var color in colorsData) {
+                        if (colorsData.hasOwnProperty(color)) {
+                            var count = colorsData[color];
+                            htmlString += '<span class="' + color + '">' + count + '</span> ';
+                        }
+                    }
+
+                    htmlString += '</div></td>';
+                    str += htmlString;
+                }
+
+                str += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
+                str += '</tr>';
+
+            });
+        }
+
+        $('#dataConditional tbody').html(str);
     }
 
     function upcomingMissedAuction(e){

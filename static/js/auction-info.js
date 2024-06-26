@@ -3,14 +3,14 @@ $(document).ready(function(){
 
     var socket = io();
 
-    socket.on('update', function(data) {
-        console.log(data);
-        if(data !== undefined) {
-            data.forEach(function(auction) {
-                console.log(auction);
-            });
-        }
-    });
+//    socket.on('update', function(data) {
+//        console.log(data);
+//        if(data !== undefined) {
+//            data.forEach(function(auction) {
+//                console.log(auction);
+//            });
+//        }
+//    });
 
     var windowHeight = $(window).height();
     var topSpace = $("#tab1").offset();
@@ -92,9 +92,9 @@ $(document).ready(function(){
 
 
     function startIntervals() {
-        auctionIntervalId = setInterval(auctiondata, 9000);
-        upcomingIntervalId = setInterval(upcomingauction, 9000);
-        missedIntervalId = setInterval(missedauction, 9000);
+        auctionIntervalId = setInterval(auctiondata, 3000);
+        upcomingIntervalId = setInterval(upcomingauction, 10000);
+        missedIntervalId = setInterval(missedauction, 10000);
     }
 
     function stopIntervals() {
@@ -311,14 +311,17 @@ $(document).ready(function(){
                     str += '</tr>';
                 } else {
                     data.forEach(auction => {
-                        if (auction[27] == 1) {
-                            str += '<tr class="cell_green" id="auctionTr-'+auction[4]+'">';
-                        } else if(auction[10] == 0) {
-                            str += '<tr id="auctionTr-'+auction[4]+'">';
-                        } else if(auction[27] == 0) {
-                            str += '<tr class="cell_red" id="auctionTr-'+auction[4]+'">';
+                        var cls = '';
+
+                        if (auction[52] == 1) {
+                            if (auction[27] == 1) {
+                                cls = 'cell_green';
+                            } else {
+                                cls = 'cell_red';
+                            }
                         }
 
+                        str += '<tr id="auctionTr-'+auction[4]+'" class="'+cls+'">';
                         str += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
                         
                         str += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';

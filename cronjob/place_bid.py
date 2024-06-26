@@ -56,16 +56,13 @@ class auction_place_bid:
         getjwttoken = acv.getjwttoken(acv_user()[0])
         url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
         print(f'BID AMOUNT:===>{nextProxyAmount}')
-        print(getjwttoken[0])
+        print(f'AUTO BIDDING AUCTION:===>{auctionId}')
 
         params = {'amount': nextProxyAmount, 'proxy': True, 'persistent': False}
-
         headers = {'Authorization': getjwttoken[0], 'Content-Type': 'application/json'}
-        print(f'BIDDING AUCTION:===>{auctionId}')
 
         try:
             logging.info(f'AUTO BID AUCTION:-{auctionId}')
-            print(f'AUTO BID AUCTION:===>{auctionId}')
             response = requests.post(url, json=params, headers=headers)
             response.raise_for_status()
             acv.updateproxydata(auctionId, nextProxyAmount)

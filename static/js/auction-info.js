@@ -3,10 +3,21 @@ $(document).ready(function(){
 
     var socket = io();
 
-    socket.on('live-auction-update', function(data) {
+    socket.on('update-auction', function(data) {
         if(data !== undefined) {
             data.forEach(function(auction) {
-                console.log(auction);
+
+                let auction_id= auction.auction_id;
+                let current_bid = number_formatchanger(auction.bidAmount) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction_id + '" data-bid-amount="' + auction.nextBidAmount + '" onclick="placebid(\'' + auction.bidAmount + '\', \'' + auction.nextBidAmount +'\',\'' + auction_id + '\')">Bid + $100</button>';
+                $('#currentBid_'+auction_id).html(current_bid);
+                $('#ourNextBid_'+auction_id+' span').html(number_formatchanger(auction.nextProxyAmount));
+
+                if (auction.isHighBidder) {
+                    $('#auctionTr-' + auction_id).addClass('cell_green').removeClass('cell_red');
+                } else {
+                    $('#auctionTr-' + auction_id).addClass('cell_red').removeClass('cell_green');
+                }
+
             });
         }
     });
@@ -218,7 +229,7 @@ $(document).ready(function(){
 
                         time_left(auction[37],auction[0])
                         
-                        str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                        str += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -332,7 +343,7 @@ $(document).ready(function(){
 
                         time_left(auction[7],auction[0])
                         
-                        str1 += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                        str1 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -382,7 +393,7 @@ $(document).ready(function(){
 
                         time_left(auction[7],auction[0])
                         
-                        str2 += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                        str2 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -570,7 +581,7 @@ $(document).ready(function(){
 
                 str += '<td id=ourMaxBid_'+auction[4]+'>' + number_formatchanger(auction[35]) + '</td>';
 
-                str += '<td class="dblclick_td" id=proqouteAmount_'+auction[4]+'>';
+                str += '<td class="dblclick_td" id=ourNextBid_'+auction[4]+'>';
 
                 str += '<span data-proxy-auction-id="' + auction[4] + '" > ' + number_formatchanger(auction[36]) +'</span>';
 
@@ -580,7 +591,7 @@ $(document).ready(function(){
 
                 time_left(auction[7],auction[0])
 
-                str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                str += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
 
                 if (auction[41]) {
@@ -680,7 +691,7 @@ $(document).ready(function(){
 							str += '<td>' + auction[38] + '</td>';
 
                             time_left(auction[37],auction[0])
-                            str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                            str += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
 
                             if (auction[41]) {
@@ -754,7 +765,7 @@ $(document).ready(function(){
 
                         time_left(auction[7],auction[0])
                         
-                        str += '<td></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+                        str += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
 
                         if (auction[41]) {
                             var colorsData = JSON.parse(auction[41]);
@@ -805,15 +816,17 @@ function time_left(date, id) {
             $(".hours_" + id).html('Auction Ended');
             $("#auctionTr-" + id).fadeOut();
         } else {
-            // console.log('else timeDifference',timeDifference);
             var days = Math.floor(timeDifference / (24 * 60 * 60));
             var hours = Math.floor((timeDifference % (24 * 60 * 60)) / (60 * 60));
             var minutes = Math.floor((timeDifference % (60 * 60)) / 60);
             var seconds = timeDifference % 60;
-            $(".days_" + id).html(days + "<span>:</span>");
+            if (days > 0) {
+                $(".days_" + id).html(days + "<span> Days </span>");
+            }
             $(".hours_" + id).html(hours + "<span>:</span>");
             $(".minutes_" + id).html(minutes + "<span>:</span>");
             $(".seconds_" + id).html(seconds + "<span></span>");
+
         }
     }, 1000); // Update every second
 }

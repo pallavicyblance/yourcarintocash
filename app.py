@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 from cronjob.acv_login import acv_login
 from cronjob.generate_proqoute import Proqoute
 from cronjob.latest_auctions import live_auctions
-from cronjob.latest_auctions import bidding_status
 from cronjob.latest_auctions import upcoming_auction
 from cronjob.latest_auctions import close_auction
 from cronjob.won_auction import won_auction
@@ -2241,14 +2240,50 @@ def get_last_value():
 
 def update_auctions():
     while True:
-        time.sleep(2)
-        auctions = bidding_status()
-        socketio.emit('update', auctions)
+        time.sleep(1)
+        bidding_status()
+
+
+def bidding_status():
+    cursor1 = acv.connect_index()
+
+    try:
+        getjwttoken = acv.getjwttoken(acv_user()[0])
+
+        cursor1.execute('SELECT * FROM auctions WHERE status = "active" AND bid_by_us = %s', (1))
+        active_auction = cursor1.fetchall()
+        auctions = []
+
+        for act_auction in active_auction:
+
+            auction_data = fetch_auction_details(act_auction['auction_id'], getjwttoken[0])
+
+            ishighbidder = auction_data.get('isHighBidder')
+            nextbidamount = auction_data.get('nextBidAmount')
+            nextProxyAmount = auction_data.get('nextProxyAmount')
+            bidCount = auction_data.get('bidCount')
+            bidAmount = auction_data.get('bidAmount')
+            auctions.append({
+                'auction_id': act_auction['auction_id'],
+                'isHighBidder': ishighbidder,
+                'nextBidAmount': nextbidamount,
+                'nextProxyAmount': nextProxyAmount,
+                'bidCount': bidCount,
+                'bidAmount': bidAmount
+            })
+
+            print('SOCKET update-auction EMIT====>>>>', datetime.now())
+            socketio.emit('update-auction', auctions)
+
+            acv.update(act_auction['auction_id'], ishighbidder, nextbidamount, bidAmount, nextProxyAmount, bidCount)
+
+    except Exception as e:
+        print(e)
 
 
 @socketio.on('connect')
 def handle_connect(auctions=None):
-    emit('update', auctions)
+    emit('update-auction', auctions)
 
 
 # Start the update thread

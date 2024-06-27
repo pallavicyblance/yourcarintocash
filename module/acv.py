@@ -248,23 +248,21 @@ class ACV:
 
             cursor.execute('SELECT auction_id from auctions WHERE auction_id = %s', data['id'])
             fetchone = cursor.fetchone()
+            mysql_datetime_startdate = ''
+            if data['endTime'] is not None:
+                # Convert to Python datetime object
+                dt_object = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
+                # Format to MySQL datetime string
+                mysql_datetime_startdate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
 
+            mysql_datetime_enddate = ''
+            if data['endTime'] is not None:
+                # Convert to Python datetime object
+                dt_object = datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
+                # Format to MySQL datetime string
+                mysql_datetime_enddate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
             if fetchone is None:
                 print('insert auction')
-
-                mysql_datetime_startdate = ''
-                if data['endTime'] is not None:
-                    # Convert to Python datetime object
-                    dt_object = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
-                    # Format to MySQL datetime string
-                    mysql_datetime_startdate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
-
-                mysql_datetime_enddate = ''
-                if data['endTime'] is not None:
-                    # Convert to Python datetime object
-                    dt_object = datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
-                    # Format to MySQL datetime string
-                    mysql_datetime_enddate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
 
                 cursor.execute(
                     'INSERT INTO auctions (year,make,model,auction_id,location,odometer,action_end_datetime,zip_code,bid_amount,bid_count,vin,status,minor_body_type_ans,modrate_body_type_ans,major_body_type_ans,airbag_deployed_ans,engine_start_or_not,engine_start_not_run,transmission_issue_ans,frame_issue_ans,title_absent_ans,title_branded_ans,vehicle_display_name,start_and_drive_ans,next_bid_amount,start_price,is_high_bidder,created_at,body_damage,reserve_met,next_proxy_bid_amount,action_start_datetime,lights,auction_image_url,auction_url, distance,transmission,trim,drivetrain,engine,fuel_type,basic_color,water_or_fire_damage) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
@@ -321,9 +319,8 @@ class ACV:
             else:
                 print('update auction')
                 cursor.execute(
-                    'UPDATE auctions SET bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s where auction_id = %s',
-                    (data['bidAmount'], data['nextBidAmount'], data['isHighBidder'], data['nextProxyAmount'],
-                     data['bidCount'], data['id']))
+                    'UPDATE auctions SET action_start_datetime=%s, action_end_datetime = %s, bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s where auction_id = %s',
+                    (mysql_datetime_startdate, mysql_datetime_enddate, data['bidAmount'], data['nextBidAmount'], data['isHighBidder'], data['nextProxyAmount'], data['bidCount'], data['id']))
                 con.commit()
         except Exception as e:
             con.rollback()
@@ -2430,9 +2427,8 @@ class ACV:
         try:
             current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             cursor.execute('SELECT * from auctions WHERE status = "active" ORDER BY action_end_datetime ASC')
-            # cursor.execute('SELECT * from auctions WHERE action_end_datetime > %s AND status = "active" ORDER BY action_end_datetime ASC', (current_datetime,))
-
             return cursor.fetchall()
+
         except:
             return ()
         finally:
@@ -2587,10 +2583,14 @@ class ACV:
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
-            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and status IN("active", "run_list", "ended")',
-                           (0))
-            return cursor.fetchall()
-        except:
+            cursor.execute('SELECT * FROM auctions WHERE is_match = %s and status IN ("active", "run_list")', (0))
+            miss = cursor.fetchall()
+
+            cursor.execute('SELECT * FROM auctions WHERE status IN ("ended")')
+            miss_ended = cursor.fetchall()
+            return miss + miss_ended
+        except Exception as e:
+            print(e)
             return ()
         finally:
             con.close()
@@ -4065,14 +4065,12 @@ class ACV:
         cursor = con.cursor()
         try:
             current_datetime = datetime.now()
-            print(current_datetime)
 
             # Convert local time to UTC
             utc_time = current_datetime.astimezone(pytz.utc)
 
             # Format the UTC time
             formatted_utc_time = utc_time.strftime('%Y-%m-%d %H:%M:%S')
-            print(formatted_utc_time)
 
             cursor.execute('UPDATE auctions SET status = "ended" WHERE action_end_datetime <= %s', (formatted_utc_time))
             con.commit()

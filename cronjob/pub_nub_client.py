@@ -42,8 +42,8 @@ class PubNubClient:
         self.channel = 'auctions'
         self.last_value = None
         self.pubnub = self._initialize_pubnub(subscribe_key, publish_key, user_id)
-        self._add_listener()
         self._start_subscription()
+        self._add_listener()
 
     def _initialize_pubnub(self, subscribe_key, publish_key, user_id):
         pnconfig = PNConfiguration()

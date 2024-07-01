@@ -4,6 +4,7 @@ import traceback
 from cronjob.generate_proqoute import Proqoute
 from Misc.functions import *
 from module.database import Database
+from Misc.common import ACV_API_URL
 
 db = Database()
 proqoute = Proqoute()
@@ -58,7 +59,7 @@ class ACV:
             con.close()
 
     def acv_login(self):
-        loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
+        loginurl = f'{ACV_API_URL}/v2/login'
         data = {
             'email': acv_user()[1],
             'password': acv_user()[2]
@@ -69,7 +70,7 @@ class ACV:
         pubnub_expiration = response.json().get('pubnub').get('expiration')
         pubnub_subscribe_key = response.json().get('pubnub').get('subscribeKey')
 
-        refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
+        refreshTokenurl = f'{ACV_API_URL}/v2/login/refresh'
 
         data = {
             'refreshToken': refresh_token
@@ -100,7 +101,7 @@ class ACV:
         cursor = con.cursor()
         try:
             jwttoken = self.acv_login()
-            url = 'https://buy-api.gateway.staging.acvauctions.com/v2/pubnub/authkey'
+            url = f'{ACV_API_URL}/v2/pubnub/authkey'
             headers = {'Authorization': jwttoken}
             response = requests.post(url, headers=headers)
             api_data = {
@@ -2486,7 +2487,7 @@ class ACV:
             formatted_utc_time = utc_time.strftime('%Y-%m-%d %H:%M:%S')
 
             cursor.execute(
-                'SELECT * from auctions Where is_match = %s AND status IN ("active", "run_list") AND action_end_datetime > %s ORDER BY action_end_datetime DESC',
+                'SELECT * from auctions Where is_match = %s AND status IN ("active", "run_list") AND action_end_datetime > %s ORDER BY action_end_datetime ASC',
                 (1, formatted_utc_time))
             activeauctions = cursor.fetchall()
 
@@ -4112,7 +4113,7 @@ class ACV:
 
     def fetch_auction_details(self, auction_id):
         jwttoken = self.getjwttoken(acv_user()[0])
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
+        url = f'{ACV_API_URL}/v2/auction/{auction_id}'
         headers = {'Authorization': jwttoken[0]}
         auction_details = requests.get(url, headers=headers)
         auction_details.raise_for_status()

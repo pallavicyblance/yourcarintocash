@@ -7,6 +7,7 @@ from module.acceptedaps import Acceptedaps
 from module.admin import Admin
 from module.acv import ACV
 from module.database import Database
+from Misc.common import ACV_API_URL
 
 db = Database()
 acceptedaps = Acceptedaps()
@@ -50,7 +51,7 @@ class OutBid:
 
     def place_auction_bid(auctionId, bidamount, jwttoken):
 
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
+        url = f'{ACV_API_URL}/v2/auction/{auctionId}/bid'
         json_data = {'amount': bidamount}
         headers = {'Authorization': jwttoken, 'Content-Type': 'application/json'}
 

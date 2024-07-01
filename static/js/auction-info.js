@@ -112,7 +112,7 @@ $(document).ready(function(){
 
 
     function startIntervals() {
-        auctionIntervalId = setInterval(auctiondata, 5000);
+        auctionIntervalId = setInterval(auctiondata, 2000);
         upcomingIntervalId = setInterval(upcomingauction, 10000);
         missedIntervalId = setInterval(missedauction, 10000);
     }
@@ -326,105 +326,10 @@ $(document).ready(function(){
 
                 updateLiveAuctionData(data);
 
-                var str1 = '';
-                if (won_auction.length == 0) {
-                    str1 += '<tr>';
-                        str1 += '<td colspan="11" align="center">No data found</td>';
-                    str1 += '</tr>';
-                }else{
-                    won_auction.forEach(auction => {
-                        str1 += '<tr id="auctionTr-'+auction[4]+'">';
+                updateWonAuctionData(won_auction);
 
-                        str1 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
-                        
-                        str1 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
+                updateLostAuctionData(lost_auction);
 
-                        str1 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
-
-                        str1 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
-                        
-                        str1 += '<td>' + number_formatchanger(auction[9]) + '</td>';
-
-                        str1 += '<td>' + number_formatchanger(auction[35]) + '</td>';
-
-                        str1 += '<td>' + number_formatchanger(auction[36]) + '</td>';
-                                                
-                        str1 += '<td>' + auction[38] + '</td>';
-
-                        time_left(auction[7],auction[0])
-                        
-                        str1 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
-
-                        if (auction[41]) {
-                            var colorsData = JSON.parse(auction[41]);
-                            var htmlString = '<td><div class="lights-btn">';
-                        
-                            for (var color in colorsData) {
-                                if (colorsData.hasOwnProperty(color)) {
-                                    var count = colorsData[color];
-                                    htmlString += '<span class="' + color + '">' + count + '</span> ';
-                                }
-                            }
-                        
-                            htmlString += '</div></td>';
-                            str1 += htmlString;
-                        }
-
-                        str1 += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
-                        str1 += '</tr>';
-                    });
-                }
-                $('#dataConditionalwon tbody').html(str1);
-
-                var str2 = '';
-                if (lost_auction.length == 0) {
-                    str2 += '<tr>';
-                        str2 += '<td colspan="11" align="center">No data found</td>';
-                    str2 += '</tr>';
-                }else{
-                    lost_auction.forEach(auction => {
-                        str2 += '<tr id="auctionTr-'+auction[4]+'">';
-
-                        str2 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
-                        
-                        str2 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
-
-                        str2 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
-
-                        str2 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
-                        
-                        str2 += '<td>' + number_formatchanger(auction[9]) + '</td>';
-
-                        str2 += '<td>' + number_formatchanger(auction[35]) + '</td>';
-
-                        str2 += '<td>' + number_formatchanger(auction[36]) + '</td>';
-                                                
-                        str2 += '<td>' + auction[38] + '</td>';
-
-                        time_left(auction[7],auction[0])
-                        
-                        str2 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
-
-                        if (auction[41]) {
-                            var colorsData = JSON.parse(auction[41]);
-                            var htmlString = '<td><div class="lights-btn">';
-                        
-                            for (var color in colorsData) {
-                                if (colorsData.hasOwnProperty(color)) {
-                                    var count = colorsData[color];
-                                    htmlString += '<span class="' + color + '">' + count + '</span> ';
-                                }
-                            }
-                        
-                            htmlString += '</div></td>';
-                            str2 += htmlString;
-                        }
-
-                        str2 += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
-                        str2 += '</tr>';
-                    });
-                }
-                $('#dataConditionallost tbody').html(str2);
 
                 $("a[rel^='prettyPhoto']").prettyPhoto({
                     overlay_gallery: false,
@@ -459,78 +364,76 @@ $(document).ready(function(){
                     $('#state_label_txt').html(reports[49]);
     
                     var body_damage = '';
+
                     if (reports[33] == "MN,Yes," || reports[33] == "Yes,MN,"){
-                        var body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
+                         body_damage = "No, my vehicle is in good shape!, Yes, my vehicle has some damage or rust";
                     }else if(reports[33] == "Yes," || reports[33] == "Yes"){
-                        var body_damage = "Yes, my vehicle has some damage or rust";
+                         body_damage = "Yes, my vehicle has some damage or rust";
                     }else if(reports[33] == "MN," || reports[33] == "MN"){
-                        var body_damage = "No, my vehicle is in good shape!";
+                         body_damage = "No, my vehicle is in good shape!";
                     }
-    
+
+                     var airbag_value = "";
+
                     if (reports[34] == "Y,N," || reports[34] == "N,Y," ){
-                        var airbag_value = " Yes, the airbags are deployed, No, the airbags are not deployed";
+                        airbag_value = " Yes, the airbags are deployed, No, the airbags are not deployed";
                     }else if(reports[34] == "Y," || reports[34] == "Y"){
-                        var airbag_value = " Yes, the airbags are deployed"
+                        airbag_value = " Yes, the airbags are deployed"
                     }else if(reports[34] == "N," || reports[34] == "N"){
-                        var airbag_value = " No, the airbags are not deployed"
-                    }else{
-                        var airbag_value = ""
+                        airbag_value = " No, the airbags are not deployed"
                     }
+
+                    var start_and_drive = "";
     
                     if(reports[35] == "D,S,N," || reports[35] == "S,N,D," || reports[35] == "N,D,S,"){
-                        var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive, No, it does not start";
+                        start_and_drive = "Yes, it starts and drives, No, it starts but does not drive, No, it does not start";
                     }else if(reports[35] == "D,S,"){
-                        var start_and_drive = "Yes, it starts and drives, No, it starts but does not drive";
+                        start_and_drive = "Yes, it starts and drives, No, it starts but does not drive";
                     }else if(reports[35] == "S,N,"){
-                        var start_and_drive = "No, it starts but does not drive, No, it does not start";
+                        start_and_drive = "No, it starts but does not drive, No, it does not start";
                     }else if(reports[35] == "D,N,"){
-                        var start_and_drive = "Yes, it starts and drives, No, it does not start";
+                        start_and_drive = "Yes, it starts and drives, No, it does not start";
                     }else if(reports[35] == "D," || reports[35] == "D"){
-                        var start_and_drive = "Yes, it starts and drives";
+                        start_and_drive = "Yes, it starts and drives";
                     }else if(reports[35] == "N," || reports[35] == "N"){
-                        var start_and_drive = "No, it does not start";
+                        start_and_drive = "No, it does not start";
                     }else if(reports[35] == "S," || reports[35] == "S"){
-                        var start_and_drive = "No, it starts but does not drive";
-                    }else{
-                        var start_and_drive = ""
+                        start_and_drive = "No, it starts but does not drive";
                     }
-    
+
+                    var key_value = "";
                     if (reports[37] == "Y,N," || reports[37] == "N,Y,"){
-                        var key_value = "Yes, I have the key, No, I do not have a key";
+                        key_value = "Yes, I have the key, No, I do not have a key";
                     }else if(reports[37] == "Y," || reports[37] == "Y"){
-                        var key_value = "Yes, I have the key";
+                        key_value = "Yes, I have the key";
                     }else if(reports[37] == "N," || reports[37] == "N"){
-                        var key_value = "No, I do not have a key";
-                    }else{
-                        var key_value = "";
+                        key_value = "No, I do not have a key";
                     }
-    
+
+                    var title_type = "";
                     if(reports[38] == "clean title,Salvage Rebuilt,Unknown," || reports[38] == "Salvage Rebuilt,Unknown,clean title," || reports[38] == ",Unknown,clean title,Salvage Rebuilt,"){
-                        var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
+                        title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
                     }else if (reports[38] == "clean title,Salvage Rebuilt,"){
-                        var title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
+                        title_type = "Yes, I have a clean title, No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
                     }else if (reports[38] == "Salvage Rebuilt,Unknown,"){
-                        var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
+                        title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.), No, I don’t have a title";
                     }else if(reports[38] == "clean title,Unknown,"){
-                        var title_type = "Yes, I have a clean title, No, I don’t have a title";
+                        title_type = "Yes, I have a clean title, No, I don’t have a title";
                     }else if(reports[38] == "clean title" || reports[38] == "clean title,"){
-                        var title_type = "Yes, I have a clean title";
+                        title_type = "Yes, I have a clean title";
                     }else if(reports[38] == "Salvage Rebuilt" || reports[38] == "Salvage Rebuilt,"){
-                        var title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
+                        title_type = "No, my title is branded (Salvage, rebuilt, lemon law, etc.)";
                     }else if(reports[38] == "Unknown," || reports[38] == "Unknown"){
-                        var title_type = "No, I don’t have a title"; 
-                    }else{
-                        var title_type = "";
+                        title_type = "No, I don’t have a title";
                     }
-                    
+
+                    var water_and_fire_value = "";
                     if (reports[39] == "no,W," || reports[39] == "W,no,"){
-                        var water_and_fire_value = "No, it has never had any fire or water damage, Yes, it had fire or water damage";
+                        water_and_fire_value = "No, it has never had any fire or water damage, Yes, it had fire or water damage";
                     }else if(reports[39] == "W," || reports[39] == "W"){
-                        var water_and_fire_value = "Yes, it had fire or water damage";
+                        water_and_fire_value = "Yes, it had fire or water damage";
                     }else if(reports[39] == "no," || reports[39] == "no"){
-                        var water_and_fire_value = "No, it has never had any fire or water damage,";
-                    }else{
-                        var water_and_fire_value = "";
+                        water_and_fire_value = "No, it has never had any fire or water damage,";
                     }
     
                     $('#bodydamage_label_txt').html(body_damage);
@@ -551,7 +454,6 @@ $(document).ready(function(){
                     $('#nottoexceed_label_txt').html(reports[23]);
                 }
                 $("#loadingdieditvvehicle").hide();
-                // auctiondata(selectedConditionReportId);
             },
             error: function(xhr, status, error) {
                 console.error(error);
@@ -632,7 +534,113 @@ $(document).ready(function(){
         $('#dataConditional tbody').html(str);
     }
 
+    function updateWonAuctionData(won_auction) {
+        var str1 = '';
+        if (won_auction.length == 0) {
+            str1 += '<tr>';
+                str1 += '<td colspan="11" align="center">No data found</td>';
+            str1 += '</tr>';
+        }else{
+            won_auction.forEach(auction => {
+                str1 += '<tr id="auctionTr-'+auction[4]+'">';
+
+                str1 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+
+                str1 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
+
+                str1 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
+                str1 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
+
+                str1 += '<td>' + number_formatchanger(auction[9]) + '</td>';
+
+                str1 += '<td>' + number_formatchanger(auction[35]) + '</td>';
+
+                str1 += '<td>' + number_formatchanger(auction[36]) + '</td>';
+
+                str1 += '<td>' + auction[38] + '</td>';
+
+                time_left(auction[7],auction[0])
+
+                str1 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+
+                if (auction[41]) {
+                    var colorsData = JSON.parse(auction[41]);
+                    var htmlString = '<td><div class="lights-btn">';
+
+                    for (var color in colorsData) {
+                        if (colorsData.hasOwnProperty(color)) {
+                            var count = colorsData[color];
+                            htmlString += '<span class="' + color + '">' + count + '</span> ';
+                        }
+                    }
+
+                    htmlString += '</div></td>';
+                    str1 += htmlString;
+                }
+
+                str1 += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
+                str1 += '</tr>';
+            });
+        }
+        $('#dataConditionalwon tbody').html(str1);
+    }
+
+    function updateLostAuctionData(lost_auction) {
+
+        var str2 = '';
+        if (lost_auction.length == 0) {
+            str2 += '<tr>';
+                str2 += '<td colspan="11" align="center">No data found</td>';
+            str2 += '</tr>';
+        }else{
+            lost_auction.forEach(auction => {
+                str2 += '<tr id="auctionTr-'+auction[4]+'">';
+
+                str2 += '<td><div class="vehicle-img"><a href="'+ auction[42]+'" rel="prettyPhoto[gallery]"><img src="'+ auction[42]+'"></a></td>'
+
+                str2 += '<td><b>' + auction[23] + ' VIN:</b>'+ auction[11] + '</td>';
+
+                str2 += '<td>' + number_formatchanger(auction[6],1) + '</td>';
+
+                str2 += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
+
+                str2 += '<td>' + number_formatchanger(auction[9]) + '</td>';
+
+                str2 += '<td>' + number_formatchanger(auction[35]) + '</td>';
+
+                str2 += '<td>' + number_formatchanger(auction[36]) + '</td>';
+
+                str2 += '<td>' + auction[38] + '</td>';
+
+                time_left(auction[7],auction[0])
+
+                str2 += '<td><span class="days_'+ auction[0]+ '"></span><span class="hours_'+ auction[0]+ '"></span><span class="minutes_'+ auction[0]+ '"></span><span class="seconds_'+ auction[0]+ '"></span></td>';
+
+                if (auction[41]) {
+                    var colorsData = JSON.parse(auction[41]);
+                    var htmlString = '<td><div class="lights-btn">';
+
+                    for (var color in colorsData) {
+                        if (colorsData.hasOwnProperty(color)) {
+                            var count = colorsData[color];
+                            htmlString += '<span class="' + color + '">' + count + '</span> ';
+                        }
+                    }
+
+                    htmlString += '</div></td>';
+                    str2 += htmlString;
+                }
+
+                str2 += '<td><a class="btn-link" href="#" onclick="condition_popup_open(' + auction[4] + ')">View Conditional Report</a></td>';
+                str2 += '</tr>';
+            });
+        }
+        $('#dataConditionallost tbody').html(str2);
+    }
+
     function upcomingMissedAuction(e){
+
         var status = $(this).parent().data('status');
         $('#status').val(status);
         e.preventDefault();
@@ -667,6 +675,7 @@ $(document).ready(function(){
     }
 
     function upcomingauction(){
+
         if($('#status').val() === 'upcoming'){
             $('.auction-upcoming-show').show();
         }

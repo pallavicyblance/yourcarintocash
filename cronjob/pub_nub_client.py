@@ -24,13 +24,12 @@ class MySubscribeCallback(SubscribeCallback):
 
     def status(self, pubnub, status):
         print('PUBNUB STATUS')
+        print(status.category)
         if status.is_error():
             print('PUBNUB STATUS IF')
-            print(status.category)
             logger.error(f"PUBNUB Error: {status.category}")
         else:
             print('PUBNUB STATUS ELSE')
-            print(status.category)
             if status.category == "PNConnectedCategory":
                 logger.info("PUBNUB CONNECTED!")
             else:

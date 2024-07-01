@@ -29,6 +29,8 @@ import logging
 from flask import request, g
 from flask_caching import Cache
 from Misc.common import socketio, emit
+from Misc.common import ACV_API_URL
+
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 # from werkzeug.urls import url_parse
 
@@ -308,7 +310,7 @@ def dashboard():
 
 @app.route('/auction-new-user-bid/', methods=['POST', 'GET'])
 def acvnewuserbid():
-    loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
+    loginurl = ACV_API_URL + '/v2/login'
     data = {
         'email': 'twincitytest2@twincity.com',
         'password': 'TwinCityTest2!'
@@ -316,7 +318,7 @@ def acvnewuserbid():
     response = requests.post(loginurl, json=data)
     refresh_token = response.json().get('refreshToken')
 
-    refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
+    refreshTokenurl = ACV_API_URL + '/v2/login/refresh'
     data = {
         'refreshToken': refresh_token
     }
@@ -324,7 +326,7 @@ def acvnewuserbid():
 
     jwtToken = response.json().get('jwt')
 
-    # url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction'
+    # url = ACV_API_URL + '/v2/auction'
     # params = {'start': 0, 'rows': 10}
     # headers = {'Authorization': jwtToken}
 
@@ -335,7 +337,7 @@ def acvnewuserbid():
     # for auction in response_data.get("auctions", []):
     # if auction['status'] == 'active':
     auction_data = fetch_auction_details(4422216, jwtToken)
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/4422216/bid'
+    url = f'{ACV_API_URL}/v2/auction/4422216/bid'
     json_data_bid = {
         'amount': auction_data['nextProxyAmount'],
         'proxy': True,
@@ -358,7 +360,7 @@ def acvnewuserbid():
 
 
 def fetch_auction_details(auction, jwttoken):
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction}'
+    url = f'{ACV_API_URL}/v2/auction/{auction}'
     params = {'id': auction}
     headers = {'Authorization': jwttoken}
     auctiondetails = requests.get(url, params=params, headers=headers)
@@ -374,7 +376,7 @@ def place_bid():
 
     getjwttoken = acv.getjwttoken(acv_user()[0])
 
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
+    url = f'{ACV_API_URL}/v2/auction/{auctionId}/bid'
     params = {'amount': bidamount}
 
     headers = {'Authorization': getjwttoken[0], 'Content-Type': 'application/json'}
@@ -388,7 +390,7 @@ def place_bid():
         acv.place_bid(auctionId, response_data['amount'])
         acv.update_bid_by_us(auctionId)
 
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}'
+        url = f'{ACV_API_URL}/v2/auction/{auctionId}'
         params = {'id': auctionId}
         headers = {'Authorization': getjwttoken[0]}
         auctiondetails = requests.get(url, params=params, headers=headers)
@@ -416,7 +418,8 @@ def place_proxy_bid():
 
     getjwttoken = acv.getjwttoken(acv_user()[0])
 
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
+    url = f'{ACV_API_URL}/v2/auction/{auctionId}/bid'
+
     json_data_bid = {
         'amount': bidamount,
         'proxy': True,

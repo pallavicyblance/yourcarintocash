@@ -10,6 +10,7 @@ from module.acv import ACV
 import http.client
 from module.database import Database
 from Misc.common import socketio
+from Misc.common import ACV_API_URL
 
 db = Database()
 admin = Admin()
@@ -38,7 +39,7 @@ class auction_place_bid:
             print('-----cron job place bid data ended-----')
             return 'success'
         except Exception as e:
-            print("Error acv_auction_place_bid:", e)
+            print("Error cron job place bid:", e)
 
     def update_data(self, auctionId):
         auction_place_bid_instance = auction_place_bid()
@@ -55,7 +56,7 @@ class auction_place_bid:
 
     def place_auction_proxy_bid(self, auctionId, nextProxyAmount):
         getjwttoken = acv.getjwttoken(acv_user()[0])
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
+        url = f'{ACV_API_URL}/v2/auction/{auctionId}/bid'
         print(f'BID AMOUNT:===>{nextProxyAmount}')
         print(f'AUTO BIDDING AUCTION:===>{auctionId}')
 
@@ -91,7 +92,7 @@ class auction_place_bid:
             return 'failure'
 
     def fetch_auction_details(self, auction_id, jwttoken):
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
+        url = f'{ACV_API_URL}/v2/auction/{auction_id}'
         headers = {'Authorization': jwttoken}
         auctiondetails = requests.get(url, headers=headers)
         auctiondetails.raise_for_status()

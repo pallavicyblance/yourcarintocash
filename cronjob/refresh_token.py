@@ -2,12 +2,15 @@ import requests
 import jwt
 from Misc.functions import *
 from module.acv import ACV
+from Misc.common import ACV_API_URL
 
 acv = ACV()
+
+
 def refresh_token():
     refresh_token = acv.getjwttoken(acv_user()[0])
 
-    refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
+    refreshTokenurl = f'{ACV_API_URL}/v2/login/refresh'
     data = {
         'refreshToken' : refresh_token[4]
     }

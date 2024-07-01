@@ -7,6 +7,7 @@ from module.acceptedaps import Acceptedaps
 from module.admin import Admin
 from module.acv import ACV
 from Misc.functions import *
+from Misc.common import ACV_API_URL
 
 admin = Admin()
 acv = ACV()
@@ -35,7 +36,7 @@ def auction_10_min_left():
 
 def fetch_auction_details(auction, jwttoken):
     auction_id = auction
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
+    url = f'{ACV_API_URL}/v2/auction/{auction_id}'
     params = {'id': auction_id}
     headers = {'Authorization': jwttoken}
     auctiondetails = requests.get(url, params=params, headers=headers)
@@ -44,7 +45,7 @@ def fetch_auction_details(auction, jwttoken):
 
 
 def place_auction_proxy_bid(auctionId,nextProxyAmount,jwttoken):  
-        url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auctionId}/bid'
+        url = f'{ACV_API_URL}/v2/auction/{auctionId}/bid'
         json_data_bid = {
             'amount': nextProxyAmount,
             'proxy': True, 

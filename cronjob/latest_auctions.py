@@ -9,6 +9,7 @@ from module.acceptedaps import Acceptedaps
 from module.admin import Admin
 from Misc.functions import *
 from module.acv import ACV
+from Misc.common import ACV_API_URL
 
 acv = ACV()
 admin = Admin()
@@ -19,7 +20,7 @@ def upcoming_auction():
     todaydatetime = datetime.now()
     print('-----cron job runlist auction data started-----', todaydatetime)
     getjwttoken = acv.getjwttoken(acv_user()[0])
-    url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction/runlist'
+    url = f'{ACV_API_URL}/v2/auction/runlist'
     headers = {'Authorization': getjwttoken[0]}
 
     rows_per_page = 100
@@ -67,7 +68,7 @@ def live_auctions():
     todaydatetime = datetime.now()
 
     getjwttoken = acv.getjwttoken(acv_user()[0])
-    url = 'https://buy-api.gateway.staging.acvauctions.com/v2/auction'
+    url = f'{ACV_API_URL}/v2/auction'
     headers = {'Authorization': getjwttoken[0]}
 
     rows_per_page = 100
@@ -108,7 +109,7 @@ def live_auctions():
 
 
 def fetch_auction_details(auction_id, jwttoken):
-    url = f'https://buy-api.gateway.staging.acvauctions.com/v2/auction/{auction_id}'
+    url = f'{ACV_API_URL}/v2/auction/{auction_id}'
     headers = {'Authorization': jwttoken}
     auctiondetails = requests.get(url, headers=headers)
     auctiondetails.raise_for_status()

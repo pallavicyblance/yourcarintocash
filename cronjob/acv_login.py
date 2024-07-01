@@ -4,6 +4,7 @@ import requests
 from module.acceptedaps import Acceptedaps
 from module.acv import ACV
 from Misc.functions import *
+from Misc.common import ACV_API_URL
 import logging
 import jwt
 
@@ -13,7 +14,7 @@ acceptedaps = Acceptedaps()
 
 
 def acv_login():
-    loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
+    loginurl = f'{ACV_API_URL}/v2/login'
     data = {
         'email': acv_user()[1],
         'password': acv_user()[2]
@@ -24,7 +25,7 @@ def acv_login():
     pubnub_expiration = response.json().get('pubnub').get('expiration')
     pubnub_subscribe_key = response.json().get('pubnub').get('subscribeKey')
 
-    refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
+    refreshTokenurl = f'{ACV_API_URL}/v2/login/refresh'
     data = {
         'refreshToken': refresh_token
     }

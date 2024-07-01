@@ -1905,12 +1905,15 @@ function getzipcode(id){
                 var str = '';
                 str += '<p id="make_p_'+id+'">'+$('#make_'+id).attr("data-id")+' - ';
                 data1.forEach(product => {
-                    text += '<div class="custom-control custom-checkbox mb-10">';
-                    text += '<input type="checkbox" class="custom-control-input common_model_'+id+'" id="ckb'+id+'_'+product[1]+'" name="model['+id+']" value="'+product[1]+'" data-id="'+product[0]+'" checked onchange="checkUncheckModel('+id+')">';
-                    text += '<label class="custom-control-label" for="ckb'+id+'_'+product[1]+'">'+product[0]+'</label>';
-                    text += '</div>';
 
-                    str += $('#ckb'+id+'_'+product[1]).attr("data-id")+', ';
+                    if(product[1]!=null){
+                        text += '<div class="custom-control custom-checkbox mb-10">';
+                        text += '<input type="checkbox" class="custom-control-input common_model_'+id+'" id="ckb'+id+'_'+product[1]+'" name="model['+id+']" value="'+product[1]+'" data-id="'+product[0]+'" checked onchange="checkUncheckModel('+id+')">';
+                        text += '<label class="custom-control-label" for="ckb'+id+'_'+product[1]+'">'+product[0]+'</label>';
+                        text += '</div>';
+
+                        str += $('#ckb'+id+'_'+product[1]).attr("data-id")+', ';
+                    }
                 })
                 
                 document.getElementById("make_trigger_"+id).innerHTML = text;
@@ -2475,6 +2478,8 @@ function getzipcode(id){
         $('#conditionalBtn').prop('disabled', true);
         var title = $('#filter_title').val();
         var estimate = $("input[name='Estimate']:checked").val();
+        var chk_type = $('#not_to_exceed_type').val();
+        console.log(chk_type)
 
         var makeTxt = '';
         var modelTxt = '';
@@ -2517,7 +2522,8 @@ function getzipcode(id){
                 $('#not_to_exceed_err').hide();
                 $('#conditionalBtn').prop('disabled', false);
                 return false;
-            }else if(not_to_exceed_per>100){
+            }else if(not_to_exceed_per>100 && chk_type=='percentage'){
+                $('#filter_error1').text('Please enter a valid percentage, it must be less than 100.');
                 $('#filter_error1').show();
                 $('#not_to_exceed_per_err').hide();
                 $('#not_to_exceed_err').hide();

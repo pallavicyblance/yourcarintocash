@@ -9,6 +9,7 @@ from Misc.functions import *
 from module.acv import ACV
 import http.client
 from module.database import Database
+from Misc.common import socketio
 
 db = Database()
 admin = Admin()
@@ -69,6 +70,7 @@ class auction_place_bid:
             acv.update_bid_by_us(auctionId, 1)
             print(f"Response for auction : {auctionId}")
             print(response.text)
+            socketio.emit('auction_bid_placed', {'auctionId': auctionId, 'data': response.text})
             return 'success'
 
         except requests.exceptions.RequestException as r:

@@ -8,10 +8,13 @@ $(document).ready(function(){
             data.forEach(function(auction) {
 
                 let auction_id= auction.auction_id;
-                let current_bid = number_formatchanger(auction.bidAmount) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction_id + '" data-bid-amount="' + auction.nextBidAmount + '" onclick="placebid(\'' + auction.bidAmount + '\', \'' + auction.nextBidAmount +'\',\'' + auction_id + '\')">Bid + $100</button>';
+                let current_bid = number_formatchanger(auction.bidAmount) + '<br><button title="Place a bid" class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction_id + '" data-bid-amount="' + auction.nextBidAmount + '" onclick="placebid(\'' + auction.bidAmount + '\', \'' + auction.nextBidAmount +'\',\'' + auction_id + '\')">Bid + $100</button>';
+                if (auction.isAutoBid == 1) {
+                    current_bid += '<img src="/static/images/icon/auto-bid.svg" alt="Auto Bid Active" title="Auto Bid Active" style="width: 25px;margin-left: 5px;"/>';
+                }
                 $('#currentBid_'+auction_id).html(current_bid);
                 $('#ourNextBid_'+auction_id+' span').html(number_formatchanger(auction.nextProxyAmount));
-
+                console.log('isHighBidder-->'+auction_id+'--->'+auction.isHighBidder);
                 if (auction.isHighBidder) {
                     $('#auctionTr-' + auction_id).addClass('cell_green').removeClass('cell_red');
                 } else {
@@ -19,6 +22,13 @@ $(document).ready(function(){
                 }
 
             });
+        }
+    });
+
+    socket.on('auction_bid_placed', function(data) {
+        if(data !== undefined) {
+            console.log(data);
+            $('#auctionTr-'+data.auctionId).addClass('bounceIn').addClass('cell_green').removeClass('cell_red');
         }
     });
 
@@ -102,7 +112,7 @@ $(document).ready(function(){
 
 
     function startIntervals() {
-        auctionIntervalId = setInterval(auctiondata, 2000);
+        auctionIntervalId = setInterval(auctiondata, 5000);
         upcomingIntervalId = setInterval(upcomingauction, 10000);
         missedIntervalId = setInterval(missedauction, 10000);
     }
@@ -577,7 +587,11 @@ $(document).ready(function(){
 
                 str += '<td>' + auction[5] + ', ' +auction[8] + '</td>';
 
-                str += '<td id=currentBid_'+auction[4]+'>' + number_formatchanger(auction[9]) + '<br><button class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button></td>';
+                str += '<td id=currentBid_'+auction[4]+'>' + number_formatchanger(auction[9]) + '<br><button title="Place a bid" class="btn btn-xs btn-primary place_bid" data-auction-id="' + auction[4] + '" data-bid-amount="' + auction[25] + '" onclick="placebid(\'' + auction[9] + '\', \'' + auction[25] + '\',\'' + auction[4] + '\')">Bid + $100</button>';
+                if (auction[54] == 1) {
+                    str += '<img src="/static/images/icon/auto-bid.svg" alt="Auto Bid Active" title="Auto Bid Active" style="width: 25px;margin-left: 5px;"/>';
+                }
+                str += '</td>';
 
                 str += '<td id=ourMaxBid_'+auction[4]+'>' + number_formatchanger(auction[35]) + '</td>';
 

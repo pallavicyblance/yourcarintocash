@@ -6,6 +6,7 @@ from module.acv import ACV
 from Misc.functions import *
 import threading
 import logging
+import uuid
 
 acv = ACV()
 logging.basicConfig(filename='pubnub.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,8 +23,18 @@ class MySubscribeCallback(SubscribeCallback):
         print(f"Presence event: {presence.event} on channel: {presence.channel}")
 
     def status(self, pubnub, status):
-        if status.category == PNStatusCategory.PNConnectedCategory:
-            print("Connected to PubNub")
+        print('PUBNUB STATUS')
+        if status.is_error():
+            print('PUBNUB STATUS IF')
+            print(status.category)
+            logger.error(f"PUBNUB Error: {status.category}")
+        else:
+            print('PUBNUB STATUS ELSE')
+            print(status.category)
+            if status.category == "PNConnectedCategory":
+                logger.info("PUBNUB CONNECTED!")
+            else:
+                logger.info(f"PUBNUB Status update: {status.category}")
 
     def message(self, pubnub, message):
         print(f"New value: {message.message} on channel: {message.channel}")
@@ -35,21 +46,22 @@ class MySubscribeCallback(SubscribeCallback):
 
 class PubNubClient:
     def __init__(self):
-        user_details = acv.getjwttoken(acv_user()[0])
-        user_id = str(user_details[1])
-        publish_key = user_details[2]
-        subscribe_key = user_details[3]
+        pubnub_detail = acv.get_pubnub_auth_key()
+        print('PUBNUB DETAILS')
+        print(pubnub_detail)
+        publish_key = pubnub_detail['pubnub_auth_key']
+        subscribe_key = pubnub_detail['pubnub_subscribe_key']
         self.channel = 'auctions'
         self.last_value = None
-        self.pubnub = self._initialize_pubnub(subscribe_key, publish_key, user_id)
+        self.pubnub = self._initialize_pubnub(subscribe_key, publish_key)
         self._start_subscription()
         self._add_listener()
 
-    def _initialize_pubnub(self, subscribe_key, publish_key, user_id):
+    def _initialize_pubnub(self, subscribe_key, publish_key):
         pnconfig = PNConfiguration()
         pnconfig.subscribe_key = subscribe_key
         pnconfig.publish_key = publish_key
-        pnconfig.uuid = user_id
+        pnconfig.uuid = str(uuid.uuid4())
         return PubNub(pnconfig)
 
     def _add_listener(self):

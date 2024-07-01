@@ -1,11 +1,6 @@
-import pymysql
 import datetime
-import pytz
-import json
 import requests
-import http.client
 import traceback
-import os
 from cronjob.generate_proqoute import Proqoute
 from Misc.functions import *
 from module.database import Database
@@ -62,6 +57,31 @@ class ACV:
         finally:
             con.close()
 
+    def acv_login(self):
+        loginurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login'
+        data = {
+            'email': acv_user()[1],
+            'password': acv_user()[2]
+        }
+        response = requests.post(loginurl, json=data)
+        refresh_token = response.json().get('refreshToken')
+        pubnub_auth_key = response.json().get('pubnub').get('authKey')
+        pubnub_expiration = response.json().get('pubnub').get('expiration')
+        pubnub_subscribe_key = response.json().get('pubnub').get('subscribeKey')
+
+        refreshTokenurl = 'https://buy-api.gateway.staging.acvauctions.com/v2/login/refresh'
+
+        data = {
+            'refreshToken': refresh_token
+        }
+        response = requests.post(refreshTokenurl, json=data)
+        jwt_token = response.json().get('jwt')
+
+        refresh_token = response.json().get('refreshToken')
+        self.storeToken(acv_user()[0], pubnub_auth_key, pubnub_expiration, pubnub_subscribe_key, refresh_token)
+        self.storeRefreshToken(jwt_token, acv_user()[0])
+        return jwt_token
+
     def getjwttoken(self, id):
         con = ACV.connect(self)
         cursor = con.cursor()
@@ -70,6 +90,25 @@ class ACV:
                 "SELECT jwt_token,user_id,pubnub_auth_key,pubnub_subscribe_key,refresh_token FROM acv_jwt_token where user_id = %s",
                 (id))
             return cursor.fetchone()
+        except:
+            return "error"
+        finally:
+            con.close()
+
+    def get_pubnub_auth_key(self):
+        con = self.connect()
+        cursor = con.cursor()
+        try:
+            jwttoken = self.acv_login()
+            url = 'https://buy-api.gateway.staging.acvauctions.com/v2/pubnub/authkey'
+            headers = {'Authorization': jwttoken}
+            response = requests.post(url, headers=headers)
+            api_data = {
+                'pubnub_auth_key': response.json().get('authKey'),
+                'pubnub_expiration': response.json().get('expiration'),
+                'pubnub_subscribe_key': response.json().get('subscribeKey'),
+            }
+            return api_data
         except:
             return "error"
         finally:
@@ -249,7 +288,7 @@ class ACV:
             cursor.execute('SELECT auction_id from auctions WHERE auction_id = %s', data['id'])
             fetchone = cursor.fetchone()
             mysql_datetime_startdate = ''
-            if data['endTime'] is not None:
+            if data['startTime'] is not None:
                 # Convert to Python datetime object
                 dt_object = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
                 # Format to MySQL datetime string
@@ -317,10 +356,12 @@ class ACV:
                 con.commit()
                 self.auctionconditionreport(data)
             else:
-                print('update auction')
+                print(f'update auction: {datetime.now()}')
                 cursor.execute(
-                    'UPDATE auctions SET action_start_datetime=%s, action_end_datetime = %s, bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s where auction_id = %s',
-                    (mysql_datetime_startdate, mysql_datetime_enddate, data['bidAmount'], data['nextBidAmount'], data['isHighBidder'], data['nextProxyAmount'], data['bidCount'], data['id']))
+                    'UPDATE auctions SET status = %s, action_start_datetime=%s, action_end_datetime = %s, bid_amount = %s, next_bid_amount = %s, is_high_bidder = %s, next_proxy_bid_amount = %s, bid_count = %s where auction_id = %s',
+                    (data['status'], mysql_datetime_startdate, mysql_datetime_enddate, data['bidAmount'],
+                     data['nextBidAmount'],
+                     data['isHighBidder'], data['nextProxyAmount'], data['bidCount'], data['id']))
                 con.commit()
         except Exception as e:
             con.rollback()
@@ -2421,7 +2462,7 @@ class ACV:
         finally:
             con.close()
 
-    def getauctions(self, ):
+    def getauctions(self):
         con = ACV.connect(self)
         cursor = con.cursor()
         try:
@@ -2868,12 +2909,26 @@ class ACV:
             cursor.execute('SELECT auction_id from live_auctions WHERE auction_id = %s', data['id'])
             fetchone = cursor.fetchone()
 
+            mysql_datetime_startdate = ''
+            if data['startTime'] is not None:
+                # Convert to Python datetime object
+                dt_object = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
+                # Format to MySQL datetime string
+                mysql_datetime_startdate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+
+            mysql_datetime_enddate = ''
+            if data['endTime'] is not None:
+                # Convert to Python datetime object
+                dt_object = datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
+                # Format to MySQL datetime string
+                mysql_datetime_enddate = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+
             if fetchone is None:
                 print('insert auction')
                 cursor.execute(
                     'INSERT INTO live_auctions (year,make,model,auction_id,location,odometer,action_end_datetime,zip_code,bid_amount,bid_count,vin,status,minor_body_type_ans,modrate_body_type_ans,major_body_type_ans,airbag_deployed_ans,engine_start_or_not,engine_start_not_run,transmission_issue_ans,frame_issue_ans,title_absent_ans,title_branded_ans,vehicle_display_name,start_and_drive_ans,next_bid_amount,start_price,is_high_bidder,created_at,body_damage,reserve_met,next_proxy_bid_amount,action_start_datetime,lights,auction_image_url,auction_url, distance,transmission,trim,drivetrain,engine,fuel_type,basic_color,water_or_fire_damage) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                     (data['year'], data['make'], data['model'], data['id'], data['location'], data['odometer'],
-                     data['endTime'], data['postalCode'], data['bidAmount'], data['bidCount'], data['vin'],
+                     mysql_datetime_enddate, data['postalCode'], data['bidAmount'], data['bidCount'], data['vin'],
                      data['status'],
                      # body type damage
                      data['conditionReport']['sections'][0]['questions'][0]['selected'],
@@ -2907,7 +2962,7 @@ class ACV:
                      body_damage,
                      data['reserveMet'],
                      data['nextProxyAmount'],
-                     data['startTime'],
+                     mysql_datetime_startdate,
                      lights_str,
                      data['primaryImage']['url'],
                      data['auctionLink'],
@@ -2975,8 +3030,9 @@ class ACV:
 
                 con.commit()
 
-
-        except:
+        except Exception as e:
+            print('LIVE AUCTION ERROR')
+            print(e)
             return ()
         finally:
             con.close()
@@ -3754,7 +3810,9 @@ class ACV:
                      undercarriage_heavy_rust_string, undercarriage_heavy_rot_string, data['id']))
             con.commit()
             return True
-        except:
+        except Exception as e:
+            print('LIVE CONDITION REPORT ERROR')
+            print(e)
             return ()
         finally:
             con.close()
@@ -4085,7 +4143,8 @@ class ACV:
         con = self.connect()
         cursor = con.cursor()
         try:
-            cursor.execute('UPDATE auctions SET bid_by_us = %s, is_auto_bid = %s WHERE auction_id = %s', (1, is_auto, auction_id))
+            cursor.execute('UPDATE auctions SET bid_by_us = %s, is_auto_bid = %s WHERE auction_id = %s',
+                           (1, is_auto, auction_id))
             con.commit()
 
         except Exception as e:

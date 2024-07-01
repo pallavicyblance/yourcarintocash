@@ -1,13 +1,9 @@
-import hashlib, binascii
-
+import hashlib
+import binascii
 import json
-
 import time
-
 from datetime import date, timedelta, datetime
-
 import uuid
-
 import pytz
 
 # Allowed extension you can set your own

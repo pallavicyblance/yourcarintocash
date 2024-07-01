@@ -1,5 +1,4 @@
 from flask import Flask, flash, render_template, redirect, url_for, request, session, json, jsonify
-from flask_socketio import SocketIO, emit
 import threading
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
@@ -10,7 +9,6 @@ from datetime import datetime, timedelta
 from cronjob.acv_login import acv_login
 from cronjob.generate_proqoute import Proqoute
 from cronjob.latest_auctions import live_auctions
-from cronjob.latest_auctions import bidding_status
 from cronjob.latest_auctions import upcoming_auction
 from cronjob.latest_auctions import close_auction
 from cronjob.won_auction import won_auction
@@ -27,12 +25,16 @@ from module.offer import Offer
 from module.acv import ACV
 import smtplib
 import logging
-from email.message import EmailMessage
+# Added By Nigam For Caching
 from flask import request, g
-
+from flask_caching import Cache
+from Misc.common import socketio, emit
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 # from werkzeug.urls import url_parse
+
 logging.basicConfig(filename='cron.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
+
 path = os.getcwd()
 UPLOAD_FOLDER = os.path.join(path, 'static/images')
 if not os.path.isdir(UPLOAD_FOLDER): os.mkdir(UPLOAD_FOLDER)
@@ -49,20 +51,13 @@ notes = Notes()
 commonarray = Commonarray()
 qoute = Qoute()
 offer = Offer()
-# Added By Nigam For Caching
-from flask import request, g
-from flask_caching import Cache
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-
-# Added By Nigam For Caching end
 
 # Added By Nigam For Caching
 app.config['CACHE_TYPE'] = 'SimpleCache'  # Use SimpleCache for in-memory caching
 app.config['CACHE_DEFAULT_TIMEOUT'] = 60  # Cache timeout in seconds
 
 cache = Cache(app)
-socketio = SocketIO(app)
-
+socketio.init_app(app)
 
 def make_cache_key(*args, **kwargs):
     return f"{session.get('admin_logged_id')}"
@@ -569,7 +564,7 @@ def saveliveauction():
                 try:
                     response = requests.get(url, params=params, headers=headers)
                     response_data = response.json()
-
+                    print(response_data)
                     if response_data.get("auctions", []):
                         for auction in response_data.get("auctions", []):
                             auction_data = fetch_live_auction_details(auction, jwtToken)
@@ -2212,11 +2207,11 @@ start_time = datetime.now() + timedelta(hours=6)
 
 # scheduler.add_job(func=refresh_token, trigger='cron', hour='*', minute='*',second='*/30')
 scheduler.add_job(func=acv_login, trigger='cron', hour='*', minute='*', second='*/5')
-scheduler.add_job(func=close_auction, trigger='cron', hour='*', minute='*', second='*/2')
-scheduler.add_job(func=acv.generate_auction_final_status, trigger='cron', hour='*', minute='*', second='*/2')
 scheduler.add_job(func=live_auctions, trigger='cron', hour='*', minute='*', second='*/30')
-# scheduler.add_job(func=upcoming_auction, trigger='cron', hour='*', minute='*', second='*/30')
 scheduler.add_job(func=auto_place_bid.acv_auction_place_bid, trigger='cron', hour='*', minute='*', second='*/30')
+scheduler.add_job(func=close_auction, trigger='cron', hour='*', minute='*', second='*/2')
+scheduler.add_job(func=acv.generate_auction_final_status, trigger='cron', hour='*', minute='*', second='*/5')
+# scheduler.add_job(func=upcoming_auction, trigger='cron', hour='*', minute='*', second='*/30')
 # scheduler.add_job(func=remove_auction, trigger='cron', hour=start_time.hour, minute=start_time.minute)
 # scheduler.add_job(func=won_auction, trigger='cron', hour='*', minute='*/3')
 # scheduler.add_job(func=auction_1_min_left, trigger='cron', hour='*', minute='*', second='*/5')
@@ -2241,14 +2236,51 @@ def get_last_value():
 
 def update_auctions():
     while True:
-        time.sleep(2)
-        auctions = bidding_status()
-        socketio.emit('update', auctions)
+        time.sleep(1)
+        bidding_status()
+
+
+def bidding_status():
+    cursor1 = acv.connect_index()
+
+    try:
+        getjwttoken = acv.getjwttoken(acv_user()[0])
+
+        cursor1.execute('SELECT auction_id, bid_by_us, status, is_auto_bid FROM auctions WHERE status = "active" AND bid_by_us = %s', (1))
+        active_auction = cursor1.fetchall()
+        auctions = []
+
+        for act_auction in active_auction:
+
+            auction_data = fetch_auction_details(act_auction['auction_id'], getjwttoken[0])
+
+            ishighbidder = auction_data.get('isHighBidder')
+            nextbidamount = auction_data.get('nextBidAmount')
+            nextProxyAmount = auction_data.get('nextProxyAmount')
+            bidCount = auction_data.get('bidCount')
+            bidAmount = auction_data.get('bidAmount')
+            auctions.append({
+                'auction_id': act_auction['auction_id'],
+                'isHighBidder': ishighbidder,
+                'nextBidAmount': nextbidamount,
+                'nextProxyAmount': nextProxyAmount,
+                'bidCount': bidCount,
+                'bidAmount': bidAmount,
+                'isAutoBid': act_auction['is_auto_bid']
+            })
+
+            print('SOCKET update-auction EMIT====>>>>', datetime.now())
+            socketio.emit('update-auction', auctions)
+
+            acv.update(act_auction['auction_id'], ishighbidder, nextbidamount, bidAmount, nextProxyAmount, bidCount)
+
+    except Exception as e:
+        print(e)
 
 
 @socketio.on('connect')
 def handle_connect(auctions=None):
-    emit('update', auctions)
+    emit('update-auction', auctions)
 
 
 # Start the update thread
